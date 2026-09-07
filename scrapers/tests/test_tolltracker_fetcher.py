@@ -13,9 +13,11 @@ from src.geo import haversine_m, polyline_length_m
 from src.tolltracker_fetcher import (
     discover_tile_source,
     parse_feature,
+    road_lookup_from_zones,
     scrape,
     stitch_pieces,
 )
+from src.zone_schema import SpeedLimits, Zone, ZoneEndpoint
 from tests.mvt_encoding import encode_tile
 
 # A west->east segment on АМ Тракия (Вакарел -> Ихтиман direction).
@@ -157,6 +159,24 @@ class TestStitchPieces:
         assert line == [[lat, lng] for lat, lng in LINE]
 
 
+def _bgtoll_zone(start: str, end: str, road: str = "АМ Струма") -> Zone:
+    """A coordinate-less BG TOLL zone, as the FAQ scraper emits them."""
+    return Zone(
+        id="bgtoll-test",
+        road=road,
+        direction="south",
+        description=f"{start} – {end}",
+        start=ZoneEndpoint(lat=0, lng=0, settlement=start),
+        end=ZoneEndpoint(lat=0, lng=0, settlement=end),
+        distance_m=2500,
+        speed_limits=SpeedLimits(car=140, truck=90, bus=100),
+        centerline=[],
+        road_type="motorway",
+        source="bgtoll",
+        last_verified="2026-09-07",
+    )
+
+
 class TestParseFeature:
     def _centerline(self):
         return [[lat, lng] for lat, lng in LINE]
@@ -204,6 +224,30 @@ class TestParseFeature:
     def test_title_without_road_suffix_raises(self):
         with pytest.raises(ValueError, match="road suffix"):
             parse_feature(dict(PROPS, title="Вакарел - Ихтиман"), self._centerline())
+
+    def test_title_without_road_suffix_unmatched_lookup_raises(self):
+        lookup = road_lookup_from_zones([_bgtoll_zone("Дяково", "яз. Дяково")])
+        with pytest.raises(ValueError, match="road suffix"):
+            parse_feature(
+                dict(PROPS, title="Вакарел - Ихтиман"), self._centerline(), lookup
+            )
+
+    def test_title_without_road_suffix_resolves_via_bgtoll_settlements(self):
+        # 2026-09: TollTracker published "Яз. Дяково - Дяково" with no
+        # ", Струма" suffix. BG TOLL lists the pair (in either order, and
+        # with a lowercase "яз."), so the road comes from there.
+        lookup = road_lookup_from_zones([_bgtoll_zone("Дяково", "яз. Дяково")])
+        # South->north on Струма (a lat-axis road)
+        centerline = [[42.283, 23.075], [42.305, 23.078]]
+        zone = parse_feature(
+            dict(PROPS, title="Яз. Дяково - Дяково"), centerline, lookup
+        )
+        assert zone.road == "АМ Струма"
+        assert zone.road_latin == "Struma"
+        assert zone.direction == "north"
+        assert zone.description == "Яз. Дяково – Дяково"
+        assert zone.start.settlement == "Яз. Дяково"
+        assert zone.road_type == "motorway"
 
     def test_title_without_endpoint_pair_raises(self):
         with pytest.raises(ValueError, match="start - end"):

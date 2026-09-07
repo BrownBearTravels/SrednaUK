@@ -33,6 +33,7 @@ from src import mvt
 from src.fetch import fetch_bytes, fetch_text
 from src.geo import bearing_deg, haversine_m, polyline_length_m
 from src.roads import infer_direction_from_coords, is_motorway, normalize_road, to_latin
+from src.validator import _normalize_settlement
 from src.zone_schema import (
     BG_LAT_MAX,
     BG_LAT_MIN,
@@ -208,17 +209,68 @@ def stitch_pieces(
     return [[lat, lng] for lat, lng in chain], complete
 
 
-def parse_feature(props: dict, centerline: list[list[float]]) -> Zone:
-    """Build a Zone from tile feature properties and stitched geometry."""
+RoadLookup = dict[frozenset[str], str]
+
+
+def road_lookup_from_zones(zones: list[Zone]) -> RoadLookup:
+    """Map each zone's normalized settlement pair to its canonical road.
+
+    Built from the BG TOLL zones so a TollTracker title that carries no road
+    suffix (2026-09: "Яз. Дяково - Дяково" on АМ Струма) can still be placed
+    on the road the authority publishes it under. Direction-agnostic: both
+    carriageways share the pair, and both are on the same road.
+    """
+    lookup: RoadLookup = {}
+    for z in zones:
+        a = _normalize_settlement(z.start.settlement)
+        b = _normalize_settlement(z.end.settlement)
+        if a and b:
+            lookup[frozenset((a, b))] = normalize_road(z.road)
+    return lookup
+
+
+def _road_suffix(road: str) -> str:
+    """The bare road name a title suffix would carry ("АМ Струма" -> "Струма")."""
+    return re.sub(r"^(АМ|Път)\s+", "", road)
+
+
+def parse_feature(
+    props: dict,
+    centerline: list[list[float]],
+    road_lookup: RoadLookup | None = None,
+) -> Zone:
+    """Build a Zone from tile feature properties and stitched geometry.
+
+    The road comes from the title's ", <road>" suffix. When the suffix is
+    missing, ``road_lookup`` (see ``road_lookup_from_zones``) resolves it
+    from the settlement pair; a title with neither still raises, so a
+    section nobody else publishes cannot slip in on a guessed road.
+    """
     title = props["title"]  # e.g. "Илиянци - Чепинци, Европа"
     names, sep, road_raw = title.rpartition(", ")
     if not sep:
-        raise ValueError(f"TollTracker title has no road suffix: {title!r}")
+        names, road_raw = title, ""
     road_raw = road_raw.strip()
     endpoints = [n.strip() for n in names.split(" - ")]
     if len(endpoints) != 2 or not all(endpoints):
         raise ValueError(f"TollTracker title has no 'start - end' pair: {title!r}")
     start_name, end_name = endpoints
+
+    if not road_raw:
+        key = frozenset(
+            (_normalize_settlement(start_name), _normalize_settlement(end_name))
+        )
+        road_raw = _road_suffix((road_lookup or {}).get(key, ""))
+        if not road_raw:
+            raise ValueError(
+                f"TollTracker title has no road suffix and no BG TOLL section "
+                f"matches its settlements: {title!r}"
+            )
+        logger.info(
+            "TollTracker %s: title %r has no road suffix; placed on %r via "
+            "BG TOLL settlement match",
+            props["id"], title, road_raw,
+        )
 
     road = normalize_road(road_raw)
     start_pt, end_pt = centerline[0], centerline[-1]
@@ -273,12 +325,15 @@ def parse_feature(props: dict, centerline: list[list[float]]) -> Zone:
     )
 
 
-def scrape() -> list[Zone]:
+def scrape(road_lookup: RoadLookup | None = None) -> list[Zone]:
     """Main entry point. Fetch and parse TollTracker data.
 
     Returns one Zone per tile feature (features are already per-direction).
     Raises on fetch/decode failure — the pipeline treats a failed source as
     fatal (degraded data must not publish) and reports the error.
+
+    ``road_lookup`` resolves the road of suffix-less titles; see
+    ``parse_feature``.
     """
     tileset, token = discover_tile_source()
 
@@ -368,7 +423,7 @@ def scrape() -> list[Zone]:
                 )
             if best is None:
                 raise ValueError("no detail geometry found")
-            zones.append(parse_feature(props, best))
+            zones.append(parse_feature(props, best, road_lookup))
         except Exception:
             logger.warning(
                 "Failed to parse TollTracker feature %s (%s)",

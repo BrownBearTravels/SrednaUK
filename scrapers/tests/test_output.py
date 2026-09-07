@@ -231,7 +231,7 @@ class TestSourceFailure:
         monkeypatch.setattr(output.kml_scraper, "scrape", kml)
 
     def test_raising_source_fails_the_pipeline(self, monkeypatch):
-        def broken():
+        def broken(road_lookup=None):
             raise ValueError("tile schema changed")
 
         self._patch_sources(
@@ -250,15 +250,36 @@ class TestSourceFailure:
         self._patch_sources(
             monkeypatch,
             bgtoll=lambda: [_sample_zone()],
-            tolltracker=lambda: [_sample_zone()],
+            tolltracker=lambda road_lookup=None: [_sample_zone()],
             kml=lambda: [],
         )
         with pytest.raises(output.SourceFailure) as exc:
             output.run_pipeline()
         assert exc.value.errors == ["KML: returned no zones"]
 
+    def test_tolltracker_gets_road_lookup_from_bgtoll(self, monkeypatch):
+        seen = {}
+
+        def tolltracker(road_lookup=None):
+            seen["lookup"] = road_lookup
+            return [_sample_zone()]
+
+        self._patch_sources(
+            monkeypatch,
+            bgtoll=lambda: [_sample_zone()],
+            tolltracker=tolltracker,
+            kml=lambda: [],  # fail the run after the sources have run
+        )
+        with pytest.raises(output.SourceFailure):
+            output.run_pipeline()
+        z = _sample_zone()
+        assert seen["lookup"] == output.tolltracker_fetcher.road_lookup_from_zones(
+            [z]
+        )
+        assert list(seen["lookup"].values()) == [z.road]
+
     def test_all_failures_reported_together(self, monkeypatch):
-        def broken():
+        def broken(road_lookup=None):
             raise ConnectionError("timed out")
 
         self._patch_sources(
@@ -266,7 +287,10 @@ class TestSourceFailure:
         )
         with pytest.raises(output.SourceFailure) as exc:
             output.run_pipeline()
-        assert len(exc.value.errors) == 3
+        assert exc.value.errors[:2] == [
+            "BG TOLL: ConnectionError: timed out",
+            "TollTracker: ConnectionError: timed out",
+        ]
         assert exc.value.errors[-1] == "KML: returned no zones"
 
     def test_main_exits_nonzero_and_leaves_files(

@@ -105,8 +105,13 @@ def run_pipeline() -> ZoneDatabase:
 
     source_errors: list[str] = []
     bgtoll_zones = _scrape_source("BG TOLL", bgtoll_scraper.scrape, source_errors)
+    # BG TOLL runs first so its settlement pairs can place TollTracker
+    # features whose titles carry no road suffix (see parse_feature).
+    road_lookup = tolltracker_fetcher.road_lookup_from_zones(bgtoll_zones)
     tolltracker_zones = _scrape_source(
-        "TollTracker", tolltracker_fetcher.scrape, source_errors
+        "TollTracker",
+        lambda: tolltracker_fetcher.scrape(road_lookup),
+        source_errors,
     )
     kml_zones = _scrape_source("KML", kml_scraper.scrape, source_errors)
 
