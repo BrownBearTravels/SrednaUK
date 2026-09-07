@@ -15,6 +15,16 @@ import SrednaBGCore
 /// speed-over-time series lives in `samples` as encoded JSON (`[SpeedSample]`),
 /// downsampled to ≤500 points before storage.
 ///
+/// The zone's **geometry at the time of the trip** is denormalized too
+/// (`zoneDescription`, start/end coordinates, `centerline` — simplified to 10 m
+/// by the core `PolylineSimplify`, ~1 KB), so "Show on map" draws the historic
+/// truth without looking the zone up in the live catalog. Zone *names*
+/// (`zoneId`) renumber whenever a section is inserted mid-road, so a catalog
+/// lookup by name can silently land on a different section. The geometry
+/// properties are optional: records written before they existed have none and
+/// simply can't be shown on the map (`snapshotZone` is nil). Optional additions
+/// are a SwiftData lightweight migration — no versioned schema needed.
+///
 /// Mirrors Android's `ZoneTraversalEntity` (Room). SwiftData rather than the
 /// JSON-file `ZoneStore` because history is append-heavy, date-queried, growing,
 /// and carries a per-record blob — the shape SwiftData fits.
@@ -38,6 +48,14 @@ public final class ZoneTraversalRecord {
     public var distanceM: Int
     /// JSON-encoded `[SpeedSample]` (downsampled). Decoded via `speedSamples`.
     public var samples: Data
+    // Geometry snapshot — nil on records written before it existed.
+    public var zoneDescription: String?
+    public var startLat: Double?
+    public var startLng: Double?
+    public var endLat: Double?
+    public var endLng: Double?
+    /// JSON-encoded `[[Double]]` (`[lat, lng]` pairs, simplified). Decoded via `snapshotZone`.
+    public var centerline: Data?
 
     public init(
         id: String,
@@ -54,7 +72,13 @@ public final class ZoneTraversalRecord {
         sustainedMaxKmh: Double,
         isOverLimit: Bool,
         distanceM: Int,
-        samples: Data
+        samples: Data,
+        zoneDescription: String? = nil,
+        startLat: Double? = nil,
+        startLng: Double? = nil,
+        endLat: Double? = nil,
+        endLng: Double? = nil,
+        centerline: Data? = nil
     ) {
         self.id = id
         self.zoneId = zoneId
@@ -71,6 +95,12 @@ public final class ZoneTraversalRecord {
         self.isOverLimit = isOverLimit
         self.distanceM = distanceM
         self.samples = samples
+        self.zoneDescription = zoneDescription
+        self.startLat = startLat
+        self.startLng = startLng
+        self.endLat = endLat
+        self.endLng = endLng
+        self.centerline = centerline
     }
 }
 
@@ -91,5 +121,39 @@ public extension ZoneTraversalRecord {
     /// history import/export must reconcile the casing. Kept intentionally.
     static func encodeSamples(_ series: [SpeedSample]) -> Data {
         (try? JSONEncoder().encode(series)) ?? Data()
+    }
+
+    /// Encode a `[lat, lng]` polyline into the `centerline` payload.
+    static func encodeCenterline(_ points: [[Double]]) -> Data {
+        (try? JSONEncoder().encode(points)) ?? Data()
+    }
+
+    /// The zone as it was when this trip was recorded, rebuilt from the
+    /// snapshot properties as a core `Zone` so the map can draw it with the
+    /// same helpers it uses for catalog zones. Nil when the record predates the
+    /// snapshot or the geometry is unusable (fewer than two centerline points,
+    /// missing endpoints). The synthetic zone's `id` is the **record** id, never
+    /// the zone name, so it can't collide with a live catalog zone.
+    var snapshotZone: Zone? {
+        guard let startLat, let startLng, let endLat, let endLng,
+              let data = centerline, !data.isEmpty,
+              let decoded = try? JSONDecoder().decode([[Double]].self, from: data)
+        else { return nil }
+        let points = decoded.filter { $0.count >= 2 }
+        guard points.count >= 2 else { return nil }
+        return Zone(
+            id: id,
+            road: road,
+            roadLatin: roadLatin,
+            direction: direction,
+            description: zoneDescription ?? "",
+            start: ZoneEndpoint(lat: startLat, lng: startLng),
+            end: ZoneEndpoint(lat: endLat, lng: endLng),
+            distanceM: distanceM,
+            speedLimits: SpeedLimits(car: speedLimitKmh, truck: speedLimitKmh, bus: speedLimitKmh, motorcycle: nil),
+            centerline: points,
+            source: "history",
+            lastVerified: ""
+        )
     }
 }

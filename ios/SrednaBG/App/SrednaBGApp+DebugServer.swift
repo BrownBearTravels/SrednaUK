@@ -77,12 +77,13 @@ extension AppContainer {
                 }
             },
             dumpHistory: { emitHistoryDump(historyStore) },
-            seedHistory: { count in
+            seedHistory: { count, legacy in
                 HistorySeeder.seed(
                     into: historyStore,
                     zones: tracking.zones,
                     count: count,
-                    nowMs: Int64(Date().timeIntervalSince1970 * 1000)
+                    nowMs: Int64(Date().timeIntervalSince1970 * 1000),
+                    legacyCount: legacy
                 )
             },
             clearHistory: { historyStore.deleteAll() }

@@ -153,6 +153,7 @@ public struct ZoneMapScreen: View {
                 headingUp: settings.mapHeadingUp,
                 mapSession: mapSession,
                 zoomOverride: settings.mapZoomOverride,
+                highlightZone: effectiveHighlight?.zone,
                 highlightColor: highlightColor,
                 highlightUser: highlightUser,
                 pendingCommand: $pendingCommand,
@@ -309,17 +310,20 @@ public struct ZoneMapScreen: View {
         // We know exactly which zone we're in even when we can't measure it, so
         // it still gets highlighted — just in the neutral colour.
         case .unmeasured(let unmeasured): return unmeasured.zone.id
-        case .outside: return effectiveHighlight?.zone.id
+        // A History highlight deliberately does NOT feed this: it is drawn
+        // from the record's snapshot on its own layer, and recolouring the
+        // catalog zone that happens to carry the record's (possibly stale)
+        // name would paint the wrong section.
+        case .outside: return nil
         }
     }
 
-    /// The History "Show on map" request, honored only while tracking is off
-    /// and its zone still resolves in the catalog (a sync can delete zones).
-    private var effectiveHighlight: (request: MapHighlight, zone: Zone)? {
-        guard !tracking.isTracking, let request = mapSession.highlight,
-              let zone = tracking.zones.first(where: { $0.id == request.zoneId })
-        else { return nil }
-        return (request, zone)
+    /// The History "Show on map" request, honored only while tracking is off.
+    /// It carries the record's own geometry snapshot, so nothing here consults
+    /// the catalog.
+    private var effectiveHighlight: MapHighlight? {
+        guard !tracking.isTracking else { return nil }
+        return mapSession.highlight
     }
 
     #if os(iOS)
@@ -327,7 +331,7 @@ public struct ZoneMapScreen: View {
     /// (green within limit, red over), never the live traffic light.
     private var highlightColor: UIColor? {
         effectiveHighlight.map {
-            statusUIColor($0.request.isOverLimit ? zoneColorRed : zoneColorGreen)
+            statusUIColor($0.isOverLimit ? zoneColorRed : zoneColorGreen)
         }
     }
 
@@ -349,11 +353,11 @@ public struct ZoneMapScreen: View {
     /// a tab round-trip keeps the user's pan/zoom while a fresh press re-fits.
     @MainActor
     private func fitHighlightIfNeeded() {
-        guard let (request, zone) = effectiveHighlight,
+        guard let request = effectiveHighlight,
               request.requestId != mapSession.lastFittedHighlightRequestId
         else { return }
         mapSession.isFollowing = false
-        pendingCommand = .fitZone(zone.id)
+        pendingCommand = .fitZone(request.zone)
         mapSession.lastFittedHighlightRequestId = request.requestId
     }
     #endif

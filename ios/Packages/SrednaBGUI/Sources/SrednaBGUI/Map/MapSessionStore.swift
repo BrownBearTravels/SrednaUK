@@ -4,6 +4,7 @@
 // SrednaBG — ios / SrednaBGUI
 
 import Foundation
+import SrednaBGCore
 import Observation
 
 /// Per-process state for the Map tab that has to outlive a SwiftUI tab
@@ -39,10 +40,10 @@ public final class MapSessionStore {
         self.isFollowing = isFollowing
     }
 
-    public func requestHighlight(zoneId: String, isOverLimit: Bool) {
+    public func requestHighlight(zone: Zone, isOverLimit: Bool) {
         nextHighlightRequestId += 1
         highlight = MapHighlight(
-            zoneId: zoneId,
+            zone: zone,
             isOverLimit: isOverLimit,
             requestId: nextHighlightRequestId
         )
@@ -53,10 +54,14 @@ public final class MapSessionStore {
     }
 }
 
-/// A History-detail "Show on map" request: highlight this zone on the Map tab
-/// with the trip's verdict color (green within limit, red over).
+/// A History-detail "Show on map" request: draw `zone` — the record's own
+/// geometry snapshot (`ZoneTraversalRecord.snapshotZone`), NOT a catalog zone —
+/// on the Map tab in the trip's verdict color (green within limit, red over).
+/// Carrying the geometry itself is what makes the request independent of the
+/// live catalog: zone names renumber on mid-road insertions, so a lookup by
+/// name could paint a different section.
 public struct MapHighlight: Equatable, Sendable {
-    public let zoneId: String
+    public let zone: Zone
     public let isOverLimit: Bool
     public let requestId: UInt64
 }

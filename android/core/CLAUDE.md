@@ -29,7 +29,7 @@ Pure Kotlin library (no Android deps) with zone detection, average speed calcula
 
 ## Key files
 
-`Models.kt`, `ZoneDetector.kt`, `AverageSpeedCalc.kt`, `GeoUtils.kt`, `RoadMatcher.kt`, `GpsFilter.kt`, `VehicleType.kt`, `MapThemeResolver.kt`, `ZoneStatusColor.kt`, `HistoryStats.kt`
+`Models.kt`, `ZoneDetector.kt`, `AverageSpeedCalc.kt`, `GeoUtils.kt`, `RoadMatcher.kt`, `GpsFilter.kt`, `VehicleType.kt`, `MapThemeResolver.kt`, `ZoneStatusColor.kt`, `HistoryStats.kt`, `PolylineSimplify.kt`
 
 ## Algorithm edge cases
 
@@ -57,6 +57,10 @@ Pure Kotlin library (no Android deps) with zone detection, average speed calcula
 ## Vehicle-type-aware speed limit
 
 `ZoneDetector.update(point, vehicleType)` takes a `VehicleType` (`CAR`/`TRUCK`/`BUS`/`MOTORCYCLE`, default `CAR`) and passes `vehicleType.limit(zone.speedLimits)` into every `AverageSpeedCalc.calculate(...)`, so a user who sets `vehicle_type` to truck/bus/motorcycle gets that limit (motorcycle falls back to the car limit when a zone has none). The three fields are **licence classes**, not vehicle shapes — `speedLimits.bus` is BG TOLL's `BE,C1,C1E,D,D1,D1E,DE` value, covering bus, minibus, truck 3.5–7.5 t and anything towing a trailer, which is why the Settings rows are labelled for the class and there is no separate car-with-trailer type (it would resolve an identical limit). See the note on `SpeedLimits` in `Models.kt`. Each case owns a `setting` token (`car`, `truck`, `bus`, `motorcycle`) that equals the Swift raw value and is what gets persisted to settings and to history rows — never `name.lowercase()`, which would diverge from iOS's camelCase raw values for any multi-word case added later. Regression: `VehicleTypeTest` / `VehicleTypeTests.swift`. `LocationTrackingService` mirrors `SettingsRepository.vehicleType` into `currentVehicleType` via a `lifecycleScope` collector and threads it into the detector call. Regression: `ZoneDetectorTest."vehicle type changes effective limit"`. This was ported from the Swift core; the iOS `ZoneDetector.update(_:vehicleType:)` is the equivalent.
+
+## Polyline simplification (`PolylineSimplify.kt`)
+
+`PolylineSimplify.simplify(points, toleranceM = 10.0)` is Douglas–Peucker over `[lat, lng]` polylines, using `GeoUtils.pointToSegmentDistance` (flat-earth projection, haversine to the projection) as the metric, an explicit stack (no recursion), first/last point always kept, retained points never interpolated. The History feature stores a 10 m simplification of the zone's centerline on every trip record (~308 → ~27 points catalog-wide, ~1 KB) so "Show on map" draws the trip as driven without consulting the live catalog. Hand-ported to Swift (`PolylineSimplify.swift`); the shared fixture `history/simplify_centerline.json` (a real centerline + the retained indices at 10 m) pins both ports to one output, and both suites also assert every original point stays within tolerance of the result.
 
 ## History statistics (`HistoryStats.kt`)
 

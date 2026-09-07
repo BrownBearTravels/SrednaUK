@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [ZoneEntity::class, ZoneTraversalEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class ZoneDatabase : RoomDatabase() {
@@ -49,6 +49,24 @@ abstract class ZoneDatabase : RoomDatabase() {
                         "`samplesJson` TEXT NOT NULL, " +
                         "PRIMARY KEY(`id`))"
                 )
+            }
+        }
+
+        /**
+         * v2 → v3: adds the geometry snapshot to `zone_traversals` (description,
+         * start/end coordinates, simplified centerline) so "Show on map" no
+         * longer depends on the live catalog. All six columns are nullable with
+         * no default, which is exactly what Room derives for the nullable
+         * entity fields — existing rows keep NULL and stay unshowable.
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `description` TEXT")
+                db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `startLat` REAL")
+                db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `startLng` REAL")
+                db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `endLat` REAL")
+                db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `endLng` REAL")
+                db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `centerlineJson` TEXT")
             }
         }
     }

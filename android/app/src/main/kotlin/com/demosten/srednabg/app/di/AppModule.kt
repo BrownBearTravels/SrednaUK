@@ -49,9 +49,10 @@ object AppModule {
     @Singleton
     fun provideZoneDatabase(@ApplicationContext context: Context): ZoneDatabase =
         Room.databaseBuilder(context, ZoneDatabase::class.java, "srednabg.db")
-            // v1 → v2 adds the History `zone_traversals` table additively so the
-            // re-syncable zone cache survives the upgrade (see MIGRATION_1_2).
-            .addMigrations(ZoneDatabase.MIGRATION_1_2)
+            // v1 → v2 adds the History `zone_traversals` table, v2 → v3 its
+            // geometry-snapshot columns — both additive, so the re-syncable
+            // zone cache AND recorded history survive the upgrade.
+            .addMigrations(ZoneDatabase.MIGRATION_1_2, ZoneDatabase.MIGRATION_2_3)
             // Backstop for any unforeseen path: zones are fully re-syncable
             // (bundled asset + server sync), so a schema bump with no migration
             // can safely drop and rebuild rather than crash on launch. History is

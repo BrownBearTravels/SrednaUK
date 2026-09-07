@@ -28,9 +28,11 @@ struct MapLibreView: UIViewRepresentable {
     let headingUp: Bool
     let mapSession: MapSessionStore
     let zoomOverride: Double?
-    /// History "Show on map" overrides (nil during live tracking): verdict
-    /// line color for the active zone, and a synthetic user-arrow fix at the
-    /// traversal's start pointing toward the zone end.
+    /// History "Show on map" overrides (nil during live tracking): the record's
+    /// geometry snapshot drawn on its own layer in the verdict line color, and
+    /// a synthetic user-arrow fix at the traversal's start pointing toward the
+    /// zone end. Never a catalog zone — see `MapHighlight`.
+    let highlightZone: Zone?
     let highlightColor: UIColor?
     let highlightUser: GpsPoint?
     @Binding var pendingCommand: MapCommand?
@@ -42,7 +44,7 @@ struct MapLibreView: UIViewRepresentable {
         case zoomOut
         case recenter
         case zoomTo(Double)
-        case fitZone(String)
+        case fitZone(Zone)
     }
 
     /// Default zoom for the follow camera when no per-shot override is set.
@@ -149,6 +151,16 @@ struct MapLibreView: UIViewRepresentable {
             to: style
         )
 
+        if coord.lastHighlightId != highlightZone?.id {
+            MapLayers.applyHighlight(highlightZone, color: highlightColor, to: style)
+            // The endpoint markers follow the live zone, or the snapshot when
+            // one is shown (tracking is off then, so never both).
+            if activeZone == nil {
+                MapLayers.applyEndpoints(for: highlightZone, to: style)
+            }
+            coord.lastHighlightId = highlightZone?.id
+        }
+
         if let point = currentPosition {
             coord.damper.update(speedKmh: point.speed, bearingDegrees: point.bearing)
         }
@@ -205,11 +217,6 @@ struct MapLibreView: UIViewRepresentable {
     // MARK: - Helpers
 
     private func activeZoneColor() -> UIColor {
-        // A History highlight paints the trip's binary verdict; it can only be
-        // set while tracking is off, so it never masks the live traffic light.
-        if let highlightColor {
-            return highlightColor
-        }
         switch zoneState {
         case .inZone(let inZone):
             return statusUIColor(zoneStatusColor(state: inZone, currentSpeedKmh: currentPosition?.speed))
@@ -279,10 +286,8 @@ struct MapLibreView: UIViewRepresentable {
             }
         case .zoomTo(let level):
             uiView.setZoomLevel(level, animated: true)
-        case .fitZone(let zoneId):
-            if let zone = zones.first(where: { $0.id == zoneId }) {
-                fit(uiView: uiView, to: zone)
-            }
+        case .fitZone(let zone):
+            fit(uiView: uiView, to: zone)
         }
     }
 
@@ -308,6 +313,7 @@ struct MapLibreView: UIViewRepresentable {
         @MainActor var layersInstalled: Bool = false
         @MainActor var lastZoneIds: [String] = []
         @MainActor var lastActiveZoneId: String?
+        @MainActor var lastHighlightId: String?
         @MainActor var damper = BearingDamper()
         /// Flipped on in `makeUIView` whenever a saved snapshot was applied,
         /// so the first `didFinishLoading` / `updateUIView` pass doesn't
@@ -377,6 +383,7 @@ struct MapLibreView: UIViewRepresentable {
                 self.layersInstalled = true
                 self.lastZoneIds = self.parent.zones.map(\.id)
                 self.lastActiveZoneId = nil  // force applyEndpoints / applyActiveZone on next updateUIView
+                self.lastHighlightId = nil
                 // Trigger a re-render pass by nudging SwiftUI state — apply
                 // the latest active zone + user position.
                 if let active = self.parent.zones.first(where: { $0.id == self.parent.activeZoneId }) {
@@ -397,6 +404,11 @@ struct MapLibreView: UIViewRepresentable {
                     color: self.parent.activeZoneColor(),
                     to: style
                 )
+                MapLayers.applyHighlight(self.parent.highlightZone, color: self.parent.highlightColor, to: style)
+                if self.parent.activeZoneId == nil, let snapshot = self.parent.highlightZone {
+                    MapLayers.applyEndpoints(for: snapshot, to: style)
+                }
+                self.lastHighlightId = self.parent.highlightZone?.id
                 MapLayers.applyUser(
                     self.parent.highlightUser ?? self.parent.displayPosition ?? self.parent.currentPosition,
                     bearing: self.parent.highlightUser?.bearing ?? self.damper.effectiveBearing,

@@ -110,6 +110,12 @@ private const val ACTIVE_ID_SENTINEL = "__no_active_zone__"
 private const val INACTIVE_COLOR = "#1565C0"
 private const val ACTIVE_COLOR = "#D32F2F"
 
+// A History "Show on map" highlight: the record's own geometry snapshot on
+// its own source/layer, stacked above the catalog zones and below the
+// endpoints — never a recolouring of a catalog zone (names go stale).
+private const val HIGHLIGHT_SOURCE_ID = "history-highlight-source"
+private const val HIGHLIGHT_LAYER_ID = "history-highlight-layer"
+
 private const val USER_SOURCE_ID = "user-position-source"
 private const val USER_LAYER_ID = "user-position-layer"
 private const val USER_ARROW_ICON = "user-arrow"
@@ -336,8 +342,10 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
 
     val zonesById = remember(zones) { zones.associateBy { it.id } }
 
-    LaunchedEffect(activeZoneId, zones, styleEpoch) {
-        val activeZone = activeZoneId?.let { zonesById[it] }
+    // Endpoint markers follow the live zone, or the history snapshot when one
+    // is shown (only possible while tracking is off, so never both).
+    LaunchedEffect(activeZoneId, zones, resolvedHighlight, styleEpoch) {
+        val activeZone = activeZoneId?.let { zonesById[it] } ?: resolvedHighlight?.zone
         mapView.getMapAsync { map ->
             map.getStyle { style ->
                 style.getSourceAs<GeoJsonSource>(ENDPOINTS_SOURCE_ID)
@@ -348,22 +356,34 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
 
     // The active-zone line color only changes on over/under-limit transitions,
     // not on every 1 Hz fix. Derive it so the style update below re-fires when
-    // the color actually changes — not once per GPS update. A History "Show on
-    // map" highlight (only possible while tracking is off) paints the trip's
-    // binary verdict instead of the live traffic light.
+    // the color actually changes — not once per GPS update.
     val zoneLineColor by remember {
         derivedStateOf {
-            val highlight = resolvedHighlight?.first
-            when {
-                highlight != null -> if (highlight.isOverLimit) ZONE_COLOR_RED else ZONE_COLOR_GREEN
-                else -> when (val s = zoneState) {
-                    is ZoneState.InZone -> zoneStatusColor(s, currentPosition?.speed)
-                    is ZoneState.Exiting -> ZONE_COLOR_RED
-                    // Neutral: the traffic-light palette is a verdict on the
-                    // driver, and an unwitnessed entry earns no verdict.
-                    is ZoneState.Unmeasured -> ZONE_COLOR_NEUTRAL
-                    ZoneState.Outside -> ZONE_COLOR_RED
-                }
+            when (val s = zoneState) {
+                is ZoneState.InZone -> zoneStatusColor(s, currentPosition?.speed)
+                is ZoneState.Exiting -> ZONE_COLOR_RED
+                // Neutral: the traffic-light palette is a verdict on the
+                // driver, and an unwitnessed entry earns no verdict.
+                is ZoneState.Unmeasured -> ZONE_COLOR_NEUTRAL
+                ZoneState.Outside -> ZONE_COLOR_RED
+            }
+        }
+    }
+
+    // A History "Show on map" highlight draws the record's geometry snapshot
+    // on its own layer in the trip's binary verdict color (green within /
+    // red over). Empty collection when there is none.
+    LaunchedEffect(resolvedHighlight, styleEpoch) {
+        val highlight = resolvedHighlight
+        mapView.getMapAsync { map ->
+            map.getStyle { style ->
+                style.getSourceAs<GeoJsonSource>(HIGHLIGHT_SOURCE_ID)
+                    ?.setGeoJson(highlight?.let { zonesFeatureCollection(listOf(it.zone)) } ?: emptyFeatureCollection())
+                style.getLayerAs<LineLayer>(HIGHLIGHT_LAYER_ID)?.setProperties(
+                    PropertyFactory.lineColor(
+                        if (highlight?.isOverLimit == true) ZONE_COLOR_RED else ZONE_COLOR_GREEN,
+                    ),
+                )
             }
         }
     }
@@ -380,7 +400,7 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
     // starting point, pointed straight at the zone's end point — the reading
     // is "you drove from here to there", not the instantaneous road heading.
     val highlightArrow = remember(resolvedHighlight) {
-        resolvedHighlight?.second?.let { zone ->
+        resolvedHighlight?.zone?.let { zone ->
             GpsPoint(
                 lat = zone.start.lat,
                 lng = zone.start.lng,
@@ -444,15 +464,14 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
     // revisiting the Map tab keeps the user's pan/zoom while a fresh press
     // always re-fits — even for the same zone.
     LaunchedEffect(resolvedHighlight, styleEpoch) {
-        val (highlight, zone) = resolvedHighlight ?: return@LaunchedEffect
+        val highlight = resolvedHighlight ?: return@LaunchedEffect
         if (highlight.requestId == viewModel.lastFittedHighlightRequestId) return@LaunchedEffect
         viewModel.setFollowing(false)
-        val bounds = zoneBounds(zone) ?: return@LaunchedEffect
+        val bounds = zoneBounds(highlight.zone) ?: return@LaunchedEffect
         mapView.getMapAsync { map ->
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, ZONE_FIT_PADDING_PX))
         }
         viewModel.lastFittedHighlightRequestId = highlight.requestId
-        lastFittedZoneId = zone.id
     }
 
     var hasCenteredOnUser by remember { mutableStateOf(initialCameraSnapshot != null) }
@@ -671,6 +690,20 @@ private fun installSharedStyleLayers(style: Style, context: Context) {
     context.bitmapFromVectorDrawable(R.drawable.ic_nav_arrow)?.let { bitmap ->
         style.addImage(USER_ARROW_ICON, bitmap)
     }
+    // History highlight sits directly below the endpoint markers; the catalog
+    // zone layers are (re)built beneath it by rebuildZoneLayers.
+    style.addSource(GeoJsonSource(HIGHLIGHT_SOURCE_ID, emptyFeatureCollection()))
+    style.addLayer(
+        LineLayer(HIGHLIGHT_LAYER_ID, HIGHLIGHT_SOURCE_ID).apply {
+            setProperties(
+                PropertyFactory.lineColor(ZONE_COLOR_GREEN),
+                PropertyFactory.lineWidth(6f),
+                PropertyFactory.lineOpacity(1f),
+                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
+            )
+        },
+    )
     style.addSource(GeoJsonSource(ENDPOINTS_SOURCE_ID, emptyFeatureCollection()))
     style.addLayer(
         CircleLayer(ENDPOINTS_START_LAYER_ID, ENDPOINTS_SOURCE_ID).apply {
@@ -737,8 +770,9 @@ private fun rebuildZoneLayers(style: Style, zones: List<Zone>, activeZoneId: Str
         )
     }
 
-    // Stack: zones (bottom) → endpoints → user arrow (top).
+    // Stack: zones (bottom) → history highlight → endpoints → user arrow (top).
     val anchor = when {
+        style.getLayer(HIGHLIGHT_LAYER_ID) != null -> HIGHLIGHT_LAYER_ID
         style.getLayer(ENDPOINTS_START_LAYER_ID) != null -> ENDPOINTS_START_LAYER_ID
         style.getLayer(USER_LAYER_ID) != null -> USER_LAYER_ID
         else -> null

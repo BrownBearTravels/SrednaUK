@@ -63,8 +63,13 @@ public enum HistorySeeder {
     /// reference real roads; falls back to a small built-in BG-highway set when
     /// none are loaded yet.
     @MainActor
-    public static func seed(into store: HistoryStore, zones: [Zone], count: Int, nowMs: Int64) -> Int {
+    public static func seed(
+        into store: HistoryStore, zones: [Zone], count: Int, nowMs: Int64, legacyCount: Int = 0
+    ) -> Int {
         let pool = zones.isEmpty ? fallbackZones : zones
+        // Only real catalog zones carry a geometry snapshot; the built-in
+        // fallback set has placeholder coordinates that must not reach the map.
+        let withGeometry = !zones.isEmpty
         store.deleteAll()
         let total = max(1, count)
         var records = [ZoneTraversalRecord]()
@@ -75,6 +80,10 @@ public enum HistorySeeder {
             let zone = pool[i % pool.count]
             let limit = scenario.vehicle.limit(zone.speedLimits)
             let targetAvg = max(20, Double(limit) + scenario.deltaFromLimitKmh)
+            // The first `legacyCount` scripted rows are written like pre-snapshot
+            // records (no geometry) so the "Show on map" gate can be exercised
+            // and compared against a row that has its snapshot.
+            let rowGeometry = withGeometry && i >= legacyCount
 
             let (entryMs, exitMs) = traversalBounds(
                 nowMs: nowMs,
@@ -109,7 +118,15 @@ public enum HistorySeeder {
                 sustainedMaxKmh: extremes.max,
                 isOverLimit: avg > Double(limit),
                 distanceM: zone.distanceM,
-                samples: ZoneTraversalRecord.encodeSamples(stored)
+                samples: ZoneTraversalRecord.encodeSamples(stored),
+                zoneDescription: zone.description,
+                startLat: rowGeometry ? zone.start.lat : nil,
+                startLng: rowGeometry ? zone.start.lng : nil,
+                endLat: rowGeometry ? zone.end.lat : nil,
+                endLng: rowGeometry ? zone.end.lng : nil,
+                centerline: rowGeometry
+                    ? ZoneTraversalRecord.encodeCenterline(PolylineSimplify.simplify(zone.centerline))
+                    : nil
             )
             records.append(record)
         }

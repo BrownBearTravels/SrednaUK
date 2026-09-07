@@ -164,6 +164,9 @@ class DebugControlReceiver : BroadcastReceiver() {
      */
     private fun handleSeedHistory(intent: Intent) {
         val count = intent.getStringExtra("count")?.toIntOrNull() ?: DEFAULT_SEED_COUNT
+        // `--es legacy N`: the first N scripted rows get no geometry snapshot
+        // (pre-v3 shape) so QA can exercise the disabled "Show on map" gate.
+        val legacy = intent.getStringExtra("legacy")?.toIntOrNull() ?: 0
         val pendingResult = goAsync()
         scope.launch {
             try {
@@ -175,8 +178,9 @@ class DebugControlReceiver : BroadcastReceiver() {
                     zones = zones,
                     count = count,
                     nowMs = System.currentTimeMillis(),
+                    legacyCount = legacy,
                 )
-                Log.i(TAG, "SEED_HISTORY inserted=$inserted (requested=$count, zones=${zones.size})")
+                Log.i(TAG, "SEED_HISTORY inserted=$inserted (requested=$count, legacy=$legacy, zones=${zones.size})")
             } catch (e: Exception) {
                 Log.e(TAG, "SEED_HISTORY failed: ${e.message}", e)
             } finally {

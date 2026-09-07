@@ -132,7 +132,15 @@ public final class HistoryRecorder {
             sustainedMaxKmh: extremes.max,
             isOverLimit: finalAvg != nil && finalAvg! > Double(limitKmh),
             distanceM: capture.zone.distanceM,
-            samples: ZoneTraversalRecord.encodeSamples(downsampled)
+            samples: ZoneTraversalRecord.encodeSamples(downsampled),
+            // Geometry snapshot: the zone as driven, so "Show on map" survives
+            // the catalog renaming or moving this section later.
+            zoneDescription: capture.zone.description,
+            startLat: capture.zone.start.lat,
+            startLng: capture.zone.start.lng,
+            endLat: capture.zone.end.lat,
+            endLng: capture.zone.end.lng,
+            centerline: ZoneTraversalRecord.encodeCenterline(PolylineSimplify.simplify(capture.zone.centerline))
         )
         // Keep the DB write off the 1 Hz loop. `store` is `@MainActor`, so hop
         // back to it on a later turn instead of blocking the current fix.

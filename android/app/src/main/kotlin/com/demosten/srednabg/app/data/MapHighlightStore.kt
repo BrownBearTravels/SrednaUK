@@ -5,6 +5,7 @@
 
 package com.demosten.srednabg.app.data
 
+import com.demosten.srednabg.core.Zone
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,12 +13,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * A History-detail "Show on map" request: highlight this zone on the Map tab
- * with the trip's verdict color. [requestId] is monotonic so the map can key
- * its one-shot camera fit on it (revisiting the Map tab doesn't re-fit).
+ * A History-detail "Show on map" request: draw [zone] — the record's own
+ * geometry snapshot (see `ZoneTraversalEntity.snapshotZone`), NOT a catalog
+ * zone — on the Map tab in the trip's verdict color. Carrying the geometry
+ * itself is what makes the request independent of the live catalog: zone
+ * names renumber on mid-road insertions, so a lookup by name could paint a
+ * different section. [requestId] is monotonic so the map can key its one-shot
+ * camera fit on it (revisiting the Map tab doesn't re-fit).
  */
 data class MapHighlight(
-    val zoneId: String,
+    val zone: Zone,
     val isOverLimit: Boolean,
     val requestId: Long,
 )
@@ -36,8 +41,8 @@ class MapHighlightStore @Inject constructor() {
 
     private var nextRequestId = 0L
 
-    fun request(zoneId: String, isOverLimit: Boolean) {
-        _highlight.value = MapHighlight(zoneId, isOverLimit, ++nextRequestId)
+    fun request(zone: Zone, isOverLimit: Boolean) {
+        _highlight.value = MapHighlight(zone, isOverLimit, ++nextRequestId)
     }
 
     fun clear() {

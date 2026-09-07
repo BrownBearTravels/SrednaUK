@@ -71,6 +71,10 @@ fun HistoryDetailScreen(
     val state by viewModel.detailState.collectAsStateWithLifecycle()
     val loaded = state as? HistoryDetailUiState.Loaded
     val canShowOnMap by viewModel.canShowOnMap.collectAsStateWithLifecycle()
+    // No snapshot → no action at all (not a greyed-out one): the record simply
+    // has nothing to show. Tracking merely *blocks* it, so that case stays
+    // visible-but-disabled.
+    val hasMapSnapshot = loaded?.detail?.snapshot != null
 
     Scaffold(
         topBar = {
@@ -91,20 +95,22 @@ fun HistoryDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        enabled = canShowOnMap,
-                        onClick = {
-                            viewModel.showOnMap()
-                            onShowOnMap()
-                        },
-                        modifier = Modifier
-                            .semantics { testTagsAsResourceId = true }
-                            .testTag("history-show-on-map"),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Map,
-                            contentDescription = stringResource(R.string.history_show_on_map),
-                        )
+                    if (hasMapSnapshot) {
+                        IconButton(
+                            enabled = canShowOnMap,
+                            onClick = {
+                                viewModel.showOnMap()
+                                onShowOnMap()
+                            },
+                            modifier = Modifier
+                                .semantics { testTagsAsResourceId = true }
+                                .testTag("history-show-on-map"),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Map,
+                                contentDescription = stringResource(R.string.history_show_on_map),
+                            )
+                        }
                     }
                 },
             )

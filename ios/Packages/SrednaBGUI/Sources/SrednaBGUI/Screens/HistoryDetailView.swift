@@ -4,6 +4,7 @@
 // SrednaBG — ios / SrednaBGUI
 
 import SwiftUI
+import SrednaBGCore
 import SrednaBGData
 import SrednaBGTracking
 
@@ -21,10 +22,16 @@ struct HistoryDetailView: View {
         historyVerdictColor(isOverLimit: record.isOverLimit)
     }
 
-    /// Disabled while tracking (live tracking owns the map) and when the
-    /// record's zone no longer exists in the catalog (deleted by a sync).
+    /// The record's own geometry, as recorded; nil for records written before
+    /// the snapshot existed.
+    private var snapshot: Zone? { record.snapshotZone }
+
+    /// The action is *hidden* for records without a geometry snapshot (there is
+    /// nothing to show) and merely *disabled* while tracking (live tracking owns
+    /// the map). Deliberately NOT a catalog lookup: the map draws the trip as
+    /// recorded, never the live zone.
     private var canShowOnMap: Bool {
-        !tracking.isTracking && tracking.zones.contains { $0.id == record.zoneId }
+        !tracking.isTracking && snapshot != nil
     }
 
     var body: some View {
@@ -40,19 +47,18 @@ struct HistoryDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    mapSession.requestHighlight(
-                        zoneId: record.zoneId,
-                        isOverLimit: record.isOverLimit
-                    )
-                    mapSession.isFollowing = false
-                    onShowOnMap()
-                } label: {
-                    Label(L10n.historyShowOnMap, systemImage: "map")
+            if let snapshot {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        mapSession.requestHighlight(zone: snapshot, isOverLimit: record.isOverLimit)
+                        mapSession.isFollowing = false
+                        onShowOnMap()
+                    } label: {
+                        Label(L10n.historyShowOnMap, systemImage: "map")
+                    }
+                    .disabled(!canShowOnMap)
+                    .accessibilityIdentifier("history-show-on-map")
                 }
-                .disabled(!canShowOnMap)
-                .accessibilityIdentifier("history-show-on-map")
             }
         }
     }

@@ -19,11 +19,16 @@ public enum MapLayers {
     // MARK: - Identifiers
 
     public static let zonesSourceId = "zones"
+    /// A History "Show on map" highlight: the record's own geometry snapshot on
+    /// its own source/layer, stacked above the catalog zones and below the
+    /// endpoints — never a recolouring of a catalog zone (names go stale).
+    public static let highlightSourceId = "history-highlight"
     public static let endpointsSourceId = "zone-endpoints"
     public static let userSourceId = "user-position"
 
     public static let zonesInactiveLayerId = "zones-inactive"
     public static let zonesActiveLayerId = "zones-active"
+    public static let highlightLayerId = "history-highlight"
     public static let endpointsStartLayerId = "endpoints-start"
     public static let endpointsEndLayerId = "endpoints-end"
     public static let userLayerId = "user-position"
@@ -36,6 +41,7 @@ public enum MapLayers {
 
     public static let inactiveLineColor = UIColor(red: 0x15 / 255, green: 0x65 / 255, blue: 0xC0 / 255, alpha: 1)
     public static let activeRedLineColor = UIColor(red: 0xD3 / 255, green: 0x2F / 255, blue: 0x2F / 255, alpha: 1)
+    public static let highlightGreenLineColor = UIColor(red: 0x2E / 255, green: 0x7D / 255, blue: 0x32 / 255, alpha: 1)
     public static let startEndpointColor = UIColor(red: 0x66 / 255, green: 0xBB / 255, blue: 0x6A / 255, alpha: 1)
     public static let endEndpointColor = UIColor(red: 0xEF / 255, green: 0x53 / 255, blue: 0x50 / 255, alpha: 1)
 
@@ -127,6 +133,16 @@ public enum MapLayers {
         active.lineJoin = NSExpression(forConstantValue: "round")
         style.addLayer(active)
 
+        let highlightSource = MLNShapeSource(identifier: highlightSourceId, features: [], options: nil)
+        style.addSource(highlightSource)
+        let highlight = MLNLineStyleLayer(identifier: highlightLayerId, source: highlightSource)
+        highlight.lineColor = NSExpression(forConstantValue: highlightGreenLineColor)
+        highlight.lineWidth = NSExpression(forConstantValue: 6)
+        highlight.lineOpacity = NSExpression(forConstantValue: 1)
+        highlight.lineCap = NSExpression(forConstantValue: "round")
+        highlight.lineJoin = NSExpression(forConstantValue: "round")
+        style.addLayer(highlight)
+
         let endpointsStart = MLNCircleStyleLayer(identifier: endpointsStartLayerId, source: endpointsSource)
         endpointsStart.predicate = NSPredicate(format: "endpoint == %@", "start")
         endpointsStart.circleColor = NSExpression(forConstantValue: startEndpointColor)
@@ -168,6 +184,17 @@ public enum MapLayers {
         active.predicate = NSPredicate(format: "id == %@", id)
         inactive.predicate = NSPredicate(format: "id != %@", id)
         active.lineColor = NSExpression(forConstantValue: color)
+    }
+
+    /// Draw (or clear, with nil) a History highlight from the record's own
+    /// geometry snapshot. `color` is the trip's verdict color; nil keeps the
+    /// layer's current color, which only matters while the source is empty.
+    public static func applyHighlight(_ zone: Zone?, color: UIColor?, to style: MLNStyle) {
+        guard let source = style.source(withIdentifier: highlightSourceId) as? MLNShapeSource else { return }
+        source.shape = MLNShapeCollectionFeature(shapes: zoneFeatures(from: zone.map { [$0] } ?? []))
+        if let color, let layer = style.layer(withIdentifier: highlightLayerId) as? MLNLineStyleLayer {
+            layer.lineColor = NSExpression(forConstantValue: color)
+        }
     }
 
     public static func applyEndpoints(for zone: Zone?, to style: MLNStyle) {

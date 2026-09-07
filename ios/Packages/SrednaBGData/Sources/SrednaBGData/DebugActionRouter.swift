@@ -31,8 +31,9 @@ public final class DebugActionRouter {
         /// shared `qa/parsers.py` `HISTORY_DUMP_RE` matches — see `/history`.
         public let dumpHistory: @MainActor () -> Void
         /// Wipe the History store and refill it with `count` varied demo
-        /// traversals; returns the number inserted — see `/history?action=seed`.
-        public let seedHistory: @MainActor (Int) -> Int
+        /// traversals, the first `legacy` of them without a geometry snapshot;
+        /// returns the number inserted — see `/history?action=seed`.
+        public let seedHistory: @MainActor (_ count: Int, _ legacy: Int) -> Int
         /// Wipe the History store — see `/history?action=clear`.
         public let clearHistory: @MainActor () -> Void
 
@@ -44,7 +45,7 @@ public final class DebugActionRouter {
             stopTracking: @escaping @MainActor () async -> Void,
             feedLocation: @escaping @MainActor (Double, Double, Double, Double?, Int64?) -> Void = { _, _, _, _, _ in },
             dumpHistory: @escaping @MainActor () -> Void = {},
-            seedHistory: @escaping @MainActor (Int) -> Int = { _ in 0 },
+            seedHistory: @escaping @MainActor (Int, Int) -> Int = { _, _ in 0 },
             clearHistory: @escaping @MainActor () -> Void = {}
         ) {
             self.applySetting = applySetting
@@ -218,7 +219,8 @@ public final class DebugActionRouter {
             return Result(status: 200, body: "ok")
         case "seed":
             let count = params["count"].flatMap(Int.init) ?? 12
-            let inserted = handlers.seedHistory(count)
+            let legacy = params["legacy"].flatMap(Int.init) ?? 0
+            let inserted = handlers.seedHistory(count, legacy)
             return Result(status: 200, body: "seeded \(inserted)")
         case "clear":
             handlers.clearHistory()

@@ -10,8 +10,10 @@ import com.demosten.srednabg.app.data.HistoryRepository
 import com.demosten.srednabg.app.data.HistoryRetention
 import com.demosten.srednabg.app.data.SettingsRepository
 import com.demosten.srednabg.app.data.local.ZoneTraversalEntity
+import com.demosten.srednabg.app.data.local.toCenterlineJson
 import com.demosten.srednabg.app.data.local.toSamplesJson
 import com.demosten.srednabg.core.HistoryStats
+import com.demosten.srednabg.core.PolylineSimplify
 import com.demosten.srednabg.core.SpeedSample
 import com.demosten.srednabg.core.VehicleType
 import com.demosten.srednabg.core.Zone
@@ -159,6 +161,14 @@ class HistoryRecorder @Inject constructor(
             isOverLimit = finalAvg != null && finalAvg > limitKmh,
             distanceM = capture.zone.distanceM,
             samplesJson = downsampled.toSamplesJson(gson),
+            // Geometry snapshot: the zone as driven, so "Show on map" survives
+            // the catalog renaming or moving this section later.
+            description = capture.zone.description,
+            startLat = capture.zone.start.lat,
+            startLng = capture.zone.start.lng,
+            endLat = capture.zone.end.lat,
+            endLng = capture.zone.end.lng,
+            centerlineJson = PolylineSimplify.simplify(capture.zone.centerline).toCenterlineJson(gson),
         )
         scope.launch {
             historyRepository.record(entity)

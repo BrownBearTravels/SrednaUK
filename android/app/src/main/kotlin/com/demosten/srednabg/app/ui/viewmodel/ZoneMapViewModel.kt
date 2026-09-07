@@ -55,29 +55,29 @@ class ZoneMapViewModel @Inject constructor(
 
     /**
      * The History-detail "Show on map" request, non-null only while tracking is
-     * off and its zone still resolves in the current catalog. Tracking taking
-     * over is belt-and-braces here — the service clears the store on start.
+     * off. It carries the record's own geometry snapshot, so nothing here
+     * consults the catalog. Tracking taking over is belt-and-braces — the
+     * service clears the store on start.
      */
-    val resolvedHighlight: StateFlow<Pair<MapHighlight, Zone>?> = combine(
+    val resolvedHighlight: StateFlow<MapHighlight?> = combine(
         mapHighlightStore.highlight,
         LocationTrackingService.isTracking,
-        zoneRepository.zones,
-    ) { highlight, tracking, zones ->
-        if (highlight == null || tracking) return@combine null
-        zones.firstOrNull { it.id == highlight.zoneId }?.let { highlight to it }
+    ) { highlight, tracking ->
+        if (tracking) null else highlight
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val activeZoneId: StateFlow<String?> = combine(
-        LocationTrackingService.zoneState,
-        resolvedHighlight,
-    ) { state, highlight ->
+    // Live-tracking only. A History highlight deliberately does NOT feed this:
+    // it is drawn from the record's snapshot on its own layer, and recolouring
+    // the catalog zone that happens to carry the record's (possibly stale)
+    // name would paint the wrong section.
+    val activeZoneId: StateFlow<String?> = LocationTrackingService.zoneState.map { state ->
         when (state) {
             is ZoneState.InZone -> state.zone.id
             is ZoneState.Exiting -> state.zone.id
             // We know exactly which zone we're in even when we can't measure it,
             // so it still gets highlighted — just in the neutral colour.
             is ZoneState.Unmeasured -> state.zone.id
-            ZoneState.Outside -> highlight?.second?.id
+            ZoneState.Outside -> null
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 

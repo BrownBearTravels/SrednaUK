@@ -7,8 +7,10 @@ package com.demosten.srednabg.app.debug
 
 import com.demosten.srednabg.app.data.HistoryRepository
 import com.demosten.srednabg.app.data.local.ZoneTraversalEntity
+import com.demosten.srednabg.app.data.local.toCenterlineJson
 import com.demosten.srednabg.app.data.local.toSamplesJson
 import com.demosten.srednabg.core.HistoryStats
+import com.demosten.srednabg.core.PolylineSimplify
 import com.demosten.srednabg.core.SpeedLimits
 import com.demosten.srednabg.core.SpeedSample
 import com.demosten.srednabg.core.VehicleType
@@ -85,8 +87,12 @@ internal object HistorySeeder {
         zones: List<Zone>,
         count: Int,
         nowMs: Long,
+        legacyCount: Int = 0,
     ): Int {
         val pool = zones.ifEmpty { fallbackZones }
+        // Only real catalog zones carry a geometry snapshot; the built-in
+        // fallback set has placeholder coordinates that must not reach the map.
+        val withGeometry = zones.isNotEmpty()
         historyRepository.clearAll()
         val total = max(1, count)
         var inserted = 0
@@ -96,6 +102,10 @@ internal object HistorySeeder {
             val zone = pool[i % pool.size]
             val limit = scenario.vehicle.limit(zone.speedLimits)
             val targetAvg = max(20.0, limit + scenario.deltaFromLimitKmh)
+            // The first [legacyCount] scripted rows are written like pre-v3
+            // records (no geometry) so the "Show on map" gate can be exercised
+            // and compared against a row that has its snapshot.
+            val rowGeometry = withGeometry && i >= legacyCount
 
             val (entryMs, exitMs) = traversalBounds(
                 nowMs = nowMs,
@@ -132,6 +142,16 @@ internal object HistorySeeder {
                 isOverLimit = avg > limit,
                 distanceM = zone.distanceM,
                 samplesJson = stored.toSamplesJson(gson),
+                // Geometry snapshot, exactly as HistoryRecorder stores it. The
+                // fallback demo zones carry no geometry, so their rows stay
+                // unshowable — same as a pre-v3 row.
+                description = zone.description,
+                startLat = zone.start.lat.takeIf { rowGeometry },
+                startLng = zone.start.lng.takeIf { rowGeometry },
+                endLat = zone.end.lat.takeIf { rowGeometry },
+                endLng = zone.end.lng.takeIf { rowGeometry },
+                centerlineJson = PolylineSimplify.simplify(zone.centerline).toCenterlineJson(gson)
+                    .takeIf { rowGeometry },
             )
             historyRepository.record(entity)
             inserted++

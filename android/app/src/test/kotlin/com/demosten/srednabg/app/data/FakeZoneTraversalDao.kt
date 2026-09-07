@@ -51,6 +51,8 @@ fun traversalEntity(
     isOverLimit: Boolean = false,
     road: String = "АМ Тракия",
     roadLatin: String? = "Trakiya",
+    /** Geometry snapshot: on by default; false models a row recorded before v3. */
+    withSnapshot: Boolean = true,
 ) = ZoneTraversalEntity(
     id = id,
     zoneId = "zone-$id",
@@ -67,4 +69,10 @@ fun traversalEntity(
     isOverLimit = isOverLimit,
     distanceM = 19160,
     samplesJson = "[]",
+    description = if (withSnapshot) "Вакарел – Ихтиман" else null,
+    startLat = if (withSnapshot) 42.0 else null,
+    startLng = if (withSnapshot) 24.0 else null,
+    endLat = if (withSnapshot) 42.0 else null,
+    endLng = if (withSnapshot) 24.2 else null,
+    centerlineJson = if (withSnapshot) "[[42.0,24.0],[42.0,24.2]]" else null,
 )

@@ -10,12 +10,8 @@ import com.demosten.srednabg.app.data.FakeZoneTraversalDao
 import com.demosten.srednabg.app.data.HistoryRepository
 import com.demosten.srednabg.app.data.MapHighlightStore
 import com.demosten.srednabg.app.data.SettingsRepository
-import com.demosten.srednabg.app.data.ZoneRepository
 import com.demosten.srednabg.app.data.traversalEntity
 import com.demosten.srednabg.app.service.LocationTrackingService
-import com.demosten.srednabg.core.SpeedLimits
-import com.demosten.srednabg.core.Zone
-import com.demosten.srednabg.core.ZoneEndpoint
 import com.google.gson.Gson
 import io.mockk.every
 import io.mockk.mockk
@@ -40,7 +36,6 @@ class HistoryViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
     private val dao = FakeZoneTraversalDao()
     private lateinit var settingsRepository: SettingsRepository
-    private lateinit var zoneRepository: ZoneRepository
     private lateinit var mapHighlightStore: MapHighlightStore
     private lateinit var viewModel: HistoryViewModel
 
@@ -56,8 +51,6 @@ class HistoryViewModelTest {
         Dispatchers.setMain(testDispatcher)
         settingsRepository = mockk(relaxed = true)
         every { settingsRepository.historyRetention } returns flowOf("3months")
-        zoneRepository = mockk(relaxed = true)
-        every { zoneRepository.zones } returns flowOf(emptyList())
         mapHighlightStore = MapHighlightStore()
         viewModel = newViewModel()
     }
@@ -65,7 +58,6 @@ class HistoryViewModelTest {
     private fun newViewModel() = HistoryViewModel(
         HistoryRepository(dao),
         settingsRepository,
-        zoneRepository,
         mapHighlightStore,
         Gson(),
     )
@@ -88,22 +80,6 @@ class HistoryViewModelTest {
         field.isAccessible = true
         return field.get(null) as MutableStateFlow<Boolean>
     }
-
-    /** A catalog zone whose id matches [traversalEntity]'s `zone-<id>`. */
-    private fun catalogZone(id: String) = Zone(
-        id = id,
-        road = "АМ Тракия",
-        roadLatin = "Trakiya",
-        direction = "east",
-        description = "test zone",
-        start = ZoneEndpoint(lat = 42.0, lng = 24.0),
-        end = ZoneEndpoint(lat = 42.0, lng = 24.2),
-        distanceM = 19160,
-        speedLimits = SpeedLimits(car = 140, truck = 100, bus = 100),
-        centerline = listOf(listOf(42.0, 24.0), listOf(42.0, 24.2)),
-        source = "test",
-        lastVerified = "2026-01-01",
-    )
 
     @Test
     fun `records on the same day group under one header, most recent first`() = runTest {
@@ -173,9 +149,8 @@ class HistoryViewModelTest {
     }
 
     @Test
-    fun `canShowOnMap is true once the detail loads and its zone resolves`() = runTest {
+    fun `canShowOnMap is true once the detail loads with its geometry snapshot`() = runTest {
         dao.insert(traversalEntity("a", exitTimeMs = day1Noon))
-        every { zoneRepository.zones } returns flowOf(listOf(catalogZone("zone-a")))
         viewModel = newViewModel()
         viewModel.loadDetail("a")
         viewModel.canShowOnMap.test {
@@ -186,9 +161,9 @@ class HistoryViewModelTest {
     }
 
     @Test
-    fun `canShowOnMap stays false when the zone is gone from the catalog`() = runTest {
-        dao.insert(traversalEntity("a", exitTimeMs = day1Noon))
-        every { zoneRepository.zones } returns flowOf(listOf(catalogZone("zone-other")))
+    fun `canShowOnMap stays false for a row recorded before the geometry snapshot`() = runTest {
+        // Pre-v3 rows have no geometry; the catalog is deliberately not consulted.
+        dao.insert(traversalEntity("a", exitTimeMs = day1Noon, withSnapshot = false))
         viewModel = newViewModel()
         viewModel.loadDetail("a")
         viewModel.detailState.test {
@@ -203,7 +178,6 @@ class HistoryViewModelTest {
     @Test
     fun `canShowOnMap stays false while tracking is active`() = runTest {
         dao.insert(traversalEntity("a", exitTimeMs = day1Noon))
-        every { zoneRepository.zones } returns flowOf(listOf(catalogZone("zone-a")))
         trackingFlow().value = true
         viewModel = newViewModel()
         viewModel.loadDetail("a")
@@ -217,7 +191,7 @@ class HistoryViewModelTest {
     }
 
     @Test
-    fun `showOnMap publishes the record's zone and verdict`() = runTest {
+    fun `showOnMap publishes the record's own geometry and verdict`() = runTest {
         dao.insert(traversalEntity("a", exitTimeMs = day1Noon, isOverLimit = true))
         viewModel.loadDetail("a")
         viewModel.detailState.test {
@@ -226,7 +200,23 @@ class HistoryViewModelTest {
         }
         viewModel.showOnMap()
         val highlight = mapHighlightStore.highlight.value
-        assertEquals("zone-a", highlight?.zoneId)
+        // The snapshot zone is keyed by the RECORD id — never the zone name,
+        // which can be reassigned to another section by a later catalog.
+        assertEquals("a", highlight?.zone?.id)
+        assertEquals("Вакарел – Ихтиман", highlight?.zone?.description)
+        assertEquals(listOf(listOf(42.0, 24.0), listOf(42.0, 24.2)), highlight?.zone?.centerline)
         assertEquals(true, highlight?.isOverLimit)
+    }
+
+    @Test
+    fun `showOnMap is a no-op for a row without a snapshot`() = runTest {
+        dao.insert(traversalEntity("a", exitTimeMs = day1Noon, withSnapshot = false))
+        viewModel.loadDetail("a")
+        viewModel.detailState.test {
+            var state = awaitItem()
+            while (state !is HistoryDetailUiState.Loaded) state = awaitItem()
+        }
+        viewModel.showOnMap()
+        assertEquals(null, mapHighlightStore.highlight.value)
     }
 }

@@ -10,12 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.demosten.srednabg.app.data.HistoryRepository
 import com.demosten.srednabg.app.data.MapHighlightStore
 import com.demosten.srednabg.app.data.SettingsRepository
-import com.demosten.srednabg.app.data.ZoneRepository
 import com.demosten.srednabg.app.data.local.ZoneTraversalEntity
+import com.demosten.srednabg.app.data.local.snapshotZone
 import com.demosten.srednabg.app.data.local.speedSamples
 import com.demosten.srednabg.app.service.LocationTrackingService
 import com.demosten.srednabg.app.ui.util.epochDay
 import com.demosten.srednabg.core.SpeedSample
+import com.demosten.srednabg.core.Zone
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,13 +64,14 @@ data class HistoryDetail(
     val isOverLimit: Boolean,
     val distanceM: Int,
     val samples: List<SpeedSample>,
+    /** The zone's geometry as recorded; null for rows without a snapshot. */
+    val snapshot: Zone?,
 )
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
     settingsRepository: SettingsRepository,
-    zoneRepository: ZoneRepository,
     private val mapHighlightStore: MapHighlightStore,
     private val gson: Gson,
 ) : ViewModel() {
@@ -92,23 +94,24 @@ class HistoryViewModel @Inject constructor(
     val detailState: StateFlow<HistoryDetailUiState> = _detailState.asStateFlow()
 
     /**
-     * "Show on map" is available only when the detail is loaded, its zone still
-     * exists in the current catalog (a sync can delete zones), and tracking is
-     * off — live tracking and the history highlight must not drive the map at
-     * the same time.
+     * "Show on map" is available only when the detail is loaded, the record
+     * carries its own geometry snapshot (rows recorded before the snapshot
+     * existed have none), and tracking is off — live tracking and the history
+     * highlight must not drive the map at the same time. Deliberately NOT a
+     * catalog lookup: the map draws the trip as recorded, never the live zone.
      */
     val canShowOnMap: StateFlow<Boolean> = combine(
         detailState,
-        zoneRepository.zones,
         LocationTrackingService.isTracking,
-    ) { state, zones, tracking ->
+    ) { state, tracking ->
         val detail = (state as? HistoryDetailUiState.Loaded)?.detail
-        detail != null && !tracking && zones.any { it.id == detail.zoneId }
+        detail?.snapshot != null && !tracking
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     fun showOnMap() {
         val detail = (detailState.value as? HistoryDetailUiState.Loaded)?.detail ?: return
-        mapHighlightStore.request(detail.zoneId, detail.isOverLimit)
+        val snapshot = detail.snapshot ?: return
+        mapHighlightStore.request(snapshot, detail.isOverLimit)
     }
 
     fun loadDetail(id: String) {
@@ -161,6 +164,7 @@ class HistoryViewModel @Inject constructor(
         isOverLimit = isOverLimit,
         distanceM = distanceM,
         samples = speedSamples(gson),
+        snapshot = snapshotZone(gson),
     )
 }
 
