@@ -14,7 +14,7 @@ from ...assertions import expect
 from ...drive import pump
 from ...events import TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
 
 def build() -> Scenario:
@@ -22,11 +22,11 @@ def build() -> Scenario:
     # TrackPoints from a compressed plan drops `sim_offset_ms`, which
     # doubled the recovery leg to 200 km/h (i.e. never actually slowed
     # down). See wrong_direction.py for the mechanism.
-    fast = base_plan("trakiya-01-east", speed_kmh=160)
+    fast = base_plan(resolve_zone(DEFAULT_ZONE), speed_kmh=160)
     # Splice: first half of the fast plan, then speed-down via slow plan
     # for the second half. We just reuse the same physical points so
     # only the timing differs.
-    slow = base_plan("trakiya-01-east", speed_kmh=100)
+    slow = base_plan(resolve_zone(DEFAULT_ZONE), speed_kmh=100)
     half = fast.duration_ms // 2
     first = fast.slice(0, half)
     # Append slow second half, time-shifted so it follows the fast leg.

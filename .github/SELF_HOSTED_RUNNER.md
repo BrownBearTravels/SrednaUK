@@ -9,7 +9,7 @@ emulator/Simulator**, and the **Android build** (fast on Apple silicon).
 | `ios-ci.yml` | push to `main` (`ios/**`) | `swiftlint --strict`, `swift test`, Simulator `xcodebuild` |
 | `android-build.yml` | push to `main` (app code) | core + app unit tests, `assembleDebug`, lint |
 | `qa.yml` (`smoke`) | push to `main` (`android/**`,`ios/**`,`qa/**`) | Android smoke suite on the emulator |
-| `qa.yml` (`nightly`) | cron `0 1 * * *` + manual | Android **and** iOS full suites, in parallel |
+| `qa.yml` (`nightly`) | 01:00 Europe/Sofia (cron `7 19 * * *` UTC arrives early; the hosted `wait-for-1am` job holds it until 01:00) + manual | Android **and** iOS full suites, in parallel |
 
 ## Security model — why push-to-`main` only
 
@@ -94,3 +94,32 @@ so they never overlap, and `nightly` runs Android + iOS **concurrently inside on
 would serialise on a single runner). If short build/lint jobs start queueing behind a
 long nightly, register a second runner service for the build jobs and keep
 emulator/Simulator QA on this one.
+
+## Nightly start time — and a future option
+
+The nightly starts at **01:00 Europe/Sofia**. GitHub's cron can't do that by itself
+(best-effort — the old `0 1 * * *` arrived 1–6 h late — and UTC-only), so `qa.yml`
+fires its cron early (`7 19 * * *` UTC) and a GitHub-hosted `wait-for-1am` job sleeps
+until 01:00 local before the nightly job is released to this runner. Manual
+`workflow_dispatch` runs skip the wait.
+
+That costs a hosted runner up to ~4 h of sleeping per night (free on a public repo)
+and still depends on GitHub delivering the cron before 01:00.
+
+**Future option — trigger from the runner itself (not set up).** The mini currently
+holds **no `gh` CLI and no GitHub credential, on purpose**: the runner doesn't need
+one. If `gh` ever gets installed and logged in here for other work, the nightly can
+drop the cron + wait job and be started locally instead, which is exact, DST-proof and
+independent of GitHub's scheduler:
+
+- a LaunchAgent in `~/Library/LaunchAgents` (same GUI session as the runner) with
+  `StartCalendarInterval` `Hour=1 Minute=0`;
+- `ProgramArguments`: `/opt/homebrew/bin/gh workflow run qa.yml --repo demosten-com/SrednaBG --ref main`
+  — a `workflow_dispatch`, whose defaults are already `suite=nightly`, `platforms=both`;
+- the login needs the `workflow` scope and write access to the repo;
+- load with `launchctl bootstrap gui/$(id -u) <plist>`, test with `launchctl kickstart`.
+  A missed 01:00 (machine asleep) fires once on wake.
+
+When switching, remove `schedule:` and the `wait-for-1am` job from `qa.yml` in the same
+change — otherwise every night runs twice. Don't add the credential *for* this; it is
+only worth doing if `gh` is on the box anyway.

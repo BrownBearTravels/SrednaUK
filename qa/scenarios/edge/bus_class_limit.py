@@ -41,9 +41,9 @@ from ...assertions import expect
 from ...events import TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
 from ...speech_numbers import words
-from ._helpers import load_zone, scenario_setup, scenario_teardown
+from ._helpers import load_zone, resolve_zone, scenario_setup, scenario_teardown
 
-ZONE_ID = "struma-02-south"  # short zone with car (140) != bus (100)
+ZONE = "struma-dyakovo-south"  # short zone with car (140) != bus (100)
 CLASS_LIMIT = 100  # speed_limits.bus — the BE/C1/D class
 CAR_LIMIT = 140
 SPEED_KMH = 120.0  # over the class limit, under the car limit
@@ -53,10 +53,10 @@ APPROACH_M = 500.0
 EXIT_TAIL_M = 300.0
 
 
-def _build_fixes() -> list[tuple[float, float, float]]:
+def _build_fixes(zone_id: str) -> list[tuple[float, float, float]]:
     """(lat, lng, bearing) per fix at a constant cruise, 1 Hz: approach →
     full zone → short exit tail."""
-    zone = load_zone(ZONE_ID)
+    zone = load_zone(zone_id)
     cl = [(p[0], p[1]) for p in zone["centerline"]]
     # Orient start -> end so we drive the zone's signed direction.
     start = (zone["start"]["lat"], zone["start"]["lng"])
@@ -118,7 +118,8 @@ def _assert_badge_shows_class_limit() -> None:
 
 
 def build() -> Scenario:
-    fixes = _build_fixes()
+    zone_id = resolve_zone(ZONE)
+    fixes = _build_fixes(zone_id)
     drive_s = len(fixes) * INTERVAL_S
     mid = len(fixes) // 2  # solidly mid-zone (approach is ~15% of the route)
 
@@ -146,9 +147,9 @@ def build() -> Scenario:
         expect(
             ctx.obs,
             ZoneStateChange,
-            where=lambda e: e.new == "InZone" and e.zone == ZONE_ID,
+            where=lambda e: e.new == "InZone" and e.zone == zone_id,
             within_s=15,
-            description=f"enter {ZONE_ID} as bus",
+            description=f"enter {zone_id} as bus",
         )
         if device_mod.current().platform == "android":
             _assert_badge_shows_class_limit()

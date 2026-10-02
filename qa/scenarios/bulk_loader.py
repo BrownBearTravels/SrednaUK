@@ -34,7 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-from .. import device as device_mod, settings as settings_mod
+from .. import device as device_mod, settings as settings_mod, zone_source
 from ..assertions import expect_crash_free, AssertionFailure
 from ..drive import parse_gpx
 from ..events import DisplaySpeed, ZoneStateChange
@@ -42,25 +42,8 @@ from ..log_observer import LogObserver
 from ..runner import RunContext, Scenario, Step, step_drive, step_lambda
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-# The single source of truth both apps bundle (see root CLAUDE.md);
-# scrapers/data/zones.json is a sibling copy kept in sync by the refresh
-# script, but everything in qa/ reads the canonical file.
-ZONES_JSON = REPO_ROOT / "backend" / "data" / "zones.json"
-GPX_FIXTURES_DIR = REPO_ROOT / "qa" / "fixtures" / "gpx"
-
-# Parsed zones.json, cached per (path, mtime) so 72 bulk scenarios don't
-# re-read the 1.4 MB file.
-_zones_cache: dict[tuple[str, float], dict[str, dict]] = {}
-
-
-def _zones_by_id() -> dict[str, dict]:
-    key = (str(ZONES_JSON), ZONES_JSON.stat().st_mtime)
-    if key not in _zones_cache:
-        _zones_cache.clear()
-        data = json.loads(ZONES_JSON.read_text(encoding="utf-8"))
-        zones = data["zones"] if isinstance(data, dict) else data
-        _zones_cache[key] = {z["id"]: z for z in zones}
-    return _zones_cache[key]
+# Zone data and the GPX cache both come from `qa.zone_source`, which decides
+# whether the run drives the bundled catalog or the live one the nightly pins.
 
 
 def _route_hash(zone: dict, spec: "BulkScenarioSpec") -> str:
@@ -141,19 +124,20 @@ def _ensure_gpx(spec: BulkScenarioSpec) -> Path:
     The cached filename embeds `_route_hash` (zone geometry + route params),
     so the cache self-invalidates when zones.json or the spec changes —
     stale same-prefix fixtures from earlier data are removed on regeneration."""
-    GPX_FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
-    zone = _zones_by_id().get(spec.zone_id)
+    gpx_dir = zone_source.gpx_dir()
+    gpx_dir.mkdir(parents=True, exist_ok=True)
+    zone = zone_source.zones_by_id().get(spec.zone_id)
     if zone is None:
-        raise RuntimeError(f"zone {spec.zone_id} not found in {ZONES_JSON}")
+        raise RuntimeError(f"zone {spec.zone_id} not found in {zone_source.path()}")
     prefix = f"{spec.zone_id}_{int(spec.speed_kmh)}"
-    out = GPX_FIXTURES_DIR / f"{prefix}_{_route_hash(zone, spec)}.gpx"
+    out = gpx_dir / f"{prefix}_{_route_hash(zone, spec)}.gpx"
     if out.exists():
         return out
     # Stale fixtures from an older data version share the prefix but not the
     # hash; drop them. Never unlink `out` itself — under concurrent runs (e.g.
     # the nightly Android + iOS jobs generating the same fixtures at once) the
     # other process may have just written it.
-    for stale in GPX_FIXTURES_DIR.glob(f"{prefix}*.gpx"):
+    for stale in gpx_dir.glob(f"{prefix}*.gpx"):
         if stale != out:
             stale.unlink(missing_ok=True)
     # Lazy-import to avoid stdlib path mangling at module load.
@@ -370,6 +354,27 @@ def _drain_buffered(obs: LogObserver, *, quiet_s: float = 1.0,
         quiet_deadline = time.monotonic() + quiet_s
         if not terminal_seen and until(ev):
             terminal_seen = True
+    return out
+
+
+def bulk_speed_kmh(zone: dict) -> int:
+    """Speed for a zone's bulk drive: just over its car limit, capped at 140.
+
+    Plausibly drivable, and it keeps the bulk pass exercising the over-limit
+    branch on the zones whose limit sits below the 130 default."""
+    return min(zone.get("speed_limits", {}).get("car", 130) + 5, 140)
+
+
+def specs_for_catalog() -> list[BulkScenarioSpec]:
+    """One bulk spec per zone of the active catalog — what the committed
+    `scenarios/bulk/*.yaml` are for the bundled file, derived on the fly so a
+    live-zones run covers the zones actually being served (a section added
+    upstream is driven the night it appears, without a regenerate + commit)."""
+    out: list[BulkScenarioSpec] = []
+    for zone_id, zone in sorted(zone_source.zones_by_id().items()):
+        speed = bulk_speed_kmh(zone)
+        out.append(BulkScenarioSpec(
+            name=f"{zone_id} @ {speed} km/h", zone_id=zone_id, speed_kmh=speed))
     return out
 
 

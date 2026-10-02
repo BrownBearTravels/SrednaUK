@@ -11,30 +11,37 @@ direction reversals) rather than going through the bulk YAML loader.
 
 from __future__ import annotations
 
-import json
 import time
-from pathlib import Path
 from typing import Any
 
 from ... import settings as settings_mod
+from ... import zone_source
 from ...assertions import AssertionFailure, expect_crash_free
 from ...drive import DrivePlan, parse_gpx
 from ...events import Event
 from ...runner import RunContext
 from ..bulk_loader import _ensure_gpx, BulkScenarioSpec
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-# Canonical zone data (root CLAUDE.md "single source of truth") — keep in
-# step with bulk_loader.ZONES_JSON.
-ZONES_JSON = REPO_ROOT / "backend" / "data" / "zones.json"
+# The harness's default zone — АМ Тракия, Вакарел – Ихтиман, eastbound. An
+# anchor, not an id: see qa/fixtures/zone_anchors.yaml for why.
+DEFAULT_ZONE = "trakiya-vakarel-ihtiman-east"
+# For scenarios that assert on the approach and the entry: a long zone whose
+# entry camera is shared with no other zone, so the lead-in is truly Outside.
+ISOLATED_ENTRY_ZONE = "trakiya-shtarkovo-tsalapitsa-east"
+
+
+def resolve_zone(anchor: str) -> str:
+    """Today's id for the stretch of road `anchor` names, in the catalog under
+    test. Call it from `build()`, never at import time — the nightly switches
+    catalogs after the scenario modules may already have been imported."""
+    return zone_source.resolve(anchor)
 
 
 def load_zone(zone_id: str) -> dict[str, Any]:
-    data = json.loads(ZONES_JSON.read_text(encoding="utf-8"))
-    for z in data["zones"]:
-        if z["id"] == zone_id:
-            return z
-    raise ValueError(f"zone not found: {zone_id}")
+    zone = zone_source.zones_by_id().get(zone_id)
+    if zone is None:
+        raise ValueError(f"zone not found: {zone_id}")
+    return zone
 
 
 def base_plan(zone_id: str, *, speed_kmh: float = 130, approach_km: float = 2,

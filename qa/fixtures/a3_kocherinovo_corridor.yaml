@@ -14,7 +14,8 @@
 #
 # To refresh, re-query Overpass for way["ref"="A 3"] in the zone's bbox.
 
-zone_id: i1-02-north
+# An anchor from zone_anchors.yaml, not an id — ids renumber upstream.
+zone: i1-kocherinovo-slatino-north
 # The on-road band the corridor has to get inside for the zone to match at all
 # (RoadMatcher.DEFAULT_MAX_DISTANCE_M — i1-02-north is a `road`, not a motorway).
 # The corridor's closest approach is ~7 m, so the band gate is cleared easily;

@@ -12,7 +12,7 @@ reverse traversal may legitimately enter the paired west-direction
 zone, so we assert on zone id rather than "any InZone".
 
 Why a fraction and not "never": the synthetic route follows the stored
-centerline vertex-by-vertex, including its data quirks — trakiya-01-east
+centerline vertex-by-vertex, including its data quirks — Вакарел – Ихтиман
 jogs ~40 m BACKWARD at its very first vertex, so the reversed drive
 briefly travels the zone's true direction for one fix and the engine
 (correctly, per its rules) admits it for that instant. The admission
@@ -34,7 +34,7 @@ from ...drive import DrivePlan, TrackPoint, pump
 from ...events import ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
 from ..bulk_loader import _drain_buffered
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
 # Ceiling on the share of detector updates spent InZone(forbidden zone).
 # Sits ~3× above the benign jog blip (+exit latency) and ~2× below the
@@ -47,7 +47,8 @@ def build() -> Scenario:
     # TrackPoints from a compressed plan drops `sim_offset_ms`, so the pump
     # derived speed over the compressed timeline and fed 220 km/h instead of
     # the encoded 110. compressed() on the final plan keeps the sim timeline.
-    plan = base_plan("trakiya-01-east", speed_kmh=110)
+    zone_id = resolve_zone(DEFAULT_ZONE)
+    plan = base_plan(zone_id, speed_kmh=110)
     # Reverse temporal order — last point first, first point last.
     last_ms = plan.duration_ms
     reversed_pts = [
@@ -71,12 +72,12 @@ def build() -> Scenario:
                 "no detector updates observed — drive never reached the app",
                 ctx.obs)
         forbidden = sum(1 for e in changes
-                        if e.new == "InZone" and e.zone == "trakiya-01-east")
+                        if e.new == "InZone" and e.zone == zone_id)
         frac = forbidden / len(changes)
         if frac > MAX_FORBIDDEN_FRACTION:
             raise AssertionFailure(
                 f"wrong-direction drive spent {forbidden}/{len(changes)} "
-                f"detector updates ({frac:.1%}) InZone trakiya-01-east "
+                f"detector updates ({frac:.1%}) InZone {zone_id} "
                 f"(allowance {MAX_FORBIDDEN_FRACTION:.0%} for the known "
                 f"first-vertex jog blip) — the bearing gate admitted a "
                 f"reverse traversal", ctx.obs)

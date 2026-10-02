@@ -39,9 +39,9 @@ from ...device import current as current_device
 from ...drive import pump
 from ...events import HistoryDump, TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
-ZONE_ID = "trakiya-01-east"
+ZONE = DEFAULT_ZONE
 # Drop the generated approach plus the first stretch of the zone, so the very
 # first fix the app ever sees is already well past the entry camera — far past
 # START_WITNESS_ARC_M, and past ENTRY_CONFIRM_DISTANCE_M too, so the candidate
@@ -50,7 +50,8 @@ SKIP_S = 120.0
 
 
 def build() -> Scenario:
-    full = base_plan(ZONE_ID, speed_kmh=120).compressed(2.0)
+    zone_id = resolve_zone(ZONE)
+    full = base_plan(zone_id, speed_kmh=120).compressed(2.0)
     plan = full.slice(int(SKIP_S * 1000), full.duration_ms)
     # Baseline History count, captured before the drive — see (d) above.
     baseline: list[int] = []
@@ -99,9 +100,9 @@ def build() -> Scenario:
 
         # (a) The state must actually be reached — otherwise (b) and (c) would
         # pass vacuously on a drive that simply never matched a zone at all.
-        if not any(e.new == "Unmeasured" and e.zone == ZONE_ID for e in states):
+        if not any(e.new == "Unmeasured" and e.zone == zone_id for e in states):
             raise AssertionFailure(
-                f"joining {ZONE_ID} mid-way never produced Unmeasured. "
+                f"joining {zone_id} mid-way never produced Unmeasured. "
                 f"Transitions: {[(e.prev, e.new, e.zone) for e in states]}",
                 ctx.obs,
             )
@@ -110,7 +111,7 @@ def build() -> Scenario:
         entries = [e for e in states if e.new == "InZone"]
         if entries:
             raise AssertionFailure(
-                f"joining {ZONE_ID} mid-way opened a measured traversal of "
+                f"joining {zone_id} mid-way opened a measured traversal of "
                 f"{[e.zone for e in entries]} — we never saw the entry camera, so "
                 f"its average would match nothing BG TOLL computes",
                 ctx.obs,

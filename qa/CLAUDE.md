@@ -17,6 +17,7 @@ End-to-end QA harness (Python, stdlib + PyYAML). Drives the running Android emul
 - `qa/assertions.py` — `expect` / `expect_in_order` / `expect_never` over the event queue. All three **discard what they drain**, so assertion order must match the app's real event order. The entry announcement now fires from the detector's entry *candidate*, i.e. **before** the confirmed `Outside -> InZone` transition (see `provisional_entry.py`) — a scenario that waits for `InZone` first and only then expects the entry `TtsSpeak` throws the announcement away and times out. That ordering flip is what failed `vehicle_type_limit_badge`, `bus_class_limit` and `tts_cold_start_leadin` on nightly run 32800857443; all three now assert the speech first.
 - `qa/runner.py` — runs ordered scenario steps with per-scenario log-buffer isolation. `Scenario.timeout_s` is a hard wall: steps run on a worker thread; on expiry the runner sets the drive-abort flag (unblocks an in-flight `pump()` via `DriveAborted`), records the timeout with the stuck step's name, and moves on.
 - Bulk/representative scenarios assert enter + exit, the YAML's `forbid_in_zone_rebound` (no re-entry of the **target** zone after its `Exiting` — the flap class; scoped to the target id because the synthetic straight-line approach/exit can legitimately clip a curved *adjacent* zone and flap within it, e.g. i4-04-east's approach across i4-03-east's tail), and optional `expect_avg_kmh` ± `avg_kmh_tolerance` (mean of in-zone `DisplaySpeed` events). Generated GPX fixtures under `qa/fixtures/gpx/` (gitignored) embed a content hash of the zone geometry + route params in the filename, so a zones.json change regenerates them automatically — no manual cache busting.
+- `qa/zone_source.py` — which zone catalog the run drives (bundled file or a snapshot of the served feed) and the **anchor** resolver scenarios use to name a zone. `qa/scenarios/live_zones.py` is the step that pins a device + the harness to the served catalog. See "Zone data under test" below.
 - `qa/settings.py` — flips settings via the active device (broadcast on Android, HTTP POST to the debug listener on iOS).
 - `qa/sync.py` — triggers sync via the active device and inspects on-disk map bundle integrity.
 - `qa/ui.py`, `qa/report.py` — UI walk + report generation.
@@ -39,8 +40,73 @@ python qa/srednabg_qa.py --suite history         # ~7 min — History: records a
 python qa/srednabg_qa.py --suite sync            # ~5 min — zones happy + all-usable (served-data tripwire) + toggle-off + freshness + remote-older (recency gate) + offline; map disabled-gate
 python qa/srednabg_qa.py --suite ui              # ~1 min — phone UI walk + font-scale cards + History "Show on map" gating + retired-feed notice
 python qa/srednabg_qa.py --suite full-zones      # ~75 min @4× — all 76 zones, minimal asserts
-python qa/srednabg_qa.py --suite nightly         # ~2 hr — representative + full-zones + scenarios + ui
+python qa/srednabg_qa.py --suite nightly         # ~2 hr — sync + representative + full-zones + scenarios + history + ui, on the LIVE zone feed
 ```
+
+#### Zone data under test (`--zones`)
+
+The app runs the catalog it **synced** from `/api/zones`, not the bundled
+`backend/data/zones.json` — and the two drift apart every time the weekly cron
+publishes something the repo hasn't been refreshed to. Zone ids make that drift
+bite: they are km-ordered per road, so one section inserted upstream renumbers
+every later id on that road. On 2026-09-21 Крушовица – Вакарел became the new
+`trakiya-01`, the device started calling the harness's `trakiya-01-east`
+`trakiya-02-east`, and the nightly was red for two weeks with no code change.
+
+`--zones {auto,bundled,live}` picks what the harness builds routes and expected
+ids from. `auto` (default) = **live for `nightly`, bundled for everything else**.
+
+- **`live`** — the `zones.pin_live` step (`qa/scenarios/live_zones.py`) forces the
+  device to re-fetch `/api/zones`, downloads the same payload into
+  `<report dir>/zones-live.json` (so the artifact records exactly what a night
+  ran against), verifies the served hash didn't move in between, then **freezes**
+  the device on it for the run: periodic sync off, cached version pinned to 2099
+  so neither a mid-run publish nor a newer bundle can replace it (the cron fires
+  Monday ~06:12 UTC, inside the nightly's window). `live_zones.release()` undoes
+  the freeze on the way out. If the feed can't be pinned the step fails and the
+  rest of the suite is **not run** — there is no catalog to build it from.
+- **Scenarios are built lazily on a live run.** Routes are generated from the
+  catalog at build time, and the catalog only exists after the pin step has run,
+  so `_nightly()` / `_live_plan()` in `srednabg_qa.py` are generators. Nightly
+  order is sync scenarios → pin → drives: the sync scenarios re-fetch and
+  re-enable periodic sync, so the pin has to have the last word.
+- **`full-zones` on a live run ignores `scenarios/bulk/*.yaml`** and derives one
+  spec per served zone (`bulk_loader.specs_for_catalog`), so a section added
+  upstream is driven the night it appears. The committed YAMLs still describe
+  the bundled catalog for `--zones bundled`.
+- **A scenario that can't be built is a failing scenario, not a crash**
+  (`_build_or_fail`) — upstream data arriving overnight costs one red line.
+- Live GPX caches live in `qa/fixtures/gpx/live-<hash>/` (per catalog, so the
+  concurrent Android + iOS processes never delete each other's routes).
+
+Reproduce a nightly failure locally with the same data:
+`python qa/srednabg_qa.py --suite scenarios --zones live --filter mid_zone_join`.
+Conversely, a **bundled** run against a device that has already synced can
+disagree with it about ids — clear app data offline first (as `validate-zones.sh`
+does) or use `--zones live`.
+
+#### Zone anchors — never hardcode a zone id in a scenario
+
+Scenarios that need one *particular* stretch of road name it by an anchor from
+`qa/fixtures/zone_anchors.yaml` (a point on the carriageway + direction, optional
+`min_length_m`) and call `resolve_zone(ANCHOR)` **inside `build()`** — never at
+import time, because the catalog switches after modules may be imported.
+`edge/_helpers.py` exports the two common ones:
+
+- `DEFAULT_ZONE` — АМ Тракия, Вакарел – Ихтиман east. Long, has a westbound
+  twin; used by the mid-zone manoeuvres.
+- `ISOLATED_ENTRY_ZONE` — АМ Тракия, Щърково – Цалапица east. For scenarios that
+  assert on the **approach and entry** (`provisional_entry*`): nothing else
+  begins or ends at its entry camera. Вакарел – Ихтиман stopped being usable for
+  that on 2026-09-21: the new Крушовица – Вакарел ends at its entry camera (the
+  2 km lead-in is now an `Unmeasured` drive through that zone), and the westbound
+  Вакарел – Крушовица starts 21 m away — where the stored centerline's backwards
+  first segment (23 m @ 303°) makes the synthetic drive look westbound for one
+  fix and the app, correctly, announces that zone. A route artefact, not an app
+  bug (a car doesn't reverse at the camera), but it doubled the entry line.
+
+An anchor that stops matching exactly one zone, or resolves to a zone shorter
+than `min_length_m`, raises `ZoneAnchorError` naming what to re-point.
 
 #### Product flavors (`--flavor`)
 
@@ -165,7 +231,7 @@ done — linting".
     coverage. Resolve combos via `settings.combo_by_id()`.
   - `provisional_entry.py` — the entry announcement now fires from the detector's entry **candidate** (`ZoneDetector.pendingEntryInfo`), not from the confirmed traversal, so the driver hears it at the camera instead of ~300 m past it (real drive, both platforms, 2026-08-24). Asserts the announcement precedes the `InZone` transition, happens exactly once however many fixes the candidate spans, is **not** repeated by the confirmed `Outside -> InZone` branch, and is reported `confirmed`. The drive stops ~1.5 km in: everything it asserts is decided at the entry, and driving the rest of a 19 km zone would add ten wall-clock minutes to re-test what `history.records_traversal` already covers.
   - `provisional_entry_abandoned.py` — the accepted cost of the above: drive far enough in to open (and announce) a candidate, then leave the road before `ENTRY_CONFIRM_DISTANCE_M`. Asserts the abandonment is reported on the QA channel, that nothing further is spoken (**no retraction**, no invented exit line), and that neither a traversal nor a History row was created — the early announcement is voice-only.
-  - `mid_zone_join.py` — start feeding fixes 5.8 km into `trakiya-01-east`, never crossing its entry camera, and assert the full `ZoneState.Unmeasured` contract end-to-end: the state is reached, no measured traversal ever opens, nothing is spoken, and `DUMP_HISTORY` reports no new row.
+  - `mid_zone_join.py` — start feeding fixes 5.8 km into the default zone (Вакарел – Ихтиман), never crossing its entry camera, and assert the full `ZoneState.Unmeasured` contract end-to-end: the state is reached, no measured traversal ever opens, nothing is spoken, and `DUMP_HISTORY` reports no new row.
   - `sync/zones_all_usable.py` — a tripwire on the **served** data rather than the client. Forces a real re-fetch (requiring `Updated`) and fails on either line `ZoneSanitizer` emits, identically on both platforms: `zones repaired (n=…) ids=[…]` (a zone missing its truck/bus limit) or `zones dropped (n=…) ids=[…]` (placeholder `(0, 0)` endpoints, an empty centerline, no car limit). **The `repaired` half is the point of the scenario**: current builds handle that payload perfectly, and the 1.x clients the stores serve do not — iOS 1.x fails the whole `/api/zones` decode on it, so it is a silent fleet outage that looks like healthy data to QA. Three separate ways this scenario tried to pass vacuously, all now closed, all worth knowing before editing it: (1) the log lines arrive *before* the closing `DebugSync` event, so it must pass `collect=` to `sync.wait_for_sync` or the wait consumes them; (2) the recency gate returns `UpToDate` whenever the app bundles a fresher scrape than the cron has published (the normal state after `refresh-zones.sh`), so it backdates `cached_zone_version` and requires `Updated`; (3) it originally checked only `dropped`, which meant it stayed green on `i8-01-north` — the exact zone that broke every published install.
   - `ui/zone_feed_unsupported.py` — the Settings notice shown when this build's
     **data feed** is retired (`/api/version`'s `unsupported` flag → the persisted
@@ -188,7 +254,7 @@ done — linting".
     (`uiauto.scroll_viewport_bottom` — the Scaffold clips content above the
     bottom nav bar, so display height is the wrong reference) and raises rather
     than asserting on an off-screen region.
-  - `jog_start_measured.py` — the positive-path companion to the above on `i3-02-north`, an ISSUE-001 zone whose centerline opens with a ~121 m backwards jog. A genuine approach there projects past 100 m of arc on its first matching fix, so it must still be **measured**: the run asserts `InZone` opens and `Unmeasured` never appears. Pairs with the core unit test `ZoneUnmeasuredTest."a zone whose centerline starts with a backwards jog is still measurable"`, which covers the same path at unit level.
+  - `jog_start_measured.py` — the positive-path companion to the above on an ISSUE-001 zone (a centerline that opens with a backwards jog). A genuine approach there projects onto the far end of the jog on its first matching fix, so it must still be **measured**: the run asserts `InZone` opens and `Unmeasured` never appears. **The zone is picked from the catalog under test** (`longest_jog_zone`), not named: the jog is a data defect the scraper keeps repairing — the served feed lost `i3-02-north`'s 121 m jog on 2026-09-28, leaving 80 m on `i6-01-east` as the longest — so a pinned zone dies the night its defect is fixed upstream. It fails loudly only when no zone has a jog ≥ `MIN_JOG_M` left (retire it then). Caveat: only a jog > 100 m separates `START_WITNESS_ARC_M` = 200 from 100; on shorter jogs that discrimination rests on the core unit test `ZoneUnmeasuredTest."a zone whose centerline starts with a backwards jog is still measurable"`.
 
 ## Manual zone feeding + full-zone direction validation (Android, debug build)
 

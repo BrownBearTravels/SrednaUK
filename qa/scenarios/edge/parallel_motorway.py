@@ -45,7 +45,7 @@ from ... import geo
 from ...assertions import AssertionFailure
 from ...events import ProvisionalEntry, TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import load_zone, scenario_setup, scenario_teardown
+from ._helpers import load_zone, resolve_zone, scenario_setup, scenario_teardown
 
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "a3_kocherinovo_corridor.yaml"
 INTERVAL_S = 1.0
@@ -96,7 +96,7 @@ def _build_fixes(fixture: dict) -> list[tuple[float, float, float]]:
 
 def build() -> Scenario:
     fixture = _load_fixture()
-    zone_id = fixture["zone_id"]
+    zone_id = resolve_zone(fixture["zone"])
     speed_ms = float(fixture["speed_kmh"]) / 3.6
     fixes = _build_fixes(fixture)
     drive_s = len(fixes) * INTERVAL_S

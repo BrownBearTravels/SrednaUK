@@ -28,7 +28,7 @@ This scenario drives one zone normally and asserts the whole contract:
       detection.
 
 The drive stops shortly after the traversal opens: everything asserted here is
-decided at the entry, and the rest of a 19 km zone would add ten wall-clock
+decided at the entry, and the rest of a 25 km zone would add ten wall-clock
 minutes to the suite to re-test what `history.records_traversal` already covers.
 
 Its companion is `edge.provisional_entry_abandoned` (announced, then dropped)
@@ -43,9 +43,9 @@ from ...assertions import AssertionFailure
 from ...drive import pump
 from ...events import ProvisionalEntry, TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import ISOLATED_ENTRY_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
-ZONE_ID = "trakiya-01-east"
+ZONE = ISOLATED_ENTRY_ZONE
 SPEED_KMH = 120.0
 APPROACH_KM = 2.0
 # Far enough past the camera that the candidate has confirmed (well over
@@ -62,7 +62,8 @@ def _is_entry(text: str) -> bool:
 
 
 def build() -> Scenario:
-    full = base_plan(ZONE_ID, speed_kmh=SPEED_KMH, approach_km=APPROACH_KM, exit_km=1)
+    zone_id = resolve_zone(ZONE)
+    full = base_plan(zone_id, speed_kmh=SPEED_KMH, approach_km=APPROACH_KM, exit_km=1)
     cut_ms = int(((APPROACH_KM * 1000 + INTO_ZONE_M) / (SPEED_KMH / 3.6)) * 1000)
     plan = full.slice(0, cut_ms)
 
@@ -90,10 +91,10 @@ def build() -> Scenario:
                 deadline = time.monotonic() + settle
 
         provisional = [e for e in timeline if isinstance(e, ProvisionalEntry)]
-        announced = [e for e in provisional if e.outcome == "announced" and e.zone == ZONE_ID]
+        announced = [e for e in provisional if e.outcome == "announced" and e.zone == zone_id]
         entries = [
             e for e in timeline
-            if isinstance(e, ZoneStateChange) and e.new == "InZone" and e.zone == ZONE_ID
+            if isinstance(e, ZoneStateChange) and e.new == "InZone" and e.zone == zone_id
         ]
         entry_lines = [e for e in timeline if isinstance(e, TtsSpeak) and _is_entry(e.text)]
 
@@ -102,13 +103,13 @@ def build() -> Scenario:
         # transition under a new log line — the exact thing being fixed.
         if not announced:
             raise AssertionFailure(
-                f"driving {ZONE_ID} never announced an entry from the detector "
+                f"driving {zone_id} never announced an entry from the detector "
                 f"candidate. Timeline: {[(type(e).__name__, getattr(e, 'zone', None)) for e in timeline]}",
                 ctx.obs,
             )
         if not entries:
             raise AssertionFailure(
-                f"driving {ZONE_ID} never opened a measured traversal — the "
+                f"driving {zone_id} never opened a measured traversal — the "
                 f"announcement change must not have altered detection",
                 ctx.obs,
             )
@@ -122,7 +123,7 @@ def build() -> Scenario:
         # (b) One announcement, not one per fix of the confirmation window.
         if len(announced) != 1:
             raise AssertionFailure(
-                f"expected exactly one provisional announcement for {ZONE_ID}, got "
+                f"expected exactly one provisional announcement for {zone_id}, got "
                 f"{len(announced)} — every fix of the confirmation window re-reports "
                 f"the same candidate and must not re-announce it",
                 ctx.obs,
@@ -140,9 +141,9 @@ def build() -> Scenario:
 
         # (d) This drive took the happy path, so the abandoned branch is not what
         # (a)-(c) were measuring.
-        if not any(e.outcome == "confirmed" and e.zone == ZONE_ID for e in provisional):
+        if not any(e.outcome == "confirmed" and e.zone == zone_id for e in provisional):
             raise AssertionFailure(
-                f"the announced candidate for {ZONE_ID} was never reported confirmed: "
+                f"the announced candidate for {zone_id} was never reported confirmed: "
                 f"{[(e.zone, e.outcome) for e in provisional]}",
                 ctx.obs,
             )

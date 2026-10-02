@@ -18,8 +18,14 @@ on:
       - 'ios/**'
       - 'qa/**'
   schedule:
-    # 01:00 UTC ≈ 04:00 Europe/Sofia — off-hours nightly full run.
-    - cron: '0 1 * * *'
+    # The nightly starts at 01:00 Europe/Sofia — but not because of this line.
+    # GitHub fires cron best-effort and UTC-only: the old '0 1 * * *' arrived
+    # 1–6 h late every night (median 05:46 UTC in 2026-09) and could never
+    # follow Sofia across DST. So the cron only has to arrive *early* — 19:07
+    # UTC is 22:07 EEST / 21:07 EET, three to four hours of slack — and the
+    # `wait-for-1am` job below holds the run until the wall clock says 01:00.
+    # Minute 7, not 0: the top of the hour is GitHub's documented peak.
+    - cron: '7 19 * * *'
   workflow_dispatch:
     inputs:
       suite:
@@ -87,12 +93,42 @@ jobs:
           path: qa/reports/**
           retention-days: 14
 
+  # ── Hold a scheduled run until 01:00 Europe/Sofia. ─────────────────────────
+  # On a GitHub-hosted runner on purpose: the waiting must not occupy the Mac
+  # mini (a push in the evening would queue its smoke run behind a sleeping
+  # job), and the mini itself can't do the triggering — it deliberately holds
+  # no GitHub credential, so a local launchd + `gh workflow run` is out.
+  # Skipped for workflow_dispatch: a manual run starts immediately.
+  wait-for-1am:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350   # under the 6 h hosted-job limit; the wait is ≤ ~4 h
+    steps:
+      - name: Sleep until 01:00 Europe/Sofia
+        env:
+          TZ: Europe/Sofia   # the tz database handles EEST/EET — no month maths
+        run: |
+          now=$(date +%s)
+          hour=$(date +%-H)
+          if [ "$hour" -ge 12 ]; then
+            target=$(date -d 'tomorrow 01:00' +%s)   # the normal case: evening
+          elif [ "$hour" -lt 1 ]; then
+            target=$(date -d 'today 01:00' +%s)      # arrived just after midnight
+          else
+            target=$now                              # GitHub delivered it late: go now
+          fi
+          echo "Now $(date '+%F %T %Z'); starting the nightly at $(date -d "@$target" '+%F %T %Z')."
+          sleep $(( target - now ))
+
   # ── Long nightly run: Android + iOS in PARALLEL within this one job. ───────
   # One runner executes one job at a time, so a matrix would serialise — we run
   # the two platforms as concurrent background processes instead. Wall-clock ≈
   # the slower platform (~2 h) rather than the ~4 h serial sum.
   nightly:
-    if: github.event_name != 'push'
+    needs: wait-for-1am
+    # `!cancelled()` so the job still runs when `wait-for-1am` was skipped
+    # (workflow_dispatch) — a skipped `needs` otherwise skips its dependents.
+    if: ${{ !cancelled() && github.event_name != 'push' && needs.wait-for-1am.result != 'failure' }}
     runs-on: [self-hosted, macOS, srednabg]
     concurrency:
       group: qa
@@ -175,3 +211,16 @@ jobs:
             qa-android.log
             qa-ios.log
           retention-days: 14
+
+      # Failure-only: a green night is silent. Same bot + chat as the scraper
+      # cron, fed from repository secrets (the cron's copy lives on the web
+      # host). `failure()` covers every earlier step, so a build or boot that
+      # dies before the suites run is reported too. Last, so the run link in
+      # the message already has the report artifact behind it.
+      - name: Notify Telegram on failure
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 .github/scripts/notify-qa-failure.py

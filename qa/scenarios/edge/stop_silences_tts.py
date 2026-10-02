@@ -26,13 +26,13 @@ from ...assertions import expect, expect_never
 from ...drive import pump
 from ...events import TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
 
 def build() -> Scenario:
-    # 150 km/h on trakiya-01-east (car limit 140) → over-limit, so the voice
+    # 150 km/h on the default zone (car limit 140) → over-limit, so the voice
     # pipeline is actively producing announcements while we're in the zone.
-    plan = base_plan("trakiya-01-east", speed_kmh=150).compressed(2.0)
+    plan = base_plan(resolve_zone(DEFAULT_ZONE), speed_kmh=150).compressed(2.0)
     # Only drive into the first stretch of the zone — enough to enter and
     # speak, then we Stop while still mid-zone (announcements still live).
     entry_plan = plan.slice(0, int(plan.duration_ms * 0.55))

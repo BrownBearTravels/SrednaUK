@@ -5,7 +5,7 @@
 
 """History records a completed zone traversal.
 
-Drives one within-limit traversal of `trakiya-01-east`, then dumps the
+Drives one within-limit traversal of the default zone, then dumps the
 history DB and asserts a record exists for that zone with a "within limit"
 verdict and an average close to the driven speed.
 
@@ -27,7 +27,8 @@ AVG_TOLERANCE_KMH = 20.0
 
 
 def build() -> Scenario:
-    plan = _helpers.zone_plan()
+    zone_id = _helpers.zone_id()
+    plan = _helpers.zone_plan(zone_id)
 
     def setup(ctx: RunContext) -> None:
         _helpers.begin_tracking(ctx, retention="3months")
@@ -45,14 +46,14 @@ def build() -> Scenario:
             HistoryDump,
             where=lambda e: (
                 e.count >= 1
-                and e.zone == _helpers.ZONE_ID
+                and e.zone == zone_id
                 and e.over_limit is False
                 and e.avg_kmh is not None
                 and abs(e.avg_kmh - _helpers.WITHIN_LIMIT_KMH) <= AVG_TOLERANCE_KMH
             ),
             within_s=10,
             description=(
-                f"history records {_helpers.ZONE_ID} within-limit, "
+                f"history records {zone_id} within-limit, "
                 f"avg ~{_helpers.WITHIN_LIMIT_KMH:.0f} km/h"
             ),
         )

@@ -15,11 +15,11 @@ from ...assertions import expect_in_order
 from ...drive import pump
 from ...events import ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
 
 def build() -> Scenario:
-    plan = base_plan("trakiya-01-east", speed_kmh=120).compressed(2.0)
+    plan = base_plan(resolve_zone(DEFAULT_ZONE), speed_kmh=120).compressed(2.0)
     # Stop at the temporal midpoint (well inside the zone for typical
     # approach_km=2 + ~10km zone + exit_km=1 layout).
     midpoint_ms = plan.duration_ms // 2

@@ -1,0 +1,50 @@
+# Zones the scenarios depend on, named by WHERE THEY ARE rather than by id.
+#
+# Zone ids are km-ordered per road and renumber whenever BG TOLL inserts a
+# section (АМ Струма 2026-09-07, АМ Тракия 2026-09-21), so a scenario pinned to
+# `trakiya-01-east` silently ends up driving — or asserting on — a different
+# stretch of motorway. An anchor is a point on the carriageway plus a direction;
+# qa/zone_source.py `resolve()` maps it to whatever id the catalog under test
+# uses today.
+#
+#   near:          [lat, lng] on the zone's centerline, well away from both ends
+#                  (must land within 100 m of exactly one zone of `direction`)
+#   direction:     the zone's `direction` field — picks the carriageway
+#   min_length_m:  optional. Scenarios tuned to a long zone (a join 5.8 km in,
+#                  a stop mid-way) declare it, so an upstream split of the
+#                  section fails with a clear message instead of an odd timeout.
+#
+# To add one: pick a vertex near the middle of the zone's `centerline` in
+# backend/data/zones.json.
+anchors:
+  # АМ Тракия, Вакарел – Ихтиман (19 km, car 140). The harness's default zone:
+  # real-fixture coverage in the core unit tests, long enough for every
+  # mid-zone manoeuvre, with a westbound twin for the U-turn / wrong-way drives.
+  trakiya-vakarel-ihtiman-east:
+    near: [42.489239, 23.78426]
+    direction: east
+    min_length_m: 15000
+
+  # АМ Тракия, Щърково – Цалапица (25 km, car 140). The zone for scenarios about
+  # the ENTRY itself: nothing ends or begins at its entry camera, so the 2 km
+  # approach is genuinely outside every zone. Вакарел – Ихтиман above lost that
+  # property on 2026-09-21 — Крушовица – Вакарел now ends at its entry camera
+  # (so the approach is an unwitnessed drive through that zone), and the
+  # westbound Вакарел – Крушовица begins 21 m away, where the stored centerline's
+  # backwards first segment makes a synthetic drive briefly look westbound.
+  trakiya-shtarkovo-tsalapitsa-east:
+    near: [42.239975, 24.364353]
+    direction: east
+    min_length_m: 5000
+
+  # АМ Струма, яз. Дяково – Дяково (2.5 km). Shortest zone whose car limit (140)
+  # differs from both truck (90) and bus (100); also the dense-centerline case.
+  struma-dyakovo-south:
+    near: [42.3342796, 23.0992484]
+    direction: south
+
+  # Път I-1, Кочериново – Слатино. The zone the A3 motorway runs beside — see
+  # a3_kocherinovo_corridor.yaml.
+  i1-kocherinovo-slatino-north:
+    near: [42.092398, 23.039942]
+    direction: north

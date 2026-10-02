@@ -16,14 +16,14 @@ from ...assertions import expect_in_order
 from ...drive import DrivePlan, TrackPoint, pump
 from ...events import ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
 
 def build() -> Scenario:
     # Splice on the UNCOMPRESSED plan and compress LAST — rebuilding
     # TrackPoints from a compressed plan drops `sim_offset_ms` and breaks
     # the sim timeline at the splice seam (see wrong_direction.py).
-    plan = base_plan("trakiya-01-east", speed_kmh=120)
+    plan = base_plan(resolve_zone(DEFAULT_ZONE), speed_kmh=120)
     # Replace points after the temporal midpoint with off-ramp points
     # ~300m perpendicular to the centerline at the divert moment.
     half = plan.duration_ms // 2

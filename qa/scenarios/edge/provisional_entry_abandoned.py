@@ -37,9 +37,9 @@ from ...device import current as current_device
 from ...drive import pump
 from ...events import HistoryDump, ProvisionalEntry, TtsSpeak, ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, load_zone, scenario_setup, scenario_teardown
+from ._helpers import ISOLATED_ENTRY_ZONE, base_plan, load_zone, resolve_zone, scenario_setup, scenario_teardown
 
-ZONE_ID = "trakiya-01-east"
+ZONE = ISOLATED_ENTRY_ZONE
 APPROACH_KM = 2.0
 SPEED_KMH = 120.0
 # Stop feeding this far past the entry camera: comfortably past the point where
@@ -65,7 +65,8 @@ def _is_entry(text: str) -> bool:
 
 
 def build() -> Scenario:
-    full = base_plan(ZONE_ID, speed_kmh=SPEED_KMH, approach_km=APPROACH_KM, exit_km=1)
+    zone_id = resolve_zone(ZONE)
+    full = base_plan(zone_id, speed_kmh=SPEED_KMH, approach_km=APPROACH_KM, exit_km=1)
     # Cut the drive INTO_ZONE_M past the camera. The generated plan runs at a
     # constant speed from the start of the approach, so distance maps linearly
     # onto its timeline.
@@ -92,7 +93,7 @@ def build() -> Scenario:
     def depart(ctx: RunContext) -> None:
         # Leave the corridor entirely. A few fixes so the detector sees a
         # sustained departure rather than one droppable blip.
-        zone = load_zone(ZONE_ID)
+        zone = load_zone(zone_id)
         cl = zone["centerline"]
         heading = geo.bearing_deg(cl[0][0], cl[0][1], cl[-1][0], cl[-1][1])
         away = (heading + 90) % 360
@@ -127,19 +128,19 @@ def build() -> Scenario:
 
         # (a) Anti-vacuous: without an announcement there is no trade to pin, and
         # (b)-(d) would all pass on a drive that simply never approached a zone.
-        if not any(e.outcome == "announced" and e.zone == ZONE_ID for e in provisional):
+        if not any(e.outcome == "announced" and e.zone == zone_id for e in provisional):
             raise AssertionFailure(
-                f"the short drive into {ZONE_ID} never announced an entry, so this "
+                f"the short drive into {zone_id} never announced an entry, so this "
                 f"scenario is not exercising the abandoned-candidate path. "
                 f"Provisional: {[(e.zone, e.outcome) for e in provisional]}",
                 ctx.obs,
             )
 
         # (b) …and the abandonment must be visible to the harness.
-        if not any(e.outcome == "abandoned" and e.zone == ZONE_ID for e in provisional):
+        if not any(e.outcome == "abandoned" and e.zone == zone_id for e in provisional):
             raise AssertionFailure(
                 f"leaving the road before ENTRY_CONFIRM_DISTANCE_M did not report an "
-                f"abandoned candidate for {ZONE_ID}: "
+                f"abandoned candidate for {zone_id}: "
                 f"{[(e.zone, e.outcome) for e in provisional]}",
                 ctx.obs,
             )

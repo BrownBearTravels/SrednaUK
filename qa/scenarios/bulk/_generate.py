@@ -23,6 +23,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ..bulk_loader import bulk_speed_kmh
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ZONES_JSON = REPO_ROOT / "backend" / "data" / "zones.json"
 OUT_DIR = Path(__file__).resolve().parent
@@ -50,11 +52,9 @@ def main() -> None:
     written = 0
     for z in zones:
         zone_id = z["id"]
-        car_limit = z.get("speed_limits", {}).get("car", 130)
-        # Pick a speed that is plausibly drivable AND likely to produce
-        # an in-limit average (keeps the bulk pass focused on detection
-        # correctness, not on alerting).
-        speed_kmh = min(car_limit + 5, 140)
+        # Shared with the live-zones run, which derives the same specs on the
+        # fly from the served catalog instead of from these committed files.
+        speed_kmh = bulk_speed_kmh(z)
         out = OUT_DIR / f"{zone_id}.yaml"
         out.write_text(
             TEMPLATE.format(

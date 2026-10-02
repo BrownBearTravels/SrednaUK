@@ -17,18 +17,25 @@ import time
 
 from ... import device as device_mod
 from ... import settings as settings_mod
+from ... import zone_source
 from ...drive import DrivePlan
 from ..bulk_loader import BulkScenarioSpec, _ensure_gpx
 from ...drive import parse_gpx
 
-# trakiya-01-east: real-fixture-backed in the core unit tests and used by the
+# АМ Тракия, Вакарел – Ихтиман (an anchor, see qa/fixtures/zone_anchors.yaml):
+# real-fixture-backed in the core unit tests and used by the
 # smoke suite, car limit 140 km/h — a clean, well-behaved traversal to record.
-ZONE_ID = "trakiya-01-east"
+ZONE = "trakiya-vakarel-ihtiman-east"
 WITHIN_LIMIT_KMH = 120.0  # < 140 car limit → the record's verdict is "within".
 
 
+def zone_id() -> str:
+    """Today's id for `ZONE` in the catalog under test — call from `build()`."""
+    return zone_source.resolve(ZONE)
+
+
 def zone_plan(
-    zone_id: str = ZONE_ID,
+    zone_id: str,
     speed_kmh: float = WITHIN_LIMIT_KMH,
     *,
     approach_km: float = 1.0,

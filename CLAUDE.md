@@ -57,6 +57,7 @@ Each subfolder owns its own `CLAUDE.md` with build commands, key files, and subf
 
 - `.github/workflows/android-build.yml` — on push/PR: core tests, assemble debug APK, lint, upload APK artifact
 - `.github/workflows/android-release.yml` — on `v*.*.*` tag: signed release APK + `.sha256` published to a GitHub Release. Downloads the latest map bundle from the rolling `map-bundle-latest` GitHub Release, verifies it against the single digest in `web/fdroid/map-bundle-checksums.txt`, and snapshots it onto the Release as an immutable `map-bundle-<tag>.zip` (+`.sha256`) — the durable build input F-Droid's prebuild fetches. The `MAP_BUNDLE_URL` secret is an optional override that skips the pin. See `android/CLAUDE.md` for the release tag → versionCode mapping.
+- `.github/workflows/qa.yml` — self-hosted Mac mini: Android smoke on push; nightly Android + iOS run of the `qa/` harness against the **live** zone feed (see `qa/CLAUDE.md` "Zone data under test"). A failed nightly job pings the scraper's Telegram bot via `.github/scripts/notify-qa-failure.py` — failure-only, credentials from the `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` repository secrets (a separate copy from the cron's `scraper.env` on the web host)
 - `.github/workflows/scraper.yml` — PR validation only (scrapers/** path filter) + manual trigger; production scheduling lives on the Namecheap cron (see `scrapers/CLAUDE.md` "Hosted deployment")
 
 Per-locale F-Droid release notes go in `web/fdroid/{en-US,bg}/changelogs/<versionCode>.txt`.

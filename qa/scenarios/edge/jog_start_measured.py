@@ -10,15 +10,24 @@ unwitnessed entry opens `ZoneState.Unmeasured`; this one proves the rule didn't
 overshoot and start refusing to measure real entries on the awkward half of the
 zone data.
 
-`i3-02-north` is an ISSUE-001 zone: its stored centerline opens with a **121 m
-segment pointing 160° away from the road's direction** (`cl[0]` is the camera,
-`cl[1]` sits 121 m *behind* it, and the line only turns forward after that). A
-driver crossing that camera therefore projects onto the far end of the jog
-rather than onto arc 0 — past the 100 m an earlier draft of the rule would have
-allowed, and the reason `START_WITNESS_ARC_M` is 200 m rather than 100 m. The
-core unit test (`ZoneUnmeasuredTest."a zone whose centerline starts with a
-backwards jog is still measurable"` / Swift twin) pins that at unit level on a
-synthetic fixture; this drives the real geometry end-to-end.
+An ISSUE-001 zone is one whose stored centerline opens with a segment pointing
+**away** from the road's direction (`cl[0]` is the camera, `cl[1]` sits *behind*
+it, and the line only turns forward after that). A driver crossing that camera
+therefore projects onto the far end of the jog rather than onto arc 0. The
+original case was `i3-02-north`, whose jog was 121 m — past the 100 m an earlier
+draft of the rule would have allowed, and the reason `START_WITNESS_ARC_M` is
+200 m rather than 100 m. The core unit test (`ZoneUnmeasuredTest."a zone whose
+centerline starts with a backwards jog is still measurable"` / Swift twin) pins
+that band at unit level on a synthetic fixture; this drives real geometry
+end-to-end.
+
+**The zone is chosen from the catalog under test, not named**: the one with the
+longest opening jog (`longest_jog_zone`). The jog is a data defect, and the
+scraper keeps fixing them — the served feed lost `i3-02-north`'s on 2026-09-28,
+leaving 80 m on `i6-01-east` as the longest. A scenario pinned to one zone dies
+the night its defect is repaired upstream; this one moves to the worst jog that
+is still really being served, and fails loudly (`MIN_JOG_M`) only once none is
+left, which is the day to retire it.
 
 Asserts:
   (a) `InZone` is reached for the zone — a genuine approach still measures,
@@ -27,12 +36,13 @@ Asserts:
 Both halves matter: (a) alone would pass on an engine that measures everything,
 (b) alone would pass on a drive that never matched the zone at all.
 
-**Verified to discriminate.** Replaying this exact trace through the Kotlin
-engine against the full real zone catalogue: with `START_WITNESS_ARC_M = 200`
-it reports `InZone(i3-02-north)` at fix 88; with the threshold tightened to
-100 m the same drive reports `Unmeasured(i3-02-north)` — the failure (a)
-forbids. So the fixture genuinely sits in the band the constant defends, and
-does not pass vacuously.
+**Verified to discriminate — on the 121 m jog.** Replaying the `i3-02-north`
+trace through the Kotlin engine against the full real zone catalogue: with
+`START_WITNESS_ARC_M = 200` it reports `InZone(i3-02-north)` at fix 88; with the
+threshold tightened to 100 m the same drive reports `Unmeasured(i3-02-north)` —
+the failure (a) forbids. That holds for a jog longer than 100 m. On a shorter
+one (all the live feed has left) this still proves a jog-start zone is measured
+end-to-end, but no longer separates 200 m from 100 m — the unit test does.
 
 The drive is built here rather than via `base_plan`, which resamples the stored
 centerline verbatim: on this zone that would make the car reverse 121 m at the
@@ -45,19 +55,20 @@ from __future__ import annotations
 
 import time
 
-from ... import geo
+from ... import geo, zone_source
 from ...assertions import AssertionFailure
 from ...drive import DrivePlan, TrackPoint
 from ...drive import pump
 from ...events import ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import load_zone, scenario_setup, scenario_teardown
+from ._helpers import scenario_setup, scenario_teardown
 
-ZONE_ID = "i3-02-north"
+# Below this an opening "jog" is ordinary vertex noise, not the ISSUE-001 shape.
+MIN_JOG_M = 50.0
 SPEED_KMH = 90.0
 APPROACH_KM = 2.0
 # Far enough past the camera to clear ENTRY_CONFIRM_DISTANCE_M (300 m) with
-# room to spare, but nowhere near this 22 km zone's end — we are testing the
+# room to spare, but short of a long zone's end — we are testing the
 # entry, not the traversal, and a full run would cost ~6 minutes.
 INTO_ZONE_KM = 3.0
 COMPRESSION = 2.0
@@ -94,6 +105,48 @@ def _forward_bearing_at_start(cl: list[tuple[float, float]], anchor_m: float = 3
     return geo.bearing_deg(cl[0][0], cl[0][1], anchor[0], anchor[1])
 
 
+def _along_m(cl: list[tuple[float, float]], forward: float, pt: tuple[float, float]) -> float:
+    """Signed distance from the camera (`cl[0]`) along `forward` (negative = behind)."""
+    camera = cl[0]
+    d = geo.haversine_m(camera[0], camera[1], pt[0], pt[1])
+    if d == 0:
+        return 0.0
+    brg = geo.bearing_deg(camera[0], camera[1], pt[0], pt[1])
+    delta = abs(brg - forward) % 360
+    delta = 360 - delta if delta > 180 else delta
+    return d * (1 if delta <= 90 else -1)
+
+
+def jog_length_m(zone: dict) -> float:
+    """How far behind the entry camera the stored centerline reaches before it
+    turns forward — 0 for a zone that starts cleanly."""
+    cl = _oriented_centerline(zone)
+    if len(cl) < 3:
+        return 0.0
+    forward = _forward_bearing_at_start(cl)
+    reach = 0.0
+    for pt in cl[1:]:
+        along = _along_m(cl, forward, pt)
+        if along > 0:
+            break
+        reach = max(reach, -along)
+    return reach
+
+
+def longest_jog_zone() -> dict:
+    """The zone of the catalog under test with the longest opening jog."""
+    zone = max(zone_source.zones_by_id().values(), key=jog_length_m)
+    if jog_length_m(zone) < MIN_JOG_M:
+        raise AssertionFailure(
+            f"no zone in the catalog opens with a backwards jog of {MIN_JOG_M:.0f} m "
+            f"or more (longest: {zone['id']}, {jog_length_m(zone):.0f} m) — ISSUE-001 "
+            f"is gone from the data, and this scenario would silently degrade into "
+            f"an ordinary drive. Retire it.",
+            None,
+        )
+    return zone
+
+
 def physical_road_plan(zone: dict) -> DrivePlan:
     """A drive along the road as a car can actually travel it.
 
@@ -112,24 +165,7 @@ def physical_road_plan(zone: dict) -> DrivePlan:
     camera = cl[0]
     forward = _forward_bearing_at_start(cl)
 
-    def along_m(pt: tuple[float, float]) -> float:
-        """Signed distance from the camera along `forward` (negative = behind)."""
-        d = geo.haversine_m(camera[0], camera[1], pt[0], pt[1])
-        if d == 0:
-            return 0.0
-        brg = geo.bearing_deg(camera[0], camera[1], pt[0], pt[1])
-        delta = abs(brg - forward) % 360
-        delta = 360 - delta if delta > 180 else delta
-        return d * (1 if delta <= 90 else -1)
-
-    ahead = [p for p in cl[1:] if along_m(p) > 0]
-    if len(ahead) == len(cl) - 1:
-        raise AssertionFailure(
-            f"{zone['id']} no longer opens with a backwards jog — this scenario "
-            f"would silently degrade into an ordinary drive. Re-point it at "
-            f"another ISSUE-001 zone or retire it.",
-            None,
-        )
+    ahead = [p for p in cl[1:] if _along_m(cl, forward, p) > 0]
     # Trim to INTO_ZONE_KM of arc so the run stays short.
     path: list[tuple[float, float]] = [camera]
     acc = 0.0
@@ -154,7 +190,9 @@ def physical_road_plan(zone: dict) -> DrivePlan:
 
 
 def build() -> Scenario:
-    plan = physical_road_plan(load_zone(ZONE_ID)).compressed(COMPRESSION)
+    zone = longest_jog_zone()
+    zone_id = zone["id"]
+    plan = physical_road_plan(zone).compressed(COMPRESSION)
 
     def setup(ctx: RunContext) -> None:
         scenario_setup(ctx, settings_id="S1")
@@ -180,9 +218,9 @@ def build() -> Scenario:
                 deadline = time.monotonic() + settle
 
         # (a) A witnessed entry on a jog-start zone must still be measured.
-        if not any(e.new == "InZone" and e.zone == ZONE_ID for e in states):
+        if not any(e.new == "InZone" and e.zone == zone_id for e in states):
             raise AssertionFailure(
-                f"an honest approach to {ZONE_ID} never opened a measured "
+                f"an honest approach to {zone_id} never opened a measured "
                 f"traversal — START_WITNESS_ARC_M must absorb the zone's "
                 f"backwards start jog (ISSUE-001). "
                 f"Transitions: {[(e.prev, e.new, e.zone) for e in states]}",
@@ -190,10 +228,10 @@ def build() -> Scenario:
             )
 
         # (b) ...and must not be downgraded to the unwitnessed state.
-        unmeasured = [e for e in states if e.new == "Unmeasured" and e.zone == ZONE_ID]
+        unmeasured = [e for e in states if e.new == "Unmeasured" and e.zone == zone_id]
         if unmeasured:
             raise AssertionFailure(
-                f"{ZONE_ID} was reported Unmeasured on a drive that crossed its "
+                f"{zone_id} was reported Unmeasured on a drive that crossed its "
                 f"entry camera — the witness rule is rejecting real entries. "
                 f"Transitions: {[(e.prev, e.new, e.zone) for e in states]}",
                 ctx.obs,

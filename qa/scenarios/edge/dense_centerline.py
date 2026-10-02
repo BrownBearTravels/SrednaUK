@@ -33,18 +33,18 @@ from ... import geo
 from ...assertions import AssertionFailure
 from ...events import ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import load_zone, scenario_setup, scenario_teardown
+from ._helpers import load_zone, resolve_zone, scenario_setup, scenario_teardown
 
-ZONE_ID = "struma-02-south"
+ZONE = "struma-dyakovo-south"
 SPEED_MS = 30.0          # 108 km/h, under the 140 limit; > avg segment so the
                          # old integrator over-counts at the 1 Hz feed cadence.
 INTERVAL_S = 1.0
 
 
-def _build_fixes() -> list[tuple[float, float, float]]:
+def _build_fixes(zone_id: str) -> list[tuple[float, float, float]]:
     """(lat, lng, bearing) per fix: 4 approach points then every raw centerline
     vertex — deliberately uneven spacing to reproduce the integrator over-count."""
-    zone = load_zone(ZONE_ID)
+    zone = load_zone(zone_id)
     cl = [(p[0], p[1]) for p in zone["centerline"]]
     # Orient start -> end so we drive the zone's signed direction.
     start = (zone["start"]["lat"], zone["start"]["lng"])
@@ -68,7 +68,8 @@ def _build_fixes() -> list[tuple[float, float, float]]:
 
 
 def build() -> Scenario:
-    fixes = _build_fixes()
+    zone_id = resolve_zone(ZONE)
+    fixes = _build_fixes(zone_id)
     drive_s = len(fixes) * INTERVAL_S
 
     def setup(ctx: RunContext) -> None:
@@ -103,18 +104,18 @@ def build() -> Scenario:
 
         if not entries:
             raise AssertionFailure(
-                f"never entered zone {ZONE_ID} (transitions: "
+                f"never entered zone {zone_id} (transitions: "
                 f"{[(e.prev, e.new) for e in changes]})", ctx.obs)
         # The bug produced a second entry (Exiting -> InZone re-match) and a
         # second Exiting mid-zone. A clean traversal has exactly one of each.
         if len(entries) != 1:
             raise AssertionFailure(
-                f"expected a single uninterrupted traversal of {ZONE_ID}, but it was "
+                f"expected a single uninterrupted traversal of {zone_id}, but it was "
                 f"entered {len(entries)}× — integrator-drift exit + mid-zone re-entry "
                 f"regressed. Transitions: {[(e.prev, e.new) for e in changes]}", ctx.obs)
         if len(exits) > 1:
             raise AssertionFailure(
-                f"expected one clean exit of {ZONE_ID}, saw {len(exits)} (spurious "
+                f"expected one clean exit of {zone_id}, saw {len(exits)} (spurious "
                 f"mid-zone exit). Transitions: {[(e.prev, e.new) for e in changes]}",
                 ctx.obs)
 

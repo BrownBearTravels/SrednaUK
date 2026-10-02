@@ -8,8 +8,8 @@
 Should produce TWO discrete enter/exit cycles, not one continuous one.
 Intermediate wrong-direction segment should not trigger entries on the
 opposite-direction zone (or trigger entry on a paired zone if one
-exists — for trakiya-01-east the paired westbound zone is
-trakiya-01-west).
+exists — Вакарел – Ихтиман has a paired westbound zone,
+Ихтиман – Вакарел).
 
 This scenario tolerates either (a) two enter-exit on the original zone
 (if there's no paired westbound) or (b) one enter-exit, then nothing
@@ -23,14 +23,14 @@ from ...assertions import expect_in_order
 from ...drive import DrivePlan, TrackPoint, pump
 from ...events import ZoneStateChange
 from ...runner import RunContext, Scenario, step_lambda
-from ._helpers import base_plan, scenario_setup, scenario_teardown
+from ._helpers import DEFAULT_ZONE, base_plan, resolve_zone, scenario_setup, scenario_teardown
 
 
 def build() -> Scenario:
     # Splice on the UNCOMPRESSED plan and compress LAST — rebuilding
     # TrackPoints from a compressed plan drops `sim_offset_ms` and doubles
     # the fed speed on the return leg (see wrong_direction.py).
-    fwd = base_plan("trakiya-01-east", speed_kmh=110, exit_km=2)
+    fwd = base_plan(resolve_zone(DEFAULT_ZONE), speed_kmh=110, exit_km=2)
     # Reverse: start from after the original exit, traverse backward.
     last_ms = fwd.duration_ms
     rev_pts = [

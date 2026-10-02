@@ -22,7 +22,7 @@ from . import _helpers
 
 
 def build() -> Scenario:
-    plan = _helpers.zone_plan()
+    plan = _helpers.zone_plan(_helpers.zone_id())
 
     def setup(ctx: RunContext) -> None:
         # 'none' both purges existing history and gates the recorder off.
