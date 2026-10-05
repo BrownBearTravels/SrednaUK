@@ -65,8 +65,9 @@ class TestShippedData:
             d_last = haversine_m(last[0], last[1], z.start.lat, z.start.lng)
             assert d_first <= d_last, f"{z.id} centerline is reversed"
 
-    def test_backend_copy_is_byte_identical(self):
-        assert DATA_PATH.read_bytes() == BACKEND_DATA_PATH.read_bytes(), (
-            "scrapers/data/zones.json and backend/data/zones.json have "
-            "diverged — run scrapers/scripts/refresh-zones.sh"
-        )
+    def test_backend_copy_is_the_uk_catalog(self):
+        """SrednaUK: the apps bundle backend/data/zones.json, which is now the
+        UK catalog from src/uk_sections.py (held to its own invariants in
+        test_uk_sections.py). scrapers/data/zones.json stays the upstream
+        Bulgarian snapshot these tests guard, so the two deliberately differ."""
+        assert '"speed_unit": "mph"' in BACKEND_DATA_PATH.read_text(encoding="utf-8")

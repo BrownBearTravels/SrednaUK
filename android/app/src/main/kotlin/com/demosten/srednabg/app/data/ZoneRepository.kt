@@ -7,6 +7,7 @@ package com.demosten.srednabg.app.data
 
 import android.content.Context
 import android.util.Log
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.data.local.ZoneDao
 import com.demosten.srednabg.app.data.local.toEntity
 import com.demosten.srednabg.app.data.local.toCoreZone
@@ -120,12 +121,15 @@ class ZoneRepository @Inject constructor(
         if (response.zones.isEmpty()) return
         val cachedHash = settingsRepository.cachedZoneHash.first()
         val cachedVersion = settingsRepository.cachedZoneVersion.first()
-        if (!ZoneDataRecency.shouldReseedFromBundle(
-                response.hash, response.version, cachedHash, cachedVersion,
-            )
-        ) {
-            return
+        // SrednaUK: with no zone feed, the bundle is the only source of truth,
+        // so any different bundle replaces the cache — even one whose data is
+        // older (e.g. the UK catalog replacing a cached upstream BG one).
+        val bundleWins = if (FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+            ZoneDataRecency.shouldReseedFromBundle(response.hash, response.version, cachedHash, cachedVersion)
+        } else {
+            response.hash != cachedHash
         }
+        if (!bundleWins) return
         Log.i(TAG, "Re-seeding zones from bundle ${response.version} (local was $cachedVersion)")
         val entities = usableZones(response.zonesInMph(), "bundle ${response.version}")
             .map { it.toEntity(gson) }

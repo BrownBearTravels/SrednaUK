@@ -86,7 +86,7 @@
     <string name="about_version">Версия %s</string>
     <string name="about_license">Отворен код — MIT лиценз</string>
     <string name="about_attribution">Карти: \u00A9 OpenMapTiles \u00A9 OpenStreetMap contributors</string>
-    <string name="about_zone_data">Данни за зони: БГ ТОЛ, TollTracker.eu</string>
+    <string name="about_zone_data">Данни за зони: \u00A9 сътрудници на OpenStreetMap (ODbL), чрез speedcameramap.uk</string>
 
     <!-- Permission gating -->
     <string name="permission_required_title">Нужно е разрешение \"Винаги\" за местоположение</string>

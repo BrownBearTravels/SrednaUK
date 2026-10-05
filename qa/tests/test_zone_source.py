@@ -21,7 +21,8 @@ import _paths  # noqa: F401
 
 from qa import zone_source
 
-TRAKIYA = "trakiya-vakarel-ihtiman-east"
+ACLE = "a47-acle-straight-west"
+PRESTWICK_SOUTH = "a77-prestwick-south"
 
 
 def bundled() -> dict[str, dict]:
@@ -30,39 +31,41 @@ def bundled() -> dict[str, dict]:
 
 class AnchorTests(unittest.TestCase):
     def test_every_anchor_names_one_zone_of_the_bundled_catalog(self):
-        for anchor in zone_source._anchors():
+        for anchor, spec in zone_source._anchors().items():
+            if spec.get("catalog") == "bg":
+                continue  # upstream anchor; the bundled catalog is UK (SrednaUK)
             with self.subTest(anchor=anchor):
                 self.assertIn(zone_source.resolve(anchor), zone_source.zones_by_id())
 
     def test_anchor_follows_its_road_through_a_renumbering(self):
         zones = bundled()
-        original = zone_source.resolve(TRAKIYA, zones)
-        # What BG TOLL inserting a section ahead of it does: same road, new id,
-        # and the old id now belongs to a different section.
+        original = zone_source.resolve(PRESTWICK_SOUTH, zones)
+        # What an upstream insertion does: same road, new id, and the old id
+        # now belongs to a different section.
         moved = zones.pop(original)
-        moved["id"] = "trakiya-02-east"
-        decoy = copy.deepcopy(zones["hemus-01-east"])
+        moved["id"] = "a77-prestwick-05-south"
+        decoy = copy.deepcopy(zones[zone_source.resolve(ACLE, zones)])
         decoy["id"] = original
-        renumbered = {**zones, "trakiya-02-east": moved, original: decoy}
-        self.assertEqual(zone_source.resolve(TRAKIYA, renumbered), "trakiya-02-east")
+        renumbered = {**zones, "a77-prestwick-05-south": moved, original: decoy}
+        self.assertEqual(zone_source.resolve(PRESTWICK_SOUTH, renumbered), "a77-prestwick-05-south")
 
     def test_opposite_carriageway_is_not_a_match(self):
         zones = bundled()
-        zones.pop(zone_source.resolve(TRAKIYA, zones))
-        # The westbound twin runs within metres of the anchor point; only the
+        zones.pop(zone_source.resolve(PRESTWICK_SOUTH, zones))
+        # The northbound twin runs within metres of the anchor point; only the
         # direction keeps it from being picked up.
         with self.assertRaises(zone_source.ZoneAnchorError):
-            zone_source.resolve(TRAKIYA, zones)
+            zone_source.resolve(PRESTWICK_SOUTH, zones)
 
     def test_section_split_shorter_than_the_scenarios_need_is_refused(self):
         zones = bundled()
-        zones[zone_source.resolve(TRAKIYA, zones)]["distance_m"] = 4000
+        zones[zone_source.resolve(ACLE, zones)]["distance_m"] = 4000
         with self.assertRaisesRegex(zone_source.ZoneAnchorError, "shorter than"):
-            zone_source.resolve(TRAKIYA, zones)
+            zone_source.resolve(ACLE, zones)
 
     def test_unknown_anchor_names_the_known_ones(self):
-        with self.assertRaisesRegex(zone_source.ZoneAnchorError, TRAKIYA):
-            zone_source.resolve("trakiya-01-east")
+        with self.assertRaisesRegex(zone_source.ZoneAnchorError, ACLE):
+            zone_source.resolve("a47-great-yarmouth-01-west")
 
 
 class GeometryTests(unittest.TestCase):

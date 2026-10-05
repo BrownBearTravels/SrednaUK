@@ -7,6 +7,7 @@ package com.demosten.srednabg.app.data
 
 import android.content.Context
 import android.content.res.AssetManager
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.data.local.ZoneDao
 import com.demosten.srednabg.app.data.local.ZoneEntity
 import com.demosten.srednabg.app.data.remote.VersionResponse
@@ -103,7 +104,7 @@ class ZoneRepositoryTest {
     }
 
     @Test
-    fun `ensureLoaded skips reseed when bundled version is not newer`() = runTest {
+    fun `an older bundle reseeds only while zone sync is off`() = runTest {
         coEvery { zoneDao.count() } returns 10
         stubBundledZones(version = "2026-07-13T06:10:40Z", hash = "bundlehash")
         every { settingsRepository.cachedZoneHash } returns flowOf("newerhash")
@@ -111,8 +112,27 @@ class ZoneRepositoryTest {
 
         repository.ensureLoaded()
 
+        if (FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+            // A synced feed may be fresher than the bundle — keep it.
+            coVerify(exactly = 0) { zoneDao.replaceAll(any()) }
+            coVerify(exactly = 0) { settingsRepository.setCachedZoneHash(any()) }
+        } else {
+            // SrednaUK: no feed, so the bundle is the only source of truth.
+            coVerify { zoneDao.replaceAll(any()) }
+            coVerify { settingsRepository.setCachedZoneHash("bundlehash") }
+        }
+    }
+
+    @Test
+    fun `an identical bundle never reseeds`() = runTest {
+        coEvery { zoneDao.count() } returns 10
+        stubBundledZones(version = "2026-07-13T06:10:40Z", hash = "samehash")
+        every { settingsRepository.cachedZoneHash } returns flowOf("samehash")
+        every { settingsRepository.cachedZoneVersion } returns flowOf("2026-07-13T06:10:40Z")
+
+        repository.ensureLoaded()
+
         coVerify(exactly = 0) { zoneDao.replaceAll(any()) }
-        coVerify(exactly = 0) { settingsRepository.setCachedZoneHash(any()) }
     }
 
     @Test

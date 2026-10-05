@@ -10,6 +10,8 @@
 #   near:          [lat, lng] on the zone's centerline, well away from both ends
 #                  (must land within 100 m of exactly one zone of `direction`)
 #   direction:     the zone's `direction` field — picks the carriageway
+#   catalog:       optional. `bg` marks an upstream Bulgarian anchor that only
+#                  resolves against the BG catalog (skipped by the UK tests).
 #   min_length_m:  optional. Scenarios tuned to a long zone (a join 5.8 km in,
 #                  a stop mid-way) declare it, so an upstream split of the
 #                  section fails with a clear message instead of an odd timeout.
@@ -17,10 +19,30 @@
 # To add one: pick a vertex near the middle of the zone's `centerline` in
 # backend/data/zones.json.
 anchors:
+  # --- SrednaUK (backend/data/zones.json is the UK OSM catalog) ---
+  # A47 Acle Straight, Great Yarmouth (11.6 km, 50 mph). The UK default zone:
+  # the longest UK section, and nothing starts or ends near its entry, so the
+  # approach is genuinely outside every zone.
+  a47-acle-straight-west:
+    near: [52.62002, 1.70715]
+    direction: west
+    min_length_m: 10000
+
+  # A77 Kilmarnock Road, Prestwick (4.4 km each way, 50 mph): a two-direction
+  # pair, for drives that need the opposite carriageway.
+  a77-prestwick-south:
+    near: [55.54302, -4.5631]
+    direction: south
+  a77-prestwick-north:
+    near: [55.54864, -4.55556]
+    direction: north
+
+  # --- Upstream Bulgarian anchors (resolve only against the BG catalog) ---
   # АМ Тракия, Вакарел – Ихтиман (19 km, car 140). The harness's default zone:
   # real-fixture coverage in the core unit tests, long enough for every
   # mid-zone manoeuvre, with a westbound twin for the U-turn / wrong-way drives.
   trakiya-vakarel-ihtiman-east:
+    catalog: bg
     near: [42.489239, 23.78426]
     direction: east
     min_length_m: 15000
@@ -33,6 +55,7 @@ anchors:
   # westbound Вакарел – Крушовица begins 21 m away, where the stored centerline's
   # backwards first segment makes a synthetic drive briefly look westbound.
   trakiya-shtarkovo-tsalapitsa-east:
+    catalog: bg
     near: [42.239975, 24.364353]
     direction: east
     min_length_m: 5000
@@ -40,11 +63,13 @@ anchors:
   # АМ Струма, яз. Дяково – Дяково (2.5 km). Shortest zone whose car limit (140)
   # differs from both truck (90) and bus (100); also the dense-centerline case.
   struma-dyakovo-south:
+    catalog: bg
     near: [42.3342796, 23.0992484]
     direction: south
 
   # Път I-1, Кочериново – Слатино. The zone the A3 motorway runs beside — see
   # a3_kocherinovo_corridor.yaml.
   i1-kocherinovo-slatino-north:
+    catalog: bg
     near: [42.092398, 23.039942]
     direction: north

@@ -22,12 +22,13 @@ from ...events import Event
 from ...runner import RunContext
 from ..bulk_loader import _ensure_gpx, BulkScenarioSpec
 
-# The harness's default zone — АМ Тракия, Вакарел – Ихтиман, eastbound. An
-# anchor, not an id: see qa/fixtures/zone_anchors.yaml for why.
-DEFAULT_ZONE = "trakiya-vakarel-ihtiman-east"
+# The harness's default zone — SrednaUK: A47 Acle Straight, westbound. An
+# anchor, not an id: see qa/fixtures/zone_anchors.yaml for why. (Upstream
+# used АМ Тракия; scenarios tuned to its 19 km length may need re-tuning.)
+DEFAULT_ZONE = "a47-acle-straight-west"
 # For scenarios that assert on the approach and the entry: a long zone whose
 # entry camera is shared with no other zone, so the lead-in is truly Outside.
-ISOLATED_ENTRY_ZONE = "trakiya-shtarkovo-tsalapitsa-east"
+ISOLATED_ENTRY_ZONE = "a47-acle-straight-west"
 
 
 def resolve_zone(anchor: str) -> str:

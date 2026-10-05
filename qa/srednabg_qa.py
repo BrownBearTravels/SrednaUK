@@ -184,8 +184,8 @@ def _smoke_suite() -> list[Scenario]:
     """1 zone, 1 settings combo, single zone sync, parser self-test (last —
     it judges the event-type coverage of the whole suite run).
 
-    Picks АМ Тракия, Вакарел – Ихтиман because we have real-fixture coverage
-    in core unit tests for that zone — same data path proven good.
+    SrednaUK: drives the A47 Acle Straight (DEFAULT_ZONE), the longest UK
+    section, with nothing starting or ending near its entry.
     """
     from qa.scenarios.edge._helpers import DEFAULT_ZONE
 

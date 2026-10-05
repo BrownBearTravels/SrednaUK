@@ -78,7 +78,7 @@
 "aboutVersion" = "Version %@";
 "aboutLicense" = "MIT licensed open source";
 "aboutAttribution" = "Map data: © OpenMapTiles © OpenStreetMap contributors";
-"aboutZoneData" = "Zone data: BG TOLL, TollTracker.eu";
+"aboutZoneData" = "Zone data: © OpenStreetMap contributors (ODbL), via speedcameramap.uk";
 
 /* Map */
 "mapZoomIn" = "Zoom in";

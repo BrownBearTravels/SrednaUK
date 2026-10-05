@@ -257,13 +257,19 @@ final class AppContainer {
         // than the weekly server cron). Runs before the launch sync task below,
         // so the sync's recency gate sees the bundle's version.
         var seeded = false
+        // SrednaUK: with zone sync off the bundle is the only source of truth,
+        // so any different bundle replaces the cache — even an older one (the
+        // UK catalog replacing a cached upstream BG one). Mirrors Android's
+        // ZoneRepository.maybeReseedFromAssets.
         if let response = BundledZonesLoader().load(),
-           cached.isEmpty || ZoneDataRecency.shouldReseedFromBundle(
-               bundleHash: response.hash,
-               bundleVersion: response.version,
-               cachedHash: settings.cachedZoneHash,
-               cachedVersion: settings.cachedZoneVersion
-           ) {
+           cached.isEmpty || (FeatureFlags.isZoneSyncEnabled
+               ? ZoneDataRecency.shouldReseedFromBundle(
+                   bundleHash: response.hash,
+                   bundleVersion: response.version,
+                   cachedHash: settings.cachedZoneHash,
+                   cachedVersion: settings.cachedZoneVersion
+               )
+               : response.hash != settings.cachedZoneHash) {
             let usable = Self.usableZones(response.zonesInMph, origin: "bundle \(response.version)")
             try? await zoneStore.replaceAll(with: usable)
             tracking.updateZones(usable)

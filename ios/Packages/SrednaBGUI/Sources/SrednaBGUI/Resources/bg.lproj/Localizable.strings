@@ -78,7 +78,7 @@
 "aboutVersion" = "Версия %@";
 "aboutLicense" = "Отворен код с MIT лиценз";
 "aboutAttribution" = "Карти: © OpenMapTiles © OpenStreetMap contributors";
-"aboutZoneData" = "Данни за зони: БГ ТОЛ, TollTracker.eu";
+"aboutZoneData" = "Данни за зони: © сътрудници на OpenStreetMap (ODbL), чрез speedcameramap.uk";
 
 /* Map */
 "mapZoomIn" = "Приближаване";

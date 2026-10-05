@@ -86,7 +86,7 @@
     <string name="about_version">Version %s</string>
     <string name="about_license">Open source — MIT License</string>
     <string name="about_attribution">Map data: \u00A9 OpenMapTiles \u00A9 OpenStreetMap contributors</string>
-    <string name="about_zone_data">Zone data: BG TOLL, TollTracker.eu</string>
+    <string name="about_zone_data">Zone data: \u00A9 OpenStreetMap contributors (ODbL), via speedcameramap.uk</string>
 
     <!-- Permission gating -->
     <string name="permission_required_title">"Always" location permission needed</string>
