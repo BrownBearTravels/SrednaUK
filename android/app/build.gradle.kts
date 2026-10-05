@@ -24,7 +24,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.demosten.srednabg"
+        applicationId = "com.brownbeartravels.srednauk"
         minSdk = 26
         targetSdk = 36
         // Literal defaults so F-Droid's checkupdates can statically parse the

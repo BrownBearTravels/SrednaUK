@@ -50,6 +50,8 @@ class ZoneRepository @Inject constructor(
     }
 
     suspend fun syncFromServer(): SyncResult {
+        // SrednaUK: never contact the original Bulgarian zone server.
+        if (!com.demosten.srednabg.app.FeatureFlags.IS_ZONE_SYNC_ENABLED) return SyncResult.UpToDate
         return try {
             val version = zoneApi.fetchVersion()
             // Record the feed's support state before the recency gate: an

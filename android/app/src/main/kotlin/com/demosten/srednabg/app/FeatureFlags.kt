@@ -23,4 +23,12 @@ object FeatureFlags {
      * client code that lights up the moment the backend changes.
      */
     const val IS_MAP_SYNC_ENABLED = false
+
+    /**
+     * SrednaUK fork: the original app downloads zone updates from srednabg.com,
+     * which only serves Bulgarian zones. Leave this `false` so a UK build never
+     * replaces its bundled UK zones.json with Bulgarian data. Flip it only if
+     * you host your own zone feed and point ZONE_API_BASE_URL at it.
+     */
+    const val IS_ZONE_SYNC_ENABLED = false
 }
