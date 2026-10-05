@@ -242,6 +242,7 @@ class DebugControlReceiver : BroadcastReceiver() {
             "zone_feed_unsupported" -> settings.setZoneFeedUnsupported(raw.toBooleanStrict())
             "zone_sync_enabled" -> settings.setZoneSyncEnabled(raw.toBooleanStrict())
             "overlay_enabled" -> settings.setOverlayEnabled(raw.toBooleanStrict())
+            "overlay_style" -> settings.setOverlayStyle(raw)
             else -> throw IllegalArgumentException("unknown setting key: $key")
         }
     }

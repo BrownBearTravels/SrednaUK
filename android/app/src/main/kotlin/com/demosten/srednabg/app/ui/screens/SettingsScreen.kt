@@ -63,6 +63,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.demosten.srednabg.BuildConfig
 import com.demosten.srednabg.R
 import com.demosten.srednabg.app.FeatureFlags
+import com.demosten.srednabg.app.data.SettingsRepository
 import com.demosten.srednabg.app.data.SyncResult
 import com.demosten.srednabg.app.ui.util.formatZoneVersion
 import com.demosten.srednabg.app.ui.util.shortZoneHash
@@ -82,6 +83,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val mapThemeMode by viewModel.mapThemeMode.collectAsStateWithLifecycle()
     val zoneSyncEnabled by viewModel.zoneSyncEnabled.collectAsStateWithLifecycle()
     val overlayEnabled by viewModel.overlayEnabled.collectAsStateWithLifecycle()
+    val overlayStyle by viewModel.overlayStyle.collectAsStateWithLifecycle()
     val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
     val zoneDataVersion by viewModel.zoneDataVersion.collectAsStateWithLifecycle()
     val zoneDataHash by viewModel.zoneDataHash.collectAsStateWithLifecycle()
@@ -478,6 +480,59 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     }
                 },
             )
+        }
+
+        // Overlay style — Full / Compact. Only meaningful while the overlay is on.
+        if (overlayEnabled) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.setting_overlay_style),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Text(
+                text = stringResource(R.string.setting_overlay_style_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            var styleExpanded by rememberSaveable { mutableStateOf(false) }
+            val styleOptions = listOf(
+                SettingsRepository.OVERLAY_STYLE_FULL to stringResource(R.string.overlay_style_full),
+                SettingsRepository.OVERLAY_STYLE_COMPACT to stringResource(R.string.overlay_style_compact),
+            )
+            val currentStyleLabel = styleOptions.firstOrNull { it.first == overlayStyle }?.second ?: ""
+
+            ExposedDropdownMenuBox(
+                expanded = styleExpanded,
+                onExpandedChange = { styleExpanded = it },
+            ) {
+                OutlinedTextField(
+                    value = currentStyleLabel,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = styleExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        .semantics { testTagsAsResourceId = true }
+                        .testTag("settings-overlay-style"),
+                )
+                ExposedDropdownMenu(
+                    expanded = styleExpanded,
+                    onDismissRequest = { styleExpanded = false },
+                ) {
+                    styleOptions.forEach { (style, label) ->
+                        DropdownMenuItem(
+                            text = { Text(label) },
+                            onClick = {
+                                viewModel.setOverlayStyle(style)
+                                styleExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
         }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))

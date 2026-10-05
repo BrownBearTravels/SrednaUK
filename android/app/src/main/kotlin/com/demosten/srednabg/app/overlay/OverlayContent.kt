@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.demosten.srednabg.app.service.LocationTrackingService
 import com.demosten.srednabg.app.ui.components.ZoneStatusChip
+import com.demosten.srednabg.app.ui.components.ZoneStatusCompact
 import com.demosten.srednabg.app.ui.components.ZoneStatusPill
 import com.demosten.srednabg.core.VehicleType
 import com.demosten.srednabg.core.ZoneState
@@ -25,11 +26,14 @@ import com.demosten.srednabg.core.ZoneState
  * WindowManager window looked choppy, so it's deliberately omitted).
  *
  * [modifier] carries the drag handling supplied by `OverlayController`.
+ * [compact] (Settings → Overlay style) swaps the in-zone card for
+ * [ZoneStatusCompact]; the between-zones pill is already compact.
  */
 @Composable
 internal fun OverlayContent(
     vehicleType: VehicleType,
     debugMaxSpeedOverride: Int?,
+    compact: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val state by LocationTrackingService.zoneState.collectAsStateWithLifecycle()
@@ -45,12 +49,20 @@ internal fun OverlayContent(
             is ZoneState.Unmeasured,
             is ZoneState.InZone,
             is ZoneState.Exiting,
-            -> ZoneStatusChip(
-                state = state,
-                currentSpeedKmh = speed,
-                vehicleType = vehicleType,
-                debugMaxSpeedOverride = debugMaxSpeedOverride,
-            )
+            -> if (compact) {
+                ZoneStatusCompact(
+                    state = state,
+                    currentSpeedKmh = speed,
+                    vehicleType = vehicleType,
+                )
+            } else {
+                ZoneStatusChip(
+                    state = state,
+                    currentSpeedKmh = speed,
+                    vehicleType = vehicleType,
+                    debugMaxSpeedOverride = debugMaxSpeedOverride,
+                )
+            }
         }
     }
 }

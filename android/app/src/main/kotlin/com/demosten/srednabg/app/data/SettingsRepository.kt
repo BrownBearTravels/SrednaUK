@@ -63,6 +63,9 @@ class SettingsRepository @Inject constructor(
         private val KEY_OVERLAY_ENABLED = booleanPreferencesKey("overlay_enabled")
         private val KEY_OVERLAY_POS_X = intPreferencesKey("overlay_pos_x")
         private val KEY_OVERLAY_POS_Y = intPreferencesKey("overlay_pos_y")
+        // SrednaUK: how much the in-zone overlay shows — the full status card,
+        // or a compact one (average + limit badge) that covers less of Waze.
+        private val KEY_OVERLAY_STYLE = stringPreferencesKey("overlay_style")
 
         const val DEFAULT_APP_LANGUAGE = "system"
         const val DEFAULT_VEHICLE_TYPE = "car"
@@ -73,6 +76,9 @@ class SettingsRepository @Inject constructor(
         const val DEFAULT_ZONE_SYNC_ENABLED = true
         const val DEFAULT_OVERLAY_ENABLED = false
         const val OVERLAY_POS_UNSET = -1
+        const val OVERLAY_STYLE_FULL = "full"
+        const val OVERLAY_STYLE_COMPACT = "compact"
+        const val DEFAULT_OVERLAY_STYLE = OVERLAY_STYLE_FULL
         val DEFAULT_MAP_THEME_MODE: MapThemeMode = MapThemeMode.AUTO
 
         const val LANG_SYSTEM = "system"
@@ -153,6 +159,10 @@ class SettingsRepository @Inject constructor(
 
     val overlayEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[KEY_OVERLAY_ENABLED] ?: DEFAULT_OVERLAY_ENABLED
+    }
+
+    val overlayStyle: Flow<String> = dataStore.data.map { prefs ->
+        prefs[KEY_OVERLAY_STYLE] ?: DEFAULT_OVERLAY_STYLE
     }
 
     val overlayPosX: Flow<Int> = dataStore.data.map { prefs ->
@@ -258,6 +268,13 @@ class SettingsRepository @Inject constructor(
 
     suspend fun setOverlayEnabled(value: Boolean) {
         dataStore.edit { it[KEY_OVERLAY_ENABLED] = value }
+    }
+
+    suspend fun setOverlayStyle(value: String) {
+        require(value == OVERLAY_STYLE_FULL || value == OVERLAY_STYLE_COMPACT) {
+            "unknown overlay style: $value"
+        }
+        dataStore.edit { it[KEY_OVERLAY_STYLE] = value }
     }
 
     suspend fun setOverlayPosition(x: Int, y: Int) {

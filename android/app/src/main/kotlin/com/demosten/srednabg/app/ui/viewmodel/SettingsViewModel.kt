@@ -82,6 +82,13 @@ class SettingsViewModel @Inject constructor(
             SettingsRepository.DEFAULT_OVERLAY_ENABLED,
         )
 
+    val overlayStyle: StateFlow<String> = settingsRepository.overlayStyle
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            SettingsRepository.DEFAULT_OVERLAY_STYLE,
+        )
+
     val zoneDataVersion: StateFlow<String> = settingsRepository.cachedZoneVersion
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
@@ -143,6 +150,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setOverlayEnabled(value: Boolean) {
         viewModelScope.launch { settingsRepository.setOverlayEnabled(value) }
+    }
+
+    fun setOverlayStyle(value: String) {
+        viewModelScope.launch { settingsRepository.setOverlayStyle(value) }
     }
 
     fun syncNow() {

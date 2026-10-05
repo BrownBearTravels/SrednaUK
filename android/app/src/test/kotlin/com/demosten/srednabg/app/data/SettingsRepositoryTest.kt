@@ -55,6 +55,29 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun `default overlayStyle is full`() = runTest {
+        repository.overlayStyle.test {
+            assertEquals(SettingsRepository.OVERLAY_STYLE_FULL, awaitItem())
+        }
+    }
+
+    @Test
+    fun `setOverlayStyle persists compact`() = runTest {
+        repository.overlayStyle.test {
+            assertEquals(SettingsRepository.OVERLAY_STYLE_FULL, awaitItem())
+            repository.setOverlayStyle(SettingsRepository.OVERLAY_STYLE_COMPACT)
+            assertEquals(SettingsRepository.OVERLAY_STYLE_COMPACT, awaitItem())
+        }
+    }
+
+    @Test
+    fun `setOverlayStyle rejects an unknown style`() = runTest {
+        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            repository.setOverlayStyle("tiny")
+        }
+    }
+
+    @Test
     fun `default periodicVoiceUpdates is true`() = runTest {
         repository.periodicVoiceUpdates.test {
             assertEquals(true, awaitItem())

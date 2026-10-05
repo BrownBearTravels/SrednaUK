@@ -319,14 +319,7 @@ private fun ExitingChip(
     modifier: Modifier = Modifier,
 ) {
     val finalAvg = state.finalAvgSpeed
-    val overLimit = exitVerdictOverLimit(state, vehicleType)
-    val isLightChip = !isSystemInDarkTheme()
-    val color = when {
-        overLimit && isLightChip -> SpeedRed
-        overLimit -> Color(ZONE_COLOR_RED)
-        isLightChip -> SpeedGreen
-        else -> Color(ZONE_COLOR_GREEN)
-    }
+    val color = exitingColor(state, vehicleType)
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f),
@@ -402,6 +395,118 @@ internal fun ZoneStatusPill(
         }
     }
 }
+
+@Composable
+private fun exitingColor(state: ZoneState.Exiting, vehicleType: VehicleType): Color {
+    val overLimit = exitVerdictOverLimit(state, vehicleType)
+    val isLightChip = !isSystemInDarkTheme()
+    return when {
+        overLimit && isLightChip -> SpeedRed
+        overLimit -> Color(ZONE_COLOR_RED)
+        isLightChip -> SpeedGreen
+        else -> Color(ZONE_COLOR_GREEN)
+    }
+}
+
+/**
+ * Compact alternative to [ZoneStatusChip] for the floating overlay (Settings →
+ * Overlay style → Compact): just the number that matters and the limit badge,
+ * so it covers as little of Waze as possible. Same colour language as the full
+ * card — the average is green / amber / red in a zone, neutral when the entry
+ * was missed (live speed instead, no verdict), and the final average on exit.
+ * Distance, progress and "max ahead" are deliberately left out.
+ */
+@Composable
+internal fun ZoneStatusCompact(
+    state: ZoneState,
+    currentSpeedKmh: Double?,
+    vehicleType: VehicleType,
+    modifier: Modifier = Modifier,
+) {
+    val (speedText, color, limit, desc) = when (state) {
+        is ZoneState.Outside -> return
+        is ZoneState.InZone -> {
+            val limit = vehicleType.limit(state.zone.speedLimits)
+            val avg = state.avgSpeed.kmhToMph().orDash()
+            val status = stringResource(
+                if (state.speedStatus.isOverLimit) R.string.status_over_limit else R.string.status_within_limit,
+            )
+            CompactParts(
+                avg, chipStatusColor(state, currentSpeedKmh), limit,
+                stringResource(R.string.accessibility_in_zone, avg, limit, status),
+            )
+        }
+        is ZoneState.Unmeasured -> {
+            val limit = vehicleType.limit(state.zone.speedLimits)
+            CompactParts(
+                currentSpeedKmh.kmhToMph().orDash(), Color(ZONE_COLOR_NEUTRAL), limit,
+                stringResource(R.string.accessibility_unmeasured, state.zone.road, limit),
+            )
+        }
+        is ZoneState.Exiting -> {
+            val avg = state.finalAvgSpeed.kmhToMph().orDash()
+            CompactParts(
+                avg, exitingColor(state, vehicleType), vehicleType.limit(state.zone.speedLimits),
+                stringResource(R.string.accessibility_exiting, avg, state.zone.road),
+            )
+        }
+    }
+    Surface(
+        modifier = modifier.semantics { contentDescription = desc },
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 4.dp,
+        shadowElevation = 6.dp,
+        border = BorderStroke(1.5.dp, color.copy(alpha = 0.65f)),
+    ) {
+        Row(
+            modifier = Modifier
+                .background(color.copy(alpha = 0.15f))
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = speedText,
+                    color = if (state is ZoneState.Unmeasured) Color.Unspecified else color,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    modifier = Modifier.alignByBaseline(),
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+                Text(
+                    text = stringResource(R.string.current_speed_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.alignByBaseline(),
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Surface(
+                modifier = Modifier.size(38.dp),
+                shape = CircleShape,
+                color = Color.White,
+                border = BorderStroke(3.dp, Color(ZONE_COLOR_RED)),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "$limit",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                    )
+                }
+            }
+        }
+    }
+}
+
+private data class CompactParts(
+    val speedText: String,
+    val color: Color,
+    val limit: Int,
+    val contentDescription: String,
+)
 
 @Composable
 private fun chipStatusColor(state: ZoneState.InZone, currentSpeedKmh: Double?): Color {

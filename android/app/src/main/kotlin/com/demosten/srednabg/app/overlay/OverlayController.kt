@@ -108,9 +108,12 @@ class OverlayController(
                         .collectAsStateWithLifecycle(initialValue = null)
                     val vehicleSetting by settingsRepository.vehicleType
                         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_VEHICLE_TYPE)
+                    val style by settingsRepository.overlayStyle
+                        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_OVERLAY_STYLE)
                     OverlayContent(
                         vehicleType = VehicleType.fromSetting(vehicleSetting),
                         debugMaxSpeedOverride = debug,
+                        compact = style == SettingsRepository.OVERLAY_STYLE_COMPACT,
                         modifier = Modifier
                             .pointerInput(Unit) {
                                 detectDragGestures(
