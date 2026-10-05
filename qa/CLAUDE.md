@@ -114,7 +114,7 @@ The Android app ships two flavors differing only in the GPS provider (see
 `android/CLAUDE.md` "Product flavors"): `aosp` (LocationManager — F-Droid +
 GitHub) and `gms` (FusedLocationProvider — Play Store). The harness **does not
 build or install** — install the flavor you want to test first (both share the
-`com.demosten.srednabg` applicationId, so only one is installed at a time and
+`com.brownbeartravels.srednauk` applicationId, so only one is installed at a time and
 the harness tests whichever that is).
 
 `--flavor {auto,aosp,gms}` (default `auto`) controls the `location.source_selected`

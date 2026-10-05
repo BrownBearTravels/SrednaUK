@@ -16,11 +16,15 @@ import time
 from pathlib import Path
 from typing import Optional
 
-PACKAGE = "com.demosten.srednabg"
-MAIN_ACTIVITY = f"{PACKAGE}/.app.ui.MainActivity"
-SERVICE = f"{PACKAGE}/.app.service.LocationTrackingService"
-DEBUG_SYNC_RECEIVER = f"{PACKAGE}/{PACKAGE}.app.debug.DebugSyncReceiver"
-DEBUG_CONTROL_RECEIVER = f"{PACKAGE}/{PACKAGE}.app.debug.DebugControlReceiver"
+# SrednaUK: the applicationId (PACKAGE) differs from the Kotlin namespace the
+# classes live in (CODE_NS), so component names must be fully qualified — the
+# "pkg/.Relative" shorthand would resolve against the applicationId.
+PACKAGE = "com.brownbeartravels.srednauk"
+CODE_NS = "com.demosten.srednabg"
+MAIN_ACTIVITY = f"{PACKAGE}/{CODE_NS}.app.ui.MainActivity"
+SERVICE = f"{PACKAGE}/{CODE_NS}.app.service.LocationTrackingService"
+DEBUG_SYNC_RECEIVER = f"{PACKAGE}/{CODE_NS}.app.debug.DebugSyncReceiver"
+DEBUG_CONTROL_RECEIVER = f"{PACKAGE}/{CODE_NS}.app.debug.DebugControlReceiver"
 
 ACTION_SYNC_MAP = "com.demosten.srednabg.debug.SYNC_MAP"
 ACTION_SYNC_ZONES = "com.demosten.srednabg.debug.SYNC_ZONES"

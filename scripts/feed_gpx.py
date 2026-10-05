@@ -30,7 +30,7 @@ DHU so ``LocationTrackingService`` is live (it is started automatically
 when the car-app Session is created). If the service isn't running the
 script logs a warning per point — start tracking manually with::
 
-    adb shell am broadcast -n com.demosten.srednabg/com.demosten.srednabg.app.debug.DebugControlReceiver \
+    adb shell am broadcast -n com.brownbeartravels.srednauk/com.demosten.srednabg.app.debug.DebugControlReceiver \
         -a com.demosten.srednabg.debug.START_TRACKING
 """
 
@@ -50,8 +50,8 @@ EARTH_RADIUS_M = 6_371_000.0
 
 GPX_NS = {"g": "http://www.topografix.com/GPX/1/1"}
 
-PACKAGE = "com.demosten.srednabg"
-RECEIVER = "com.demosten.srednabg/com.demosten.srednabg.app.debug.DebugControlReceiver"
+PACKAGE = "com.brownbeartravels.srednauk"
+RECEIVER = f"{PACKAGE}/com.demosten.srednabg.app.debug.DebugControlReceiver"
 ACTION_FEED_POINT = "com.demosten.srednabg.debug.FEED_POINT"
 ACTION_START_TRACKING = "com.demosten.srednabg.debug.START_TRACKING"
 

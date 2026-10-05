@@ -27,8 +27,8 @@ from qa.device import (
 )
 
 PACKAGE = adb.PACKAGE
-DEBUG_CONTROL_RECEIVER = f"{PACKAGE}/{PACKAGE}.app.debug.DebugControlReceiver"
-DEBUG_SYNC_RECEIVER = f"{PACKAGE}/{PACKAGE}.app.debug.DebugSyncReceiver"
+DEBUG_CONTROL_RECEIVER = adb.DEBUG_CONTROL_RECEIVER
+DEBUG_SYNC_RECEIVER = adb.DEBUG_SYNC_RECEIVER
 
 ACTION_SET_SETTING = "com.demosten.srednabg.debug.SET_SETTING"
 ACTION_START_TRACKING = "com.demosten.srednabg.debug.START_TRACKING"

@@ -4,6 +4,16 @@ SrednaBG (Средна БГ) is a free, open-source Android + iOS phone app that
 
 Package ID: `com.demosten.srednabg` | Bulgaria-only scope | MIT license.
 
+## SrednaUK fork
+
+This checkout is **SrednaUK**, a UK fork of SrednaBG. Upstream text below still describes the Bulgarian app; where it conflicts, these rules win:
+
+- **Android app id** `com.brownbeartravels.srednauk`; Kotlin/Swift namespaces stay `com.demosten.srednabg`, so adb component names must be fully qualified (`qa/adb.py` `CODE_NS`). The iOS bundle id is still upstream's until an Apple team id is set up.
+- **Units.** Zone limits are **whole mph** everywhere (`SpeedLimits`, history `speedLimitMph`, Live Activity). Measured speeds stay **km/h** internally and convert only for display/speech; the engine compares against the *exact* `limit.mphToKmh()` (core `SpeedUnits.kt` / `SpeedUnits.swift`), never a rounded km/h value. "Max ahead" rounds down. Distances display in miles.
+- **Zone data.** `zones.json` may carry a top-level `"speed_unit": "mph"`; without it limits are read as km/h and converted to the nearest mph on load (`ZonesResponse.zonesInMph`). The bundled data is still the upstream Bulgarian set until a UK feed exists.
+- **No upstream network.** Zone sync is compile-time off (`FeatureFlags.IS_ZONE_SYNC_ENABLED` / `isZoneSyncEnabled`), and the online map fallback is OpenFreeMap, not srednabg.com. The offline map bundle is optional.
+- **English is the default locale** (Android `res/values/`, iOS `defaultLocalization`/`developmentRegion`); Bulgarian lives in `values-bg/` / `bg.lproj`.
+
 ## Implementation Status
 
 | Phase | Description | Status |

@@ -16,7 +16,7 @@
 #   qa/feed-zone.sh trakiya         # feed by substring (must be unambiguous)
 #
 # Env overrides: SPEED_MS (default 30 ~108km/h)  STEP_M (30)  INTERVAL (1s)
-#                PKG (com.demosten.srednabg)  ZONES_JSON (path)  NO_START=1
+#                PKG (com.brownbeartravels.srednauk)  ZONES_JSON (path)  NO_START=1
 #
 # Requires the DEBUG build installed and ACCESS_FINE/BACKGROUND_LOCATION granted.
 # For the overlay specifically, also `appops set <pkg> SYSTEM_ALERT_WINDOW allow`,
@@ -24,8 +24,10 @@
 # backgrounded while the route plays.
 set -euo pipefail
 
-PKG="${PKG:-com.demosten.srednabg}"
-RC="$PKG/$PKG.app.debug.DebugControlReceiver"
+PKG="${PKG:-com.brownbeartravels.srednauk}"
+# Classes keep the upstream Kotlin namespace, which differs from the app id.
+CODE_NS="com.demosten.srednabg"
+RC="$PKG/$CODE_NS.app.debug.DebugControlReceiver"
 SPEED_MS="${SPEED_MS:-30}"
 STEP_M="${STEP_M:-30}"
 INTERVAL="${INTERVAL:-1}"
@@ -71,7 +73,7 @@ if [[ "$NO_START" != "1" ]]; then
     echo "Foregrounding the app…"
     adb shell am start -W -a android.intent.action.MAIN \
         -c android.intent.category.LAUNCHER \
-        -n "$PKG/.app.ui.MainActivity" >/dev/null 2>&1
+        -n "$PKG/$CODE_NS.app.ui.MainActivity" >/dev/null 2>&1
     for _ in 1 2 3 4 5 6 7 8 9 10; do
         adb shell dumpsys activity activities 2>/dev/null \
             | grep -q "ResumedActivity.*$PKG" && break

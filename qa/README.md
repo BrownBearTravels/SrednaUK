@@ -21,8 +21,8 @@ caveats; this README sticks to the Android quick-start.
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 # 2. pre-grant runtime permissions (the harness does this too on each run)
-adb shell pm grant com.demosten.srednabg android.permission.ACCESS_FINE_LOCATION
-adb shell pm grant com.demosten.srednabg android.permission.POST_NOTIFICATIONS
+adb shell pm grant com.brownbeartravels.srednauk android.permission.ACCESS_FINE_LOCATION
+adb shell pm grant com.brownbeartravels.srednauk android.permission.POST_NOTIFICATIONS
 
 # 3. run a suite
 python qa/srednabg_qa.py --suite smoke

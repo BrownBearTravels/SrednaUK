@@ -43,7 +43,7 @@ from ...assertions import AssertionFailure, expect_crash_free
 from ...runner import RunContext, Scenario, step_lambda
 from ...ui import UiRecorder
 
-# English button labels (res/values-en/strings.xml); app_language is pinned
+# English button labels (res/values/strings.xml); app_language is pinned
 # to "en" before the check so these are deterministic.
 ALLOW_BUTTON_TEXT = "Allow notifications"       # notification_recommended_allow
 SETTINGS_BUTTON_TEXT = "Open Settings"          # permission_open_settings

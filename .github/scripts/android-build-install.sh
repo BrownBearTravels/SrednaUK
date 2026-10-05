@@ -18,4 +18,4 @@ fi
 
 echo "Installing $APK ..."
 adb install -r -d "$APK"
-echo "Installed com.demosten.srednabg (gms debug)."
+echo "Installed com.brownbeartravels.srednauk (gms debug)."
