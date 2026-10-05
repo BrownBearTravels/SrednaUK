@@ -15,7 +15,8 @@
 #   qa/feed-zone.sh europa-01-east  # feed by id
 #   qa/feed-zone.sh trakiya         # feed by substring (must be unambiguous)
 #
-# Env overrides: SPEED_MS (default 30 ~108km/h)  STEP_M (30)  INTERVAL (1s)
+# Env overrides: SPEED_MS (default 30 ~67mph)  STEP_M (30)  INTERVAL (1s)
+#                APPROACH_M (1500, lead-in before the entry camera)
 #                PKG (com.brownbeartravels.srednauk)  ZONES_JSON (path)  NO_START=1
 #
 # Requires the DEBUG build installed and ACCESS_FINE/BACKGROUND_LOCATION granted.

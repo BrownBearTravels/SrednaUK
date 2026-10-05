@@ -73,6 +73,17 @@ DUP_LENGTH_RATIO = 0.05
 # (the relation's road stretch can extend past the camera) but is logged.
 CAMERA_CHECK_M = 150
 
+# OSM relations sometimes carry a hook at one end: the stretch starts by
+# running the wrong way (across a roundabout or the opposite carriageway)
+# before turning back, or overshoots the exit camera and doubles back. A car
+# at such a start reads as travelling against the zone, so the entry is never
+# confirmed (the A47 Acle Straight's 375 m hook did exactly that on the
+# emulator). Hooks longer than HOOK_M are trimmed, and the trimmed end is then
+# moved to an average-speed camera on the path within CAMERA_SNAP_M of it.
+HOOK_M = 30
+CAMERA_SNAP_M = 600
+CAMERA_ON_PATH_M = 60
+
 # Great Britain + Northern Ireland, generously. Guards against a decoding bug
 # or a bad upstream row putting a zone somewhere absurd.
 UK_LAT = (49.8, 61.0)
@@ -139,6 +150,86 @@ def road_type(road: str | None) -> str:
     return "motorway" if road and re.fullmatch(r"A?M\d+[A-Z]?", road) else "road"
 
 
+def _xy(p: list[float], origin: list[float]) -> tuple[float, float]:
+    """Local equirectangular metres (x east, y north) — fine at section scale."""
+    return (
+        (p[1] - origin[1]) * 111_320 * math.cos(math.radians(origin[0])),
+        (p[0] - origin[0]) * 111_320,
+    )
+
+
+def _arc_of(p: list[float], line: list[list[float]]) -> tuple[float, float]:
+    """``(offset_m, arc_m)`` of the point on ``line`` nearest ``p``."""
+    best = (math.inf, 0.0)
+    arc = 0.0
+    for a, b in zip(line, line[1:], strict=False):
+        ax, ay = _xy(a, p)
+        bx, by = _xy(b, p)
+        dx, dy = bx - ax, by - ay
+        seg2 = dx * dx + dy * dy
+        t = 0.0 if seg2 == 0 else max(0.0, min(1.0, -(ax * dx + ay * dy) / seg2))
+        off = math.hypot(ax + t * dx, ay + t * dy)
+        seg = math.sqrt(seg2)
+        if off < best[0]:
+            best = (off, arc + t * seg)
+        arc += seg
+    return best
+
+
+def _slice(line: list[list[float]], start_m: float, end_m: float) -> list[list[float]]:
+    """The part of ``line`` between two arc positions, interpolating the ends."""
+    out: list[list[float]] = []
+    arc = 0.0
+    for a, b in zip(line, line[1:], strict=False):
+        seg = haversine_m(*a, *b)
+        lo, hi = arc, arc + seg
+        if seg > 0 and hi >= start_m and lo <= end_m:
+            for target in (max(lo, start_m), min(hi, end_m)):
+                f = (target - lo) / seg
+                pt = [round(a[0] + (b[0] - a[0]) * f, 6), round(a[1] + (b[1] - a[1]) * f, 6)]
+                if not out or out[-1] != pt:
+                    out.append(pt)
+        arc = hi
+    return out
+
+
+def trim_hooks(
+    line: list[list[float]], cameras: list[tuple[float, float]],
+) -> tuple[list[list[float]], list[str]]:
+    """Remove backwards hooks at either end; see HOOK_M. Returns the line and
+    a description of each change for the run log."""
+    origin = line[0]
+    ex, ey = _xy(line[-1], origin)
+    norm = math.hypot(ex, ey) or 1.0
+    ux, uy = ex / norm, ey / norm
+    proj = [x * ux + y * uy for x, y in (_xy(p, origin) for p in line)]
+    changes: list[str] = []
+    lo = proj.index(min(proj))
+    hi = max(range(len(proj)), key=lambda i: proj[i])
+    hook_start = -proj[lo] if lo > 0 else 0.0
+    hook_end = proj[hi] - proj[-1] if hi < len(line) - 1 else 0.0
+    if hook_start <= HOOK_M and hook_end <= HOOK_M:
+        return line, changes
+    first = lo if hook_start > HOOK_M else 0
+    last = hi if hook_end > HOOK_M else len(line) - 1
+    trimmed = line[first:last + 1]
+    total = polyline_length_m(trimmed)
+    start_m, end_m = 0.0, total
+    on_path = [_arc_of([c[0], c[1]], trimmed) for c in cameras]
+    on_path = [arc for off, arc in on_path if off <= CAMERA_ON_PATH_M]
+    if first:
+        near = [a for a in on_path if a <= CAMERA_SNAP_M]
+        start_m = min(near) if near else 0.0
+        changes.append(f"start hook {hook_start:.0f} m trimmed"
+                       + (f", start moved {start_m:.0f} m on to a camera" if near else ""))
+    if last < len(line) - 1:
+        near = [a for a in on_path if a >= total - CAMERA_SNAP_M and a > start_m]
+        end_m = max(near) if near else total
+        changes.append(f"end hook {hook_end:.0f} m trimmed"
+                       + (f", end moved {total - end_m:.0f} m back to a camera" if near else ""))
+    return _slice(trimmed, start_m, end_m), changes
+
+
 @dataclass
 class Section:
     raw: dict
@@ -173,6 +264,12 @@ def build_zones(sections_doc: dict, cameras_doc: dict | None) -> tuple[list[dict
     """
     notes: list[str] = []
     kept: list[Section] = []
+    avg_cams: list[tuple[float, float]] = []
+    if cameras_doc:
+        kinds = cameras_doc["kinds"]
+        avg_kind = kinds.index("average")
+        avg_cams = [(r[0], r[1]) for r in cameras_doc["rows"] if r[2] == avg_kind]
+
     for raw in sorted(sections_doc["sections"], key=lambda s: (s["scheme"], s["id"])):
         sid = f"{raw['scheme']}#{raw['id']}"
         limit = raw.get("limit")
@@ -185,6 +282,11 @@ def build_zones(sections_doc: dict, cameras_doc: dict | None) -> tuple[list[dict
             continue
         if not all(_in_uk(p) for p in line):
             notes.append(f"skip {sid}: geometry outside the UK")
+            continue
+        line, changes = trim_hooks(line, avg_cams)
+        notes.extend(f"fix {sid}: {c}" for c in changes)
+        if len(line) < 2:
+            notes.append(f"skip {sid}: nothing left after trimming hooks")
             continue
         length = polyline_length_m(line)
         if length < MIN_SECTION_M:
@@ -199,12 +301,6 @@ def build_zones(sections_doc: dict, cameras_doc: dict | None) -> tuple[list[dict
             notes.append(f"skip {sid}: duplicate of {dup.raw['scheme']}#{dup.raw['id']}")
             continue
         kept.append(sec)
-
-    avg_cams: list[tuple[float, float]] = []
-    if cameras_doc:
-        kinds = cameras_doc["kinds"]
-        avg_kind = kinds.index("average")
-        avg_cams = [(r[0], r[1]) for r in cameras_doc["rows"] if r[2] == avg_kind]
 
     def nearest_cam_m(p: list[float]) -> float:
         return min((haversine_m(p[0], p[1], c[0], c[1]) for c in avg_cams), default=math.inf)

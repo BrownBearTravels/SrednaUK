@@ -1,6 +1,6 @@
 {
   "version": "2026-09-27T00:00:00Z",
-  "hash": "sha256:d165d182988242ce94f31a08304de0cb103da3421f6849a7ff20f193793a77cb",
+  "hash": "sha256:4510af7ccba5effdf7169d57ff8d5ea87172a7ddd40deca2637e3e76893f356b",
   "speed_unit": "mph",
   "attribution": "Average speed sections © OpenStreetMap contributors (ODbL 1.0), via speedcameramap.uk",
   "licence": "ODbL-1.0",
@@ -1275,8 +1275,8 @@
       "direction": "north",
       "description": "A34, Stratford Road",
       "start": {
-        "lat": 52.39106,
-        "lng": -1.80844,
+        "lat": 52.390571,
+        "lng": -1.807903,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -1288,7 +1288,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 1873,
+      "distance_m": 1017,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -1297,28 +1297,8 @@
       },
       "centerline": [
         [
-          52.39106,
-          -1.80844
-        ],
-        [
-          52.38902,
-          -1.80431
-        ],
-        [
-          52.38892,
-          -1.80316
-        ],
-        [
-          52.38866,
-          -1.80321
-        ],
-        [
-          52.38874,
-          -1.80392
-        ],
-        [
-          52.38967,
-          -1.80612
+          52.390571,
+          -1.807903
         ],
         [
           52.39111,
@@ -1440,13 +1420,13 @@
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.63543,
-        "lng": -1.80255,
+        "lat": 52.64091,
+        "lng": -1.80467,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 3647,
+      "distance_m": 2990,
       "speed_limits": {
         "car": 60,
         "truck": 60,
@@ -1517,26 +1497,6 @@
         [
           52.64091,
           -1.80467
-        ],
-        [
-          52.64071,
-          -1.80395
-        ],
-        [
-          52.64004,
-          -1.80331
-        ],
-        [
-          52.63941,
-          -1.80314
-        ],
-        [
-          52.63834,
-          -1.80328
-        ],
-        [
-          52.63543,
-          -1.80255
         ]
       ],
       "road_type": "road",
@@ -2401,8 +2361,8 @@
       "direction": "west",
       "description": "A45, Coventry Road",
       "start": {
-        "lat": 52.46266,
-        "lng": -1.82528,
+        "lat": 52.462492,
+        "lng": -1.824802,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -2414,7 +2374,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 648,
+      "distance_m": 468,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -2423,12 +2383,8 @@
       },
       "centerline": [
         [
-          52.46266,
-          -1.82528
-        ],
-        [
-          52.4624,
-          -1.82375
+          52.462492,
+          -1.824802
         ],
         [
           52.46309,
@@ -2446,8 +2402,8 @@
       "direction": "west",
       "description": "A45, Coventry Road",
       "start": {
-        "lat": 52.46132,
-        "lng": -1.80564,
+        "lat": 52.46115,
+        "lng": -1.805775,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -2459,7 +2415,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 2023,
+      "distance_m": 1114,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -2468,32 +2424,8 @@
       },
       "centerline": [
         [
-          52.46132,
-          -1.80564
-        ],
-        [
-          52.4609,
-          -1.80367
-        ],
-        [
-          52.45944,
-          -1.80086
-        ],
-        [
-          52.45907,
-          -1.80034
-        ],
-        [
-          52.45893,
-          -1.80038
-        ],
-        [
-          52.46064,
-          -1.80363
-        ],
-        [
-          52.46104,
-          -1.80498
+          52.46115,
+          -1.805775
         ],
         [
           52.46162,
@@ -2564,8 +2496,8 @@
       "direction": "west",
       "description": "A47, New Road",
       "start": {
-        "lat": 52.61994,
-        "lng": 1.70974,
+        "lat": 52.618898,
+        "lng": 1.714802,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -2577,7 +2509,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 11555,
+      "distance_m": 11150,
       "speed_limits": {
         "car": 50,
         "truck": 50,
@@ -2586,20 +2518,8 @@
       },
       "centerline": [
         [
-          52.61994,
-          1.70974
-        ],
-        [
-          52.61968,
-          1.71281
-        ],
-        [
-          52.61937,
-          1.71392
-        ],
-        [
-          52.61886,
-          1.71506
+          52.618898,
+          1.714802
         ],
         [
           52.62002,
@@ -3823,8 +3743,8 @@
       "direction": "north",
       "description": "A6, London Road",
       "start": {
-        "lat": 53.7504,
-        "lng": -2.67559,
+        "lat": 53.75021,
+        "lng": -2.675646,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -3836,7 +3756,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 1393,
+      "distance_m": 1150,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -3845,24 +3765,8 @@
       },
       "centerline": [
         [
-          53.7504,
-          -2.67559
-        ],
-        [
-          53.74995,
-          -2.67519
-        ],
-        [
-          53.74929,
-          -2.67508
-        ],
-        [
-          53.74937,
-          -2.67526
-        ],
-        [
-          53.75009,
-          -2.67552
+          53.75021,
+          -2.675646
         ],
         [
           53.75049,
@@ -3900,8 +3804,8 @@
       "direction": "south",
       "description": "A6, London Road",
       "start": {
-        "lat": 53.75606,
-        "lng": -2.68197,
+        "lat": 53.758332,
+        "lng": -2.684554,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -3913,7 +3817,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 1498,
+      "distance_m": 1076,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -3922,16 +3826,8 @@
       },
       "centerline": [
         [
-          53.75606,
-          -2.68197
-        ],
-        [
-          53.75732,
-          -2.68322
-        ],
-        [
-          53.75877,
-          -2.68505
+          53.758332,
+          -2.684554
         ],
         [
           53.75589,
@@ -5208,20 +5104,20 @@
       "direction": "west",
       "description": "A6514, Valley Road",
       "start": {
-        "lat": 52.98672,
-        "lng": -1.16096,
+        "lat": 52.986382,
+        "lng": -1.161991,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.98104,
-        "lng": -1.17361,
+        "lat": 52.982196,
+        "lng": -1.173105,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 1575,
+      "distance_m": 947,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -5230,24 +5126,8 @@
       },
       "centerline": [
         [
-          52.98672,
-          -1.16096
-        ],
-        [
-          52.98696,
-          -1.16016
-        ],
-        [
-          52.98733,
-          -1.15979
-        ],
-        [
-          52.98721,
-          -1.15924
-        ],
-        [
-          52.98688,
-          -1.15942
+          52.986382,
+          -1.161991
         ],
         [
           52.98626,
@@ -5274,20 +5154,8 @@
           -1.1731
         ],
         [
-          52.98168,
-          -1.17311
-        ],
-        [
-          52.98053,
-          -1.17373
-        ],
-        [
-          52.98053,
-          -1.17389
-        ],
-        [
-          52.98104,
-          -1.17361
+          52.982196,
+          -1.173105
         ]
       ],
       "road_type": "road",
@@ -5488,13 +5356,13 @@
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.96669,
-        "lng": -1.19089,
+        "lat": 52.966285,
+        "lng": -1.190684,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 517,
+      "distance_m": 234,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -5511,16 +5379,8 @@
           -1.19062
         ],
         [
-          52.96528,
-          -1.19073
-        ],
-        [
-          52.96528,
-          -1.19095
-        ],
-        [
-          52.96669,
-          -1.19089
+          52.966285,
+          -1.190684
         ]
       ],
       "road_type": "road",
@@ -5534,8 +5394,8 @@
       "direction": "south",
       "description": "A6514, Western Boulevard",
       "start": {
-        "lat": 52.96669,
-        "lng": -1.19089,
+        "lat": 52.966287,
+        "lng": -1.190653,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -5547,7 +5407,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 826,
+      "distance_m": 512,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -5556,20 +5416,8 @@
       },
       "centerline": [
         [
-          52.96669,
-          -1.19089
-        ],
-        [
-          52.96775,
-          -1.19081
-        ],
-        [
-          52.96786,
-          -1.19077
-        ],
-        [
-          52.96781,
-          -1.19058
+          52.966287,
+          -1.190653
         ],
         [
           52.9618,
@@ -5598,13 +5446,13 @@
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.95888,
-        "lng": -1.19113,
+        "lat": 52.958619,
+        "lng": -1.190928,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 640,
+      "distance_m": 367,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -5625,16 +5473,8 @@
           -1.19085
         ],
         [
-          52.95759,
-          -1.19096
-        ],
-        [
-          52.9576,
-          -1.1912
-        ],
-        [
-          52.95888,
-          -1.19113
+          52.958619,
+          -1.190928
         ]
       ],
       "road_type": "road",
@@ -5643,59 +5483,6 @@
     },
     {
       "id": "a6514-nottingham-09-south",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "south",
-      "description": "A6514, Western Boulevard",
-      "start": {
-        "lat": 52.95888,
-        "lng": -1.19113,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.95734,
-        "lng": -1.1912,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 690,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.95888,
-          -1.19113
-        ],
-        [
-          52.96111,
-          -1.19108
-        ],
-        [
-          52.96094,
-          -1.19086
-        ],
-        [
-          52.95733,
-          -1.19096
-        ],
-        [
-          52.95734,
-          -1.1912
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-10-south",
       "road": "A6514",
       "road_latin": "A6514",
       "direction": "south",
@@ -5756,7 +5543,7 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a6514-nottingham-11-south",
+      "id": "a6514-nottingham-10-south",
       "road": "A6514",
       "road_latin": "A6514",
       "direction": "south",
@@ -7330,13 +7117,13 @@
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.4144,
-        "lng": -1.50967,
+        "lat": 52.414296,
+        "lng": -1.509491,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 602,
+      "distance_m": 210,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -7353,36 +7140,8 @@
           -1.50952
         ],
         [
-          52.41426,
-          -1.50949
-        ],
-        [
-          52.41357,
-          -1.50928
-        ],
-        [
-          52.41311,
-          -1.5087
-        ],
-        [
-          52.41292,
-          -1.50869
-        ],
-        [
-          52.4128,
-          -1.50904
-        ],
-        [
-          52.41299,
-          -1.50952
-        ],
-        [
-          52.41352,
-          -1.50944
-        ],
-        [
-          52.4144,
-          -1.50967
+          52.414296,
+          -1.509491
         ]
       ],
       "road_type": "road",
@@ -7396,8 +7155,8 @@
       "direction": "south",
       "description": "B425, Lode Lane",
       "start": {
-        "lat": 52.43886,
-        "lng": -1.78363,
+        "lat": 52.439006,
+        "lng": -1.783526,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -7409,7 +7168,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 854,
+      "distance_m": 570,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -7418,24 +7177,8 @@
       },
       "centerline": [
         [
-          52.43886,
-          -1.78363
-        ],
-        [
-          52.43989,
-          -1.78421
-        ],
-        [
-          52.44009,
-          -1.78409
-        ],
-        [
-          52.44001,
-          -1.78374
-        ],
-        [
-          52.43929,
-          -1.78373
+          52.439006,
+          -1.783526
         ],
         [
           52.43685,
@@ -7994,13 +7737,13 @@
         "settlement_latin": null
       },
       "end": {
-        "lat": 53.76422,
-        "lng": -2.63986,
+        "lat": 53.764345,
+        "lng": -2.639501,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 1886,
+      "distance_m": 925,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -8029,60 +7772,8 @@
           -2.63961
         ],
         [
-          53.76444,
-          -2.63908
-        ],
-        [
-          53.76485,
-          -2.63857
-        ],
-        [
-          53.76486,
-          -2.63757
-        ],
-        [
-          53.76518,
-          -2.63611
-        ],
-        [
-          53.76511,
-          -2.63449
-        ],
-        [
-          53.76525,
-          -2.63366
-        ],
-        [
-          53.76515,
-          -2.63335
-        ],
-        [
-          53.76496,
-          -2.63322
-        ],
-        [
-          53.7647,
-          -2.63365
-        ],
-        [
-          53.76507,
-          -2.63503
-        ],
-        [
-          53.76509,
-          -2.63596
-        ],
-        [
-          53.76484,
-          -2.63724
-        ],
-        [
-          53.76421,
-          -2.63803
-        ],
-        [
-          53.76422,
-          -2.63986
+          53.764345,
+          -2.639501
         ]
       ],
       "road_type": "road",

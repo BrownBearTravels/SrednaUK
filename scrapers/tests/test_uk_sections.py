@@ -18,6 +18,7 @@ from src.uk_sections import (
     compute_hash,
     decode_polyline,
     road_type,
+    trim_hooks,
 )
 
 
@@ -79,6 +80,41 @@ class TestRoadType:
     ])
     def test_road_type(self, road, expected):
         assert road_type(road) == expected
+
+
+class TestTrimHooks:
+    # Westbound along lat 52.62, like the A47 Acle Straight: the mapped line
+    # first runs ~340 m EAST (the hook), then turns and heads west for ~2 km.
+    HOOKED = [[52.62, 1.700], [52.62, 1.705], [52.62, 1.695], [52.62, 1.670]]
+
+    def test_clean_line_is_untouched(self):
+        line = [[52.62, 1.70], [52.62, 1.69], [52.62, 1.68]]
+        assert trim_hooks(line, []) == (line, [])
+
+    def test_start_hook_is_removed(self):
+        line, changes = trim_hooks(self.HOOKED, [])
+        assert line[0] == [52.62, 1.705]  # starts at the hook's tip, heading west
+        assert all(a[1] > b[1] for a, b in zip(line, line[1:], strict=False))
+        assert changes and "start hook" in changes[0]
+
+    def test_trimmed_start_snaps_to_a_camera_on_the_path(self):
+        cam = (52.62, 1.703)  # ~135 m west of the tip
+        line, changes = trim_hooks(self.HOOKED, [cam])
+        assert haversine_m(*line[0], *cam) < 5
+        assert "moved" in changes[0]
+
+    def test_end_overshoot_is_removed(self):
+        # Eastbound, overshoots to 1.705 and doubles back ~200 m to 1.702.
+        overshoot = [[52.62, 1.670], [52.62, 1.700], [52.62, 1.705], [52.62, 1.702]]
+        line, changes = trim_hooks(overshoot, [])
+        assert line[-1] == [52.62, 1.705]
+        assert "end hook" in changes[0]
+
+    def test_trimmed_end_snaps_back_to_a_camera(self):
+        overshoot = [[52.62, 1.670], [52.62, 1.700], [52.62, 1.705], [52.62, 1.702]]
+        cam = (52.62, 1.701)
+        line, _ = trim_hooks(overshoot, [cam])
+        assert haversine_m(*line[-1], *cam) < 5
 
 
 class TestBuild:

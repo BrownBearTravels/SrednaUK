@@ -10,6 +10,7 @@
 #          and a one-line summary on stderr. Selector is an index, an exact id,
 #          or an unambiguous substring of the id/road.
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -77,11 +78,12 @@ def resolve(zones, sel):
     sys.exit(f"zone not found: '{sel}' (run with no args to list)")
 
 
-def build_route(z, step):
+def build_route(z, step, approach_m=None):
     """Return the list of (lat, lng) waypoints to drive zone `z`, oriented by
     the zone's *endpoints* (start -> end) so the drive follows the real
     carriageway direction regardless of how the centerline points are ordered.
-    Includes the four leading approach points (Outside before entry).
+    Includes leading approach points (Outside before entry): four steps by
+    default, or `approach_m` metres of them when given.
 
     Shared by the `route` CLI command and the validation harness
     (`validate_zones.py`) so both feed the identical geometry."""
@@ -126,15 +128,19 @@ def build_route(z, step):
 
     # Prepend approach points before the start so we begin Outside, then enter.
     b0 = brng(pts[0], pts[1])
-    approach = [offset(pts[0], (b0 + 180) % 360, step * k) for k in (4, 3, 2, 1)]
+    # Four steps is too short a lead-in when tracking has only just started:
+    # the first accepted fix can land past ZoneDetector.START_WITNESS_ARC_M
+    # (200 m) and the zone reads Unmeasured. The feed CLI passes ~1.5 km.
+    n = max(4, round(approach_m / step)) if approach_m else 4
+    approach = [offset(pts[0], (b0 + 180) % 360, step * k) for k in range(n, 0, -1)]
     return approach + pts
 
 
 def cmd_route(zones, sel, step, speed):
     z = resolve(zones, sel)
-    full = build_route(z, step)
+    full = build_route(z, step, approach_m=float(os.environ.get("APPROACH_M", "1500")))
 
-    print(f"Zone {z.get('id')} ({road_label(z)}) — limit {car_limit(z)} km/h, "
+    print(f"Zone {z.get('id')} ({road_label(z)}) — limit {car_limit(z)} mph, "
           f"{z.get('distance_m', 0) / 1000:.1f} km, {len(full)} fixes @ {speed:.0f} m/s",
           file=sys.stderr)
 
