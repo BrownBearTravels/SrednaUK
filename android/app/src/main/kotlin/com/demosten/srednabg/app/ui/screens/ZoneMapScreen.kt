@@ -72,6 +72,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.demosten.srednabg.R
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.ui.components.ZoneStatusChip
 import com.demosten.srednabg.app.ui.viewmodel.MapCameraSnapshot
 import com.demosten.srednabg.app.ui.viewmodel.ZoneMapViewModel
@@ -215,14 +216,14 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
         MapLibre.getInstance(context)
         val seedZoom = initialZoomOverride?.toDouble()
             ?: initialCameraSnapshot?.zoom
-            ?: 7.0
+            ?: GB_OVERVIEW_ZOOM
         MapView(context).apply {
             getMapAsync { map ->
                 map.cameraPosition = CameraPosition.Builder()
                     .target(
                         initialCameraSnapshot
                             ?.let { LatLng(it.lat, it.lng) }
-                            ?: LatLng(42.7, 25.5),
+                            ?: GB_CENTER,
                     )
                     .zoom(seedZoom)
                     .bearing(initialCameraSnapshot?.bearing ?: 0.0)
@@ -504,7 +505,7 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
             map.animateCamera(
                 CameraUpdateFactory.newCameraPosition(
                     CameraPosition.Builder()
-                        .target(LatLng(42.7339, 25.4858))
+                        .target(GB_CENTER)
                         .zoom(overrideZoom)
                         .bearing(0.0)
                         .tilt(0.0)
@@ -665,26 +666,32 @@ fun ZoneMapScreen(viewModel: ZoneMapViewModel = hiltViewModel()) {
                         text = stringResource(R.string.no_zones_loaded),
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    TextButton(
-                        onClick = { viewModel.retrySync() },
-                        enabled = !isSyncing,
-                    ) {
-                        if (isSyncing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = LocalContentColor.current,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
+                    if (FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        TextButton(
+                            onClick = { viewModel.retrySync() },
+                            enabled = !isSyncing,
+                        ) {
+                            if (isSyncing) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = LocalContentColor.current,
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            Text(stringResource(R.string.retry_sync))
                         }
-                        Text(stringResource(R.string.retry_sync))
                     }
                 }
             }
         }
     }
 }
+
+// SrednaUK: first-launch camera before any GPS fix — the whole of Great Britain.
+private val GB_CENTER = LatLng(54.0, -2.5)
+private const val GB_OVERVIEW_ZOOM = 5.0
 
 private fun installSharedStyleLayers(style: Style, context: Context) {
     context.bitmapFromVectorDrawable(R.drawable.ic_nav_arrow)?.let { bitmap ->

@@ -50,8 +50,6 @@ class ZoneRepository @Inject constructor(
     }
 
     suspend fun syncFromServer(): SyncResult {
-        // SrednaUK: never contact the original Bulgarian zone server.
-        if (!com.demosten.srednabg.app.FeatureFlags.IS_ZONE_SYNC_ENABLED) return SyncResult.UpToDate
         return try {
             val version = zoneApi.fetchVersion()
             // Record the feed's support state before the recency gate: an
@@ -79,7 +77,7 @@ class ZoneRepository @Inject constructor(
                 }
                 ZoneSyncDecision.APPLY_REMOTE -> {
                     val response = zoneApi.fetchZones()
-                    val entities = usableZones(response.zones, "server ${response.version}")
+                    val entities = usableZones(response.zonesInMph(), "server ${response.version}")
                         .map { it.toEntity(gson) }
                     zoneDao.replaceAll(entities)
                     settingsRepository.setCachedZoneHash(response.hash)
@@ -99,7 +97,7 @@ class ZoneRepository @Inject constructor(
     private suspend fun loadFromAssets() {
         val response = parseBundledZones() ?: return
         if (response.zones.isNotEmpty()) {
-            val entities = usableZones(response.zones, "bundle ${response.version}")
+            val entities = usableZones(response.zonesInMph(), "bundle ${response.version}")
                 .map { it.toEntity(gson) }
             zoneDao.replaceAll(entities)
             settingsRepository.setCachedZoneHash(response.hash)
@@ -129,7 +127,7 @@ class ZoneRepository @Inject constructor(
             return
         }
         Log.i(TAG, "Re-seeding zones from bundle ${response.version} (local was $cachedVersion)")
-        val entities = usableZones(response.zones, "bundle ${response.version}")
+        val entities = usableZones(response.zonesInMph(), "bundle ${response.version}")
             .map { it.toEntity(gson) }
         zoneDao.replaceAll(entities)
         settingsRepository.setCachedZoneHash(response.hash)

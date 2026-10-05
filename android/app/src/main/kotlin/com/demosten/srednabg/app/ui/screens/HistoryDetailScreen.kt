@@ -53,6 +53,7 @@ import com.demosten.srednabg.app.ui.components.historyVerdictColor
 import com.demosten.srednabg.app.ui.util.directionLabel
 import com.demosten.srednabg.app.ui.util.formatDuration
 import com.demosten.srednabg.app.ui.util.formatHistoryDateTime
+import com.demosten.srednabg.app.ui.util.kmhToMph
 import com.demosten.srednabg.app.ui.util.orDash
 import com.demosten.srednabg.app.ui.viewmodel.HistoryDetail
 import com.demosten.srednabg.app.ui.viewmodel.HistoryDetailUiState
@@ -178,23 +179,23 @@ private fun StatsCard(d: HistoryDetail, verdictColor: Color) {
             StatRow(stringResource(R.string.history_duration), formatDuration(d.exitTimeMs - d.entryTimeMs))
             StatRow(
                 label = stringResource(R.string.history_your_average),
-                value = stringResource(R.string.history_kmh_value, d.avgSpeedKmh.orDash()),
+                value = stringResource(R.string.history_kmh_value, d.avgSpeedKmh.kmhToMph().orDash()),
                 valueColor = verdictColor,
                 emphasize = true,
             )
             StatRow(
                 stringResource(R.string.history_top_speed),
-                stringResource(R.string.history_kmh_value, d.sustainedMaxKmh.orDash()),
+                stringResource(R.string.history_kmh_value, d.sustainedMaxKmh.kmhToMph().orDash()),
             )
             StatRow(
                 stringResource(R.string.history_lowest_speed),
-                stringResource(R.string.history_kmh_value, d.sustainedMinKmh.orDash()),
+                stringResource(R.string.history_kmh_value, d.sustainedMinKmh.kmhToMph().orDash()),
             )
             StatRow(
                 label = stringResource(
                     if (d.isOverLimit) R.string.status_over_limit else R.string.status_within_limit,
                 ),
-                value = stringResource(R.string.history_kmh_value, d.limitKmh.toString()),
+                value = stringResource(R.string.history_kmh_value, d.limitMph.toString()),
                 valueColor = verdictColor,
             )
         }
@@ -241,9 +242,9 @@ private fun GraphCard(d: HistoryDetail, verdictColor: Color) {
                 style = MaterialTheme.typography.titleSmall,
             )
             SpeedGraph(
-                samples = d.samples,
-                avgSpeedKmh = d.avgSpeedKmh,
-                limitKmh = d.limitKmh,
+                samples = d.samples.map { it.copy(speedKmh = it.speedKmh.kmhToMph()) },
+                avgSpeed = d.avgSpeedKmh.kmhToMph(),
+                limit = d.limitMph,
                 lineColor = MaterialTheme.colorScheme.primary,
                 averageColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 limitColor = Color(ZONE_COLOR_RED),

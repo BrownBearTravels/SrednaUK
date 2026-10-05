@@ -9,6 +9,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.demosten.srednabg.app.FeatureFlags
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -26,6 +27,7 @@ class ZoneSyncWorker @AssistedInject constructor(
         // worker can still fire after SrednaBGApp or the Settings toggle
         // cancelled it (e.g. the user disabled "Automatic zone updates" in a
         // prior session). Short-circuit here too.
+        if (!FeatureFlags.IS_ZONE_SYNC_ENABLED) return Result.success()
         if (!settingsRepository.zoneSyncEnabled.first()) return Result.success()
         return when (zoneRepository.syncFromServer()) {
             is SyncResult.Updated, SyncResult.UpToDate -> Result.success()

@@ -35,6 +35,8 @@ import com.demosten.srednabg.R
 import com.demosten.srednabg.app.data.SettingsRepository
 import com.demosten.srednabg.app.data.ZoneRepository
 import com.demosten.srednabg.app.service.LocationTrackingService
+import com.demosten.srednabg.app.ui.util.kmhToMph
+import com.demosten.srednabg.app.ui.util.metresToMiles
 import com.demosten.srednabg.app.ui.util.orDash
 import com.demosten.srednabg.core.GpsPoint
 import com.demosten.srednabg.core.VehicleType
@@ -258,9 +260,9 @@ class NavigationScreen(carContext: CarContext) : Screen(carContext) {
                 val speedLimit = getSpeedLimit(state.zone)
                 val step = Step.Builder(state.zone.road)
                     .setManeuver(Maneuver.Builder(Maneuver.TYPE_STRAIGHT).build())
-                    .setCue(carContext.getString(R.string.auto_routing_cue, state.avgSpeed.orDash(), speedLimit))
+                    .setCue(carContext.getString(R.string.auto_routing_cue, state.avgSpeed.kmhToMph().orDash(), speedLimit))
                     .build()
-                val distance = Distance.create(state.distanceRemaining, Distance.UNIT_METERS)
+                val distance = Distance.create(state.distanceRemaining.metresToMiles(), Distance.UNIT_MILES_P1)
                 builder.setNavigationInfo(
                     RoutingInfo.Builder()
                         .setCurrentStep(step, distance)
@@ -282,7 +284,7 @@ class NavigationScreen(carContext: CarContext) : Screen(carContext) {
                     RoutingInfo.Builder()
                         .setCurrentStep(
                             step,
-                            Distance.create(state.distanceRemaining, Distance.UNIT_METERS),
+                            Distance.create(state.distanceRemaining.metresToMiles(), Distance.UNIT_MILES_P1),
                         )
                         .build(),
                 )
@@ -290,11 +292,11 @@ class NavigationScreen(carContext: CarContext) : Screen(carContext) {
             is ZoneState.Exiting -> {
                 val step = Step.Builder(state.zone.road)
                     .setManeuver(Maneuver.Builder(Maneuver.TYPE_DESTINATION).build())
-                    .setCue(carContext.getString(R.string.auto_final_speed, state.finalAvgSpeed.orDash()))
+                    .setCue(carContext.getString(R.string.auto_final_speed, state.finalAvgSpeed.kmhToMph().orDash()))
                     .build()
                 builder.setNavigationInfo(
                     RoutingInfo.Builder()
-                        .setCurrentStep(step, Distance.create(0.0, Distance.UNIT_METERS))
+                        .setCurrentStep(step, Distance.create(0.0, Distance.UNIT_MILES_P1))
                         .build(),
                 )
             }
@@ -337,7 +339,7 @@ class NavigationScreen(carContext: CarContext) : Screen(carContext) {
 
     private fun updateTrip(state: ZoneState.InZone) {
         try {
-            val distance = Distance.create(state.distanceRemaining, Distance.UNIT_METERS)
+            val distance = Distance.create(state.distanceRemaining.metresToMiles(), Distance.UNIT_MILES_P1)
             val remainingSec = state.speedStatus.timeRemaining.toLong().coerceAtLeast(0)
             val eta = ZonedDateTime.now().plusSeconds(remainingSec)
             val travelEstimate = TravelEstimate.Builder(distance, eta)

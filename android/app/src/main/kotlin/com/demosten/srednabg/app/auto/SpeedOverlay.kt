@@ -9,8 +9,12 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import com.demosten.srednabg.app.ui.util.formatMiles
+import com.demosten.srednabg.app.ui.util.kmhToMph
+import com.demosten.srednabg.app.ui.util.kmhToMphFloor
 import com.demosten.srednabg.app.ui.util.orDash
 import com.demosten.srednabg.core.ZoneState
+import com.demosten.srednabg.core.mphToKmh
 import kotlin.math.max
 import kotlin.math.min
 
@@ -137,7 +141,7 @@ class SpeedOverlay {
         val gap = 8f
         val panelHeight = topPad + heroLine + gap + labelLine + botPad
 
-        val valueStr = currentSpeedKmh.orDash()
+        val valueStr = currentSpeedKmh.kmhToMph().orDash()
         val unitStr = " " + labels.kmhLabel
 
         val savedSpeedAlign = speedTextPaint.textAlign
@@ -212,7 +216,7 @@ class SpeedOverlay {
         val progressHeight = max(area.height() * 0.01f, 5f)
         // Left: [hero km/h] + "Now XXX km/h"
         val leftContent = heroLine + gap + secondaryLine
-        // Right: "X.X km" + progress + "Max X km/h"
+        // Right: "X.X mi" + progress + "Max X mph"
         val rightContent = primaryLine + gap + progressHeight + gap + primaryLine
         val contentHeight = max(leftContent, rightContent)
         val panelHeight = topPad + contentHeight + botPad
@@ -240,7 +244,7 @@ class SpeedOverlay {
         speedTextPaint.textAlign = Paint.Align.LEFT
         labelTextPaint.textSize = primarySize
         labelTextPaint.textAlign = Paint.Align.LEFT
-        val valueStr = state.avgSpeed.orDash()
+        val valueStr = state.avgSpeed.kmhToMph().orDash()
         val unitStr = " " + labels.kmhLabel
         val valueWidth = speedTextPaint.measureText(valueStr)
         val unitWidth = labelTextPaint.measureText(unitStr)
@@ -250,12 +254,12 @@ class SpeedOverlay {
         canvas.drawText(valueStr, row1Start, row1Baseline, speedTextPaint)
         canvas.drawText(unitStr, row1Start + valueWidth, row1Baseline, labelTextPaint)
 
-        // Row 2: "Now XXX km/h" centred
+        // Row 2: "Now XXX mph" centred
         labelTextPaint.textSize = secondarySize
         labelTextPaint.textAlign = Paint.Align.CENTER
         val row2Baseline = row1Baseline + heroFm.descent + gap - secondaryFm.ascent
         canvas.drawText(
-            labels.nowSpeedFormat.format(currentSpeedKmh.orDash()),
+            labels.nowSpeedFormat.format(currentSpeedKmh.kmhToMph().orDash()),
             avgSpeedCX,
             row2Baseline,
             labelTextPaint,
@@ -288,9 +292,8 @@ class SpeedOverlay {
 
         // --- RIGHT COLUMN ---
         labelTextPaint.textSize = primarySize
-        val distKm = state.distanceRemaining / 1000.0
         var rightBaseline = panelTop + topPad - primaryFm.ascent
-        canvas.drawText("%.1f km".format(distKm), rightX, rightBaseline, labelTextPaint)
+        canvas.drawText(formatMiles(state.distanceRemaining), rightX, rightBaseline, labelTextPaint)
 
         val progressTop = rightBaseline + primaryFm.descent + gap
         val progressWidth = colThird * 0.75f
@@ -303,12 +306,12 @@ class SpeedOverlay {
         val fillRect = RectF(progressLeft, progressTop, progressLeft + progressWidth * fraction.toFloat(), progressTop + progressHeight)
         canvas.drawRoundRect(fillRect, 3f, 3f, progressFillPaint)
 
-        // "Max X km/h" — colour-coded to encode the over-limit status.
+        // "Max X mph" — colour-coded to encode the over-limit status.
         labelTextPaint.textSize = primarySize
         labelTextPaint.color = statusColor
         rightBaseline = progressTop + progressHeight + gap - primaryFm.ascent
         canvas.drawText(
-            labels.maxForRemainderFormat.format(state.speedStatus.maxSpeedForRemainder.toInt()),
+            labels.maxForRemainderFormat.format(state.speedStatus.maxSpeedForRemainder.kmhToMphFloor()),
             rightX,
             rightBaseline,
             labelTextPaint,
@@ -327,7 +330,7 @@ class SpeedOverlay {
         // Same vehicle-resolved limit the engine judged against in-zone — the
         // exit verdict must not flip back to the car limit.
         val finalAvg = state.finalAvgSpeed
-        val color = if (finalAvg != null && finalAvg > speedLimit) 0xFFEF5350.toInt() else 0xFF66BB6A.toInt()
+        val color = if (finalAvg != null && finalAvg > speedLimit.mphToKmh()) 0xFFEF5350.toInt() else 0xFF66BB6A.toInt()
 
         // Metrics-based stacking so the header, hero, and "Now" line can't
         // overlap on small projection surfaces.
@@ -358,7 +361,7 @@ class SpeedOverlay {
         labelTextPaint.textAlign = Paint.Align.LEFT
         speedTextPaint.textSize = heroSize
         labelTextPaint.textSize = primarySize
-        val valueStr = state.finalAvgSpeed.orDash()
+        val valueStr = state.finalAvgSpeed.kmhToMph().orDash()
         val unitStr = " " + labels.kmhLabel
         val valueWidth = speedTextPaint.measureText(valueStr)
         val unitWidth = labelTextPaint.measureText(unitStr)
@@ -369,7 +372,7 @@ class SpeedOverlay {
         val headerWidth = labelTextPaint.measureText(labels.zoneComplete)
         labelTextPaint.textSize = secondarySize
         val nowWidth = labelTextPaint.measureText(
-            labels.nowSpeedFormat.format(currentSpeedKmh.orDash()),
+            labels.nowSpeedFormat.format(currentSpeedKmh.kmhToMph().orDash()),
         )
 
         val panelWidth = max(maxOf(heroRowWidth, headerWidth, nowWidth) + 56f, area.width() * 0.3f)
@@ -416,7 +419,7 @@ class SpeedOverlay {
     private fun getStatusColor(state: ZoneState.InZone, speedLimit: Int, currentSpeedKmh: Double?): Int {
         return when {
             state.speedStatus.isOverLimit -> 0xFFEF5350.toInt()
-            currentSpeedKmh != null && currentSpeedKmh > speedLimit -> 0xFFFDD835.toInt()
+            currentSpeedKmh != null && currentSpeedKmh > speedLimit.mphToKmh() -> 0xFFFDD835.toInt()
             else -> 0xFF66BB6A.toInt()
         }
     }

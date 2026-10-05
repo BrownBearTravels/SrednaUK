@@ -23,7 +23,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 10_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         // avgSpeed = 10000/300 * 3.6 = 120 km/h
@@ -43,7 +43,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 10_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         assertEquals(150.0, status.avgSpeed!!, 0.5)
@@ -62,7 +62,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 100_000L,
             distanceTraveled = 10_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         // avgSpeed should be based on active time only: 10000/300 * 3.6 = 120 km/h
@@ -81,7 +81,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 15_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         assertTrue(status.timeRemaining < 0)
@@ -100,7 +100,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 18_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         assertTrue(status.timeRemaining > 0)
@@ -116,7 +116,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 0.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         assertNull(status.avgSpeed)
@@ -133,7 +133,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 35.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
         assertNull(warming.avgSpeed)
 
@@ -144,7 +144,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 36.0, // ~130 km/h for 1s
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
         assertNotNull(firstSample.avgSpeed)
         assertEquals(129.6, firstSample.avgSpeed!!, 0.1)
@@ -158,7 +158,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 20_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
         )
 
         assertEquals(0.0, status.distanceRemaining, 0.01)
@@ -178,7 +178,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 20_000.0,
             zoneDistance = 19_160.0,
-            speedLimitKmh = 140,
+            speedLimitKmh = 140.0,
             distanceRemainingOverride = 3_000.0,
         )
 
@@ -199,7 +199,7 @@ class AverageSpeedCalcTest {
             stopDurationMs = 0L,
             distanceTraveled = 5_000.0,
             zoneDistance = 9_200.0,
-            speedLimitKmh = 90,
+            speedLimitKmh = 90.0,
         )
 
         // avgSpeed = 5000/200 * 3.6 = 90 km/h exactly

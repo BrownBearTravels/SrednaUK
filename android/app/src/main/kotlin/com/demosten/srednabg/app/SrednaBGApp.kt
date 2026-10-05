@@ -74,6 +74,11 @@ class SrednaBGApp : Application(), Configuration.Provider {
     }
 
     private fun applyZoneSync() {
+        if (!FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+            // Cancel work a previous build may have enqueued.
+            zoneSyncScheduler.disable()
+            return
+        }
         // The periodic zone sync is a user opt-out ("Automatic zone updates"),
         // default on. Re-apply the persisted choice every launch so a build
         // that previously enqueued it respects a later opt-out. Mirrors the

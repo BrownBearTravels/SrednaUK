@@ -14,7 +14,12 @@ data class ZoneEndpoint(
 )
 
 /**
- * Per-vehicle-class limits in km/h, as published in `zones.json`.
+ * Per-vehicle-class limits in **whole mph** (SrednaUK). A `zones.json` whose
+ * top-level `speed_unit` is not `"mph"` (the upstream Bulgarian feed) is
+ * converted on load — see `ZonesResponse.zonesInMph` and SpeedUnits.kt.
+ *
+ * Upstream notes on the vehicle classes follow; the category strings below are
+ * Bulgarian, and a UK feed maps its own classes onto the same three fields.
  *
  * These are **licence categories, not vehicle shapes**. BG TOLL publishes three
  * limits per zone and `scrapers/src/kml_scraper.py` parses the category strings

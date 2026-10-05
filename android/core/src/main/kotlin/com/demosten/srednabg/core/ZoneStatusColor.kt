@@ -34,7 +34,7 @@ const val ZONE_COLOR_NEUTRAL: Int = 0xFF9E9E9E.toInt()
 fun zoneStatusColor(state: ZoneState.InZone, currentSpeedKmh: Double?): Int {
     return when {
         state.speedStatus.isOverLimit -> ZONE_COLOR_RED
-        currentSpeedKmh != null && currentSpeedKmh > state.zone.speedLimits.car -> ZONE_COLOR_YELLOW
+        currentSpeedKmh != null && currentSpeedKmh > state.zone.speedLimits.car.mphToKmh() -> ZONE_COLOR_YELLOW
         else -> ZONE_COLOR_GREEN
     }
 }

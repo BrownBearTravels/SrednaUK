@@ -258,7 +258,7 @@ class ZoneUnmeasuredTest {
         val unmeasured = state as? ZoneState.Unmeasured
         assertTrue(unmeasured != null, "Expected Unmeasured, got $state")
         assertEquals(TRAKIYA_T10.id, unmeasured!!.zone.id)
-        assertEquals(140, unmeasured.zone.speedLimits.car, "The limit must survive — it is a road fact")
+        assertEquals(87, unmeasured.zone.speedLimits.car, "The limit must survive — it is a road fact")
 
         val total = polylineLengthMeters(TRAKIYA_T10.centerline)
         val expected = total - (startArc + ZoneDetector.ENTRY_CONFIRM_DISTANCE_M * 2)

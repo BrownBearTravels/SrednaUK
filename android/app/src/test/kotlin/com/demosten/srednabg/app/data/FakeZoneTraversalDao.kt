@@ -59,7 +59,7 @@ fun traversalEntity(
     road = road,
     roadLatin = roadLatin,
     direction = "east",
-    speedLimitKmh = 140,
+    speedLimitMph = 70,
     vehicleType = "car",
     entryTimeMs = entryTimeMs,
     exitTimeMs = exitTimeMs,

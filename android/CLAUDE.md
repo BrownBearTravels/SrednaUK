@@ -26,7 +26,7 @@ While tracking, HomeScreen picks a live card by zone state — `InZoneCard` / `E
 
 `SettingsScreen` also surfaces the **bundled/synced zone-data freshness** at the bottom — the zones.json `version` timestamp rendered in the locale's short date+time form plus a GitHub-style short hash (`sha256:` dropped, first 16 hex chars), both from `ui/util/ZoneDataFormat.kt` (`formatZoneVersion` / `shortZoneHash`, unit-tested) over `SettingsViewModel.zoneDataVersion` / `zoneDataHash` — so a user (or QA) can see which data the app is running, and an About line crediting the data sources. Mirrored on iOS (`ios/.../ZoneDataFormat.swift`).
 
-UI has BG + EN. **`res/values/strings.xml` is the Bulgarian default and `res/values-en/strings.xml` is English** — there is no `values-bg/`. The two files are kept line-for-line parallel (same key at the same line number, same `<!-- section -->` comments), so add new keys at matching offsets in both.
+UI has EN + BG. **`res/values/strings.xml` is the English default (SrednaUK) and `res/values-bg/strings.xml` is Bulgarian** — there is no `values-en/`. The two files are kept line-for-line parallel (same key at the same line number, same `<!-- section -->` comments), so add new keys at matching offsets in both.
 
 ## Build commands
 

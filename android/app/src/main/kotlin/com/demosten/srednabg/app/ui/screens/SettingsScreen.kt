@@ -62,6 +62,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.demosten.srednabg.BuildConfig
 import com.demosten.srednabg.R
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.data.SyncResult
 import com.demosten.srednabg.app.ui.util.formatZoneVersion
 import com.demosten.srednabg.app.ui.util.shortZoneHash
@@ -481,48 +482,52 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
-        // Automatic zone updates — opt-out for the periodic background sync.
-        // The "Sync zones now" button below stays available regardless.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.setting_zone_sync),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f),
-            )
-            Switch(
-                checked = zoneSyncEnabled,
-                onCheckedChange = { viewModel.setZoneSyncEnabled(it) },
-            )
-        }
-        Text(
-            text = stringResource(R.string.setting_zone_sync_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Sync
-        Button(
-            onClick = { viewModel.syncNow() },
-            enabled = !isSyncing,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (isSyncing) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp,
-                    color = LocalContentColor.current,
+        // SrednaUK: no zone feed to sync from while IS_ZONE_SYNC_ENABLED is off,
+        // so the toggle and "Sync zones now" would only mislead.
+        if (FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+            // Automatic zone updates — opt-out for the periodic background sync.
+            // The "Sync zones now" button below stays available regardless.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.setting_zone_sync),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Switch(
+                    checked = zoneSyncEnabled,
+                    onCheckedChange = { viewModel.setZoneSyncEnabled(it) },
+                )
             }
-            Text(stringResource(R.string.setting_sync_now))
-        }
+            Text(
+                text = stringResource(R.string.setting_zone_sync_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Sync
+            Button(
+                onClick = { viewModel.syncNow() },
+                enabled = !isSyncing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                if (isSyncing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = LocalContentColor.current,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(stringResource(R.string.setting_sync_now))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         Text(
             text = stringResource(R.string.setting_zone_data_date, formatZoneVersion(zoneDataVersion)),

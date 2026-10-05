@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SrednaUK</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Начало</string>
+    <string name="nav_map">Карта</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="nav_history">История</string>
+
+    <!-- Home screen -->
+    <plurals name="zones_loaded">
+        <item quantity="one">%d заредена зона</item>
+        <item quantity="other">%d заредени зони</item>
+    </plurals>
+    <string name="status_not_tracking">Не наблюдава</string>
+    <string name="status_tracking_outside">Наблюдение на зони</string>
+    <string name="status_in_zone">В зона: %s</string>
+    <string name="status_exiting">Излизане от зона: %s</string>
+    <string name="status_unmeasured">Не се измерва</string>
+    <string name="status_unmeasured_reason">пропуснато влизане</string>
+    <string name="start_tracking">Стартирай</string>
+    <string name="stop_tracking">Спри</string>
+    <string name="tap_to_start_hint">Натиснете ▶, за да започнете наблюдение на зоните за средна скорост.</string>
+    <string name="avg_speed_label">Средна скорост</string>
+    <string name="current_speed_label">mph</string>
+    <string name="status_now_speed">Текуща %1$s mph</string>
+    <string name="speed_limit">Ограничение</string>
+    <string name="max_for_remainder">Макс. напред</string>
+    <string name="remaining">Остават</string>
+    <string name="status_within_limit">В норма</string>
+    <string name="status_over_limit">Превишение!</string>
+    <string name="final_avg_speed">Средна скорост: %s mph</string>
+
+    <!-- Map screen -->
+    <string name="no_zones_loaded">Няма заредени зони</string>
+    <string name="map_zoom_in">Приближаване</string>
+    <string name="map_zoom_out">Отдалечаване</string>
+    <string name="map_follow_user_on">Следване включено</string>
+    <string name="map_follow_user_off">Следване изключено</string>
+    <string name="map_orientation_north_up">Ориентация: север</string>
+    <string name="map_orientation_heading_up">Ориентация: посока на движение</string>
+    <string name="zone_complete">Зоната завърши</string>
+    <string name="max_for_remainder_format">Макс: %d mph</string>
+    <string name="retry_sync">Опитай отново</string>
+
+    <!-- Settings screen -->
+    <string name="setting_voice_alerts">Гласови предупреждения</string>
+    <string name="setting_voice_alerts_desc">Обявяване при влизане, излизане и актуализации на скоростта</string>
+    <string name="setting_periodic_updates">Периодични гласови актуализации</string>
+    <string name="setting_periodic_updates_desc">Напомня средната скорост на всеки 30 сек, докато сте в зона</string>
+    <string name="setting_overspeed_only">Само при превишение</string>
+    <string name="setting_overspeed_only_desc">Пропускай \"в норма\" — само при превишение</string>
+    <string name="setting_language">Език</string>
+    <string name="setting_language_desc">Език на интерфейса и гласа</string>
+    <string name="language_system">Системна настройка</string>
+    <string name="language_bg">Български</string>
+    <string name="language_en">English</string>
+    <string name="setting_vehicle_type">Тип превозно средство</string>
+    <string name="vehicle_car">Кола/Мотоциклет</string>
+    <string name="vehicle_truck">Камион</string>
+    <string name="vehicle_bus">Автобус/Бус/С ремарке</string>
+    <string name="setting_auto_stop">Автоматично спиране</string>
+    <string name="setting_auto_stop_desc">Спира проследяването след период без активност в зона</string>
+    <string name="auto_stop_3h">3 часа</string>
+    <string name="auto_stop_6h">6 часа</string>
+    <string name="auto_stop_never">Никога</string>
+    <string name="setting_map_theme">Тема на картата</string>
+    <string name="setting_map_theme_desc">Светла или тъмна — автоматично според изгрева/залеза</string>
+    <string name="map_theme_auto">Автоматично</string>
+    <string name="map_theme_light">Светла</string>
+    <string name="map_theme_dark">Тъмна</string>
+    <string name="setting_overlay">Показвай върху други приложения</string>
+    <string name="setting_overlay_desc">Показвай средната скорост върху Waze, Google Карти и други приложения по време на проследяване. Малък знак показва скоростта между зоните и се разгъва до пълния статус в зона. Изисква системното разрешение \"Показване върху други приложения\".</string>
+    <string name="setting_zone_sync">Автоматично обновяване на зоните</string>
+    <string name="setting_zone_sync_desc">Когато е включено, SrednaBG проверява srednabg.com приблизително на всеки 6 часа за нови или променени зони със средна скорост и ги изтегля на заден план. Когато е изключено, зоните се обновяват само при натискане на \"Синхронизирай зоните\" по-долу. Не се изпраща лична информация.</string>
+    <string name="setting_sync_now">Синхронизирай зоните</string>
+    <string name="sync_updated">Зоните са обновени</string>
+    <string name="sync_up_to_date">Зоните вече са актуални</string>
+    <string name="sync_failed">Неуспешна синхронизация — проверете връзката</string>
+    <string name="setting_zone_data_date">дата на зоните: %s</string>
+    <string name="setting_zone_data_count">брой зони: %d</string>
+    <string name="setting_zone_data_hash">хеш: %s</string>
+    <string name="setting_zone_data_unsupported">Тази версия вече не получава обновени данни за зоните. Обновете SrednaBG.</string>
+    <string name="about_title">За приложението</string>
+    <string name="about_version">Версия %s</string>
+    <string name="about_license">Отворен код — MIT лиценз</string>
+    <string name="about_attribution">Карти: \u00A9 OpenMapTiles \u00A9 OpenStreetMap contributors</string>
+    <string name="about_zone_data">Данни за зони: БГ ТОЛ, TollTracker.eu</string>
+
+    <!-- Permission gating -->
+    <string name="permission_required_title">Нужно е разрешение \"Винаги\" за местоположение</string>
+    <string name="permission_required_body">SrednaBG се нуждае от достъп до местоположение във фон, за да следи средната ви скорост, докато екранът е изключен или ползвате друго навигационно приложение. Без него GPS спира при заключен телефон и средната скорост става грешна.</string>
+    <string name="permission_denied_title">Достъпът до местоположение е изключен</string>
+    <string name="permission_denied_body">SrednaBG не може да следи зоните за секционен контрол без достъп до местоположението ви. Отворете настройките и разрешете \"Точно местоположение\".</string>
+    <string name="permission_open_settings">Отвори настройките</string>
+    <string name="notification_recommended_title">Разрешете известията</string>
+    <string name="notification_recommended_body">Известието за активно проследяване е сигнал към системата, че SrednaBG работи. Без него някои телефони спират приложението при заключен екран и средната скорост става грешна. Можете да започнете и без него, но проследяването няма да е надеждно.</string>
+    <string name="notification_recommended_allow">Разреши известията</string>
+    <string name="battery_opt_title">Оптимизация на батерията е включена</string>
+    <string name="battery_opt_body">Някои Android телефони агресивно спират фоновите приложения, за да пестят батерия. За да сте сигурни, че SrednaBG ще следи цялото пътуване, изключете оптимизацията.</string>
+    <string name="battery_opt_action">Изключи оптимизацията</string>
+
+    <!-- History -->
+    <string name="setting_history_retention">Съхранение на историята</string>
+    <string name="setting_history_retention_desc">Колко дълго да се пазят завършените зони в История</string>
+    <string name="history_retention_none">Изключено</string>
+    <string name="history_retention_1month">1 месец</string>
+    <string name="history_retention_3months">3 месеца</string>
+    <string name="history_retention_6months">6 месеца</string>
+    <string name="history_empty_title">Все още няма записи</string>
+    <string name="history_empty_body">Завършените зони със средна скорост ще се появят тук.</string>
+    <string name="history_disabled_title">Историята е изключена</string>
+    <string name="history_disabled_body">Включете съхранението на историята от Настройки, за да записвате завършените зони.</string>
+    <string name="history_entered">Влизане</string>
+    <string name="history_exited">Излизане</string>
+    <string name="history_duration">Времетраене</string>
+    <string name="history_your_average">Вашата средна скорост</string>
+    <string name="history_top_speed">Най-висока скорост</string>
+    <string name="history_lowest_speed">Най-ниска скорост</string>
+    <string name="history_kmh_value">%s mph</string>
+    <string name="history_graph_title">Скорост във времето</string>
+    <string name="history_show_on_map">Покажи на картата</string>
+    <string name="history_legend_speed">Скорост</string>
+    <string name="history_legend_average">Средна</string>
+    <string name="history_legend_limit">Ограничение</string>
+    <string name="history_direction">Посока</string>
+    <string name="history_direction_east">Изток</string>
+    <string name="history_direction_west">Запад</string>
+    <string name="history_direction_north">Север</string>
+    <string name="history_direction_south">Юг</string>
+    <string name="history_not_found">Записът не е намерен</string>
+    <string name="action_back">Назад</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_tracking">Проследяване на местоположение</string>
+    <string name="notification_channel_tracking_description">Показва се докато SrednaBG наблюдава скоростта ви</string>
+    <string name="notification_tracking_title">SrednaBG наблюдава</string>
+    <string name="notification_tracking_text">Наблюдение на зони за средна скорост</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_in_zone">Средна скорост %1$s мили в час. Ограничение %2$d мили в час. %3$s.</string>
+    <string name="accessibility_exiting">Зоната завърши. Крайна средна скорост %1$s мили в час на %2$s.</string>
+    <string name="accessibility_unmeasured">Зона със средна скорост %1$s. Ограничение %2$d мили в час. Не се измерва, пропуснато влизане.</string>
+
+    <!-- Android Auto -->
+    <string name="auto_routing_cue">Средна: %1$s mph | Ограничение: %2$d</string>
+    <string name="auto_unmeasured_cue">Не се измерва | Ограничение: %1$d</string>
+    <string name="auto_final_speed">Крайна средна: %s mph</string>
+    <string name="auto_zone_end">Край на зона</string>
+    <string name="auto_settings">Настройки</string>
+    <string name="auto_monitoring_hint">Наблюдение на зони</string>
+</resources>

@@ -38,12 +38,16 @@ import com.demosten.srednabg.R
 import com.demosten.srednabg.app.ui.theme.SpeedAmberDeep
 import com.demosten.srednabg.app.ui.theme.SpeedGreen
 import com.demosten.srednabg.app.ui.theme.SpeedRed
+import com.demosten.srednabg.app.ui.util.formatMiles
+import com.demosten.srednabg.app.ui.util.kmhToMph
+import com.demosten.srednabg.app.ui.util.kmhToMphFloor
 import com.demosten.srednabg.app.ui.util.orDash
 import com.demosten.srednabg.core.VehicleType
 import com.demosten.srednabg.core.ZONE_COLOR_GREEN
 import com.demosten.srednabg.core.ZONE_COLOR_NEUTRAL
 import com.demosten.srednabg.core.ZONE_COLOR_RED
 import com.demosten.srednabg.core.ZoneState
+import com.demosten.srednabg.core.mphToKmh
 import com.demosten.srednabg.core.zoneStatusColor
 import java.util.Locale
 
@@ -54,7 +58,7 @@ import java.util.Locale
  */
 internal fun exitVerdictOverLimit(state: ZoneState.Exiting, vehicleType: VehicleType): Boolean {
     val finalAvg = state.finalAvgSpeed ?: return false
-    return finalAvg > vehicleType.limit(state.zone.speedLimits)
+    return finalAvg > vehicleType.limit(state.zone.speedLimits).mphToKmh()
 }
 
 /**
@@ -97,7 +101,6 @@ private fun UnmeasuredChip(
 ) {
     val limit = vehicleType.limit(state.zone.speedLimits)
     val neutral = Color(ZONE_COLOR_NEUTRAL)
-    val distanceKm = state.distanceRemaining / 1000.0
     val contentDesc = stringResource(R.string.accessibility_unmeasured, state.zone.road, limit)
 
     Surface(
@@ -122,7 +125,7 @@ private fun UnmeasuredChip(
             ) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = currentSpeedKmh.orDash(),
+                        text = currentSpeedKmh.kmhToMph().orDash(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 32.sp,
                         modifier = Modifier.alignByBaseline(),
@@ -163,7 +166,7 @@ private fun UnmeasuredChip(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = String.format(Locale.US, "%.1f km", distanceKm),
+                    text = formatMiles(state.distanceRemaining),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
@@ -201,12 +204,11 @@ private fun InZoneChip(
     val statusLabel = stringResource(
         if (state.speedStatus.isOverLimit) R.string.status_over_limit else R.string.status_within_limit,
     )
-    val nowText = stringResource(R.string.status_now_speed, currentSpeedKmh.orDash())
+    val nowText = stringResource(R.string.status_now_speed, currentSpeedKmh.kmhToMph().orDash())
     val maxText = stringResource(
         R.string.max_for_remainder_format,
-        debugMaxSpeedOverride ?: state.speedStatus.maxSpeedForRemainder.toInt(),
+        debugMaxSpeedOverride ?: state.speedStatus.maxSpeedForRemainder.kmhToMphFloor(),
     )
-    val distanceKm = state.distanceRemaining / 1000.0
     val totalDist = state.zone.distanceM.toDouble().coerceAtLeast(1.0)
     val progress = ((totalDist - state.distanceRemaining) / totalDist).coerceIn(0.0, 1.0).toFloat()
 
@@ -237,7 +239,7 @@ private fun InZoneChip(
                 // ("108 km/h"), so the unit sits on the number's bottom line.
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = state.avgSpeed.orDash(),
+                        text = state.avgSpeed.kmhToMph().orDash(),
                         color = statusColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = 32.sp,
@@ -282,7 +284,7 @@ private fun InZoneChip(
                 modifier = Modifier.weight(1f),
             ) {
                 Text(
-                    text = String.format(Locale.US, "%.1f km", distanceKm),
+                    text = formatMiles(state.distanceRemaining),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -347,7 +349,7 @@ private fun ExitingChip(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = stringResource(R.string.final_avg_speed, finalAvg.orDash()),
+                text = stringResource(R.string.final_avg_speed, finalAvg.kmhToMph().orDash()),
                 color = color,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium,
@@ -387,7 +389,7 @@ internal fun ZoneStatusPill(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = currentSpeedKmh.orDash(),
+                text = currentSpeedKmh.kmhToMph().orDash(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
             )
@@ -405,13 +407,13 @@ internal fun ZoneStatusPill(
 private fun chipStatusColor(state: ZoneState.InZone, currentSpeedKmh: Double?): Color {
     // Amber tier is deliberately car-relative (matches core zoneStatusColor and
     // the iOS surfaces); red comes from the engine's vehicle-aware isOverLimit.
-    val limit = state.zone.speedLimits.car
+    val limitKmh = state.zone.speedLimits.car.mphToKmh()
     return if (isSystemInDarkTheme()) {
         Color(zoneStatusColor(state, currentSpeedKmh))
     } else {
         when {
             state.speedStatus.isOverLimit -> SpeedRed
-            currentSpeedKmh != null && currentSpeedKmh > limit -> SpeedAmberDeep
+            currentSpeedKmh != null && currentSpeedKmh > limitKmh -> SpeedAmberDeep
             else -> SpeedGreen
         }
     }

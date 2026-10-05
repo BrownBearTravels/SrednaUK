@@ -47,8 +47,17 @@ class MapThemeResolverTest {
     }
 
     @Test
-    fun `auto with no GPS falls back to Sofia`() {
+    fun `auto with no GPS falls back to central England`() {
         val t = utcMillis(2026, 6, 21, 12)
+        assertEquals(MapTheme.LIGHT, MapThemeResolver.resolve(MapThemeMode.AUTO, null, t))
+    }
+
+    @Test
+    fun `auto with no GPS uses the UK fallback, not Sofia`() {
+        // 2026-12-21 16:00 UTC: Sofia is past civil dusk (DARK), central
+        // England has only just seen sunset (LIGHT).
+        val t = utcMillis(2026, 12, 21, 16)
+        assertEquals(MapTheme.DARK, MapThemeResolver.resolve(MapThemeMode.AUTO, sofiaPoint(), t))
         assertEquals(MapTheme.LIGHT, MapThemeResolver.resolve(MapThemeMode.AUTO, null, t))
     }
 

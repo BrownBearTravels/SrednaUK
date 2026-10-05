@@ -16,6 +16,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import com.demosten.srednabg.app.data.SettingsRepository
 import com.demosten.srednabg.app.ui.util.SpeechNumbers
+import com.demosten.srednabg.app.ui.util.kmhToMph
 import com.demosten.srednabg.core.VehicleType
 import com.demosten.srednabg.core.Zone
 import com.demosten.srednabg.core.ZoneState
@@ -257,7 +258,7 @@ class AudioAlertManager @Inject constructor(
                     val isOver = newState.speedStatus.isOverLimit
                     val wasOver = previousState.speedStatus.isOverLimit
                     val now = System.currentTimeMillis()
-                    val avgSpeed = newState.avgSpeed?.toInt() ?: return@launch
+                    val avgSpeed = newState.avgSpeed?.kmhToMph()?.toInt() ?: return@launch
                     when {
                         !wasOver && isOver -> {
                             lastAnnouncementTime = now
@@ -294,7 +295,7 @@ class AudioAlertManager @Inject constructor(
                         lastAnnouncementTime = 0
                         return@launch
                     }
-                    val avgSpeed = newState.finalAvgSpeed?.toInt() ?: return@launch
+                    val avgSpeed = newState.finalAvgSpeed?.kmhToMph()?.toInt() ?: return@launch
                     speak(getExitMessage(avgSpeed))
                     lastAnnouncementTime = 0
                 }
@@ -337,7 +338,7 @@ class AudioAlertManager @Inject constructor(
      */
     private suspend fun announceEntryOverLimit(state: ZoneState.InZone) {
         if (!state.speedStatus.isOverLimit) return
-        val avgSpeed = state.avgSpeed?.toInt() ?: return
+        val avgSpeed = state.avgSpeed?.kmhToMph()?.toInt() ?: return
         lastAnnouncementTime = System.currentTimeMillis()
         speak(getOverLimitMessage(avgSpeed), TextToSpeech.QUEUE_ADD)
     }
@@ -359,9 +360,9 @@ class AudioAlertManager @Inject constructor(
 
     private suspend fun getEntryMessage(road: String, limit: Int): String {
         return if (settingsRepository.voiceLanguage.first() == "bg") {
-            "Влизате в зона за средна скорост. Ограничение ${SpeechNumbers.toWords(limit, bulgarian = true)}."
+            "Влизате в зона за средна скорост. Ограничение ${SpeechNumbers.toWords(limit, bulgarian = true)} мили в час."
         } else {
-            "Entering average speed zone. Speed limit ${SpeechNumbers.toWords(limit, bulgarian = false)}."
+            "Entering average speed zone. Speed limit ${SpeechNumbers.toWords(limit, bulgarian = false)} miles per hour."
         }
     }
 

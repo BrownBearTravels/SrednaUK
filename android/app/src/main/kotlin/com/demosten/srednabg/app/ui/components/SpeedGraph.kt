@@ -30,12 +30,13 @@ import kotlin.math.pow
 
 /**
  * Speed-over-time graph for a completed traversal, drawn with a Compose Canvas
- * (no charting dependency). X is time since zone entry, Y is speed in km/h. Three
+ * (no charting dependency). X is time since zone entry, Y is speed in the
+ * display unit (mph — the caller converts the samples). Three
  * layers: the instantaneous speed curve, the **running average** as a filled band
  * (the app's core metric — it evolves toward the final average, not a flat line),
  * and the zone limit as a dashed reference (constant, so correctly horizontal).
  *
- * A **leading Y axis** (km/h value labels) and a **bottom X axis** (elapsed time
+ * A **leading Y axis** (speed value labels) and a **bottom X axis** (elapsed time
  * as `m:ss`) frame the plot with faint gridlines, matching the iOS Swift Charts
  * `SpeedGraph` (leading `AxisMarks` + time-labelled X `AxisMarks`). `formatDuration`
  * renders the X labels — the same `m:ss` form as the detail header's Duration field
@@ -44,8 +45,8 @@ import kotlin.math.pow
 @Composable
 internal fun SpeedGraph(
     samples: List<SpeedSample>,
-    avgSpeedKmh: Double?,
-    limitKmh: Int,
+    avgSpeed: Double?,
+    limit: Int,
     lineColor: Color,
     averageColor: Color,
     limitColor: Color,
@@ -69,7 +70,7 @@ internal fun SpeedGraph(
         // limit line, or the average — with a sane floor so a slow zone still
         // renders a readable curve.
         val maxSample = samples.maxOf { it.speedKmh }
-        val ceiling = max(max(maxSample, limitKmh.toDouble()), avgSpeedKmh ?: 0.0)
+        val ceiling = max(max(maxSample, limit.toDouble()), avgSpeed ?: 0.0)
         val maxY = (ceiling * 1.15).coerceAtLeast(20.0).toFloat()
 
         // Nice, rounded tick values for each axis (Swift Charts picks these for us;
@@ -78,7 +79,7 @@ internal fun SpeedGraph(
         val xTicks = niceTicks(tSpanSec)
 
         // Pre-measure labels to reserve the axis gutters, so the plot never has to
-        // guess how wide the widest km/h label or how tall a time label is.
+        // guess how wide the widest speed label or how tall a time label is.
         val yLabels = yTicks.map { textMeasurer.measure(it.toInt().toString(), axisLabelStyle) }
         val xLabels = xTicks.map {
             textMeasurer.measure(formatDuration((it * 1000).toLong()), axisLabelStyle)
@@ -103,7 +104,7 @@ internal fun SpeedGraph(
 
         val faintGrid = gridColor.copy(alpha = 0.4f)
 
-        // Y axis: horizontal gridline + right-aligned km/h label per tick.
+        // Y axis: horizontal gridline + right-aligned speed label per tick.
         for ((i, tick) in yTicks.withIndex()) {
             val y = yOf(tick)
             drawLine(
@@ -185,8 +186,8 @@ internal fun SpeedGraph(
         )
 
         // Limit reference line.
-        if (limitKmh > 0) {
-            val y = yOf(limitKmh.toDouble())
+        if (limit > 0) {
+            val y = yOf(limit.toDouble())
             drawLine(
                 color = limitColor,
                 start = Offset(plotLeft, y),

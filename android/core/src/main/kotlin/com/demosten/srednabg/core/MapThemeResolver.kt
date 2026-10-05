@@ -25,9 +25,10 @@ enum class MapTheme { LIGHT, DARK }
  * exactly at the visible horizon, which would feel premature when the sky
  * is still bright.
  *
- * If no GPS fix is available yet, AUTO falls back to Sofia's coordinates —
- * the app is Bulgaria-only, so the worst-case error in solar altitude
- * (Sofia → Vidin or Burgas) is well within the twilight margin.
+ * If no GPS fix is available yet, AUTO falls back to central England
+ * (SrednaUK). It only bridges the moments before the first fix, so the error
+ * toward the edges of Great Britain (roughly half an hour of sun time) is an
+ * acceptable stopgap.
  *
  * Hysteresis (e.g. 10-min debounce around the boundary) belongs in the
  * caller, not the resolver — the resolver stays pure so it can be unit-
@@ -35,8 +36,8 @@ enum class MapTheme { LIGHT, DARK }
  */
 object MapThemeResolver {
 
-    const val FALLBACK_LAT_SOFIA: Double = 42.7
-    const val FALLBACK_LNG_SOFIA: Double = 23.3
+    const val FALLBACK_LAT: Double = 52.5
+    const val FALLBACK_LNG: Double = -1.9
     const val CIVIL_TWILIGHT_ALTITUDE_DEG: Double = -6.0
 
     fun resolve(mode: MapThemeMode, position: GpsPoint?, nowMillisUtc: Long): MapTheme {
@@ -44,8 +45,8 @@ object MapThemeResolver {
             MapThemeMode.LIGHT -> MapTheme.LIGHT
             MapThemeMode.DARK -> MapTheme.DARK
             MapThemeMode.AUTO -> {
-                val lat = position?.lat ?: FALLBACK_LAT_SOFIA
-                val lng = position?.lng ?: FALLBACK_LNG_SOFIA
+                val lat = position?.lat ?: FALLBACK_LAT
+                val lng = position?.lng ?: FALLBACK_LNG
                 val altitudeDeg = solarAltitudeDegrees(lat, lng, nowMillisUtc)
                 if (altitudeDeg > CIVIL_TWILIGHT_ALTITUDE_DEG) MapTheme.LIGHT else MapTheme.DARK
             }

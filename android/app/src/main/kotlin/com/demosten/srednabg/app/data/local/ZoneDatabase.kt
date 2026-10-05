@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [ZoneEntity::class, ZoneTraversalEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class ZoneDatabase : RoomDatabase() {
@@ -67,6 +67,23 @@ abstract class ZoneDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `endLat` REAL")
                 db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `endLng` REAL")
                 db.execSQL("ALTER TABLE `zone_traversals` ADD COLUMN `centerlineJson` TEXT")
+            }
+        }
+
+        /**
+         * v3 → v4 (SrednaUK): speed limits switch from km/h to whole mph with no
+         * schema change. Empty the zone cache so `ZoneRepository.ensureLoaded`
+         * reseeds it from the bundle (converted on load), and convert limits
+         * already recorded in History. Without this, an earlier SrednaUK build's
+         * cached "140" would be read as 140 mph.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DELETE FROM `zones`")
+                db.execSQL(
+                    "UPDATE `zone_traversals` SET `speedLimitKmh` = " +
+                        "CAST(ROUND(`speedLimitKmh` / 1.609344) AS INTEGER)",
+                )
             }
         }
     }

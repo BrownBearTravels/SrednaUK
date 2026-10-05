@@ -143,7 +143,7 @@ class DebugControlReceiver : BroadcastReceiver() {
                         "DUMP_HISTORY count=$count zone=${latest.zoneId} " +
                             "avg=${latest.avgSpeedKmh} min=${latest.sustainedMinKmh} " +
                             "max=${latest.sustainedMaxKmh} over=${latest.isOverLimit} " +
-                            "limit=${latest.speedLimitKmh} vehicle=${latest.vehicleType} " +
+                            "limit=${latest.speedLimitMph} vehicle=${latest.vehicleType} " +
                             "entry=${latest.entryTimeMs} exit=${latest.exitTimeMs}",
                     )
                 }

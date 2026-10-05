@@ -18,7 +18,7 @@ class ModelsTest {
         assertEquals("АМ Тракия", zone.road)
         assertEquals("west", zone.direction)
         assertEquals(19160, zone.distanceM)
-        assertEquals(140, zone.speedLimits.car)
+        assertEquals(87, zone.speedLimits.car) // 140 km/h fixture, in mph
         assertEquals(6, zone.centerline.size)
     }
 

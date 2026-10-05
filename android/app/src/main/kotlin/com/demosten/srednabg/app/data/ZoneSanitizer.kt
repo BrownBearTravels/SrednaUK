@@ -39,7 +39,7 @@ object ZoneSanitizer {
 
     /**
      * Fill in per-vehicle limits the payload omitted. Gson leaves a missing
-     * `truck`/`bus` as `0`, which would read as a 0 km/h limit — instantly and
+     * `truck`/`bus` as `0`, which would read as a 0 mph limit — instantly and
      * permanently "over limit" for that driver. The schema already treats the
      * car limit as the fallback for a vehicle class a zone doesn't name (the
      * documented rule for `motorcycle`); applying it to truck/bus too keeps a

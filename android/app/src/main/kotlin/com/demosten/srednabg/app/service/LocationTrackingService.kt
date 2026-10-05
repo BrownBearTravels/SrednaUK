@@ -272,7 +272,7 @@ class LocationTrackingService : LifecycleService() {
         }
         announceProvisionalEntry(previousCandidateId, detector.pendingEntryInfo, newState, point.speed)
         audioAlertManager.onZoneStateChanged(previousState, newState, point.speed)
-        val limitKmh = when (newState) {
+        val limitMph = when (newState) {
             is ZoneState.InZone -> currentVehicleType.limit(newState.zone.speedLimits)
             is ZoneState.Exiting -> currentVehicleType.limit(newState.zone.speedLimits)
             // The limit is a fact about the road, known even when the traversal
@@ -281,7 +281,7 @@ class LocationTrackingService : LifecycleService() {
             is ZoneState.Unmeasured -> currentVehicleType.limit(newState.zone.speedLimits)
             else -> 0
         }
-        historyRecorder.onZoneStateChanged(point, previousState, newState, currentVehicleType, limitKmh)
+        historyRecorder.onZoneStateChanged(point, previousState, newState, currentVehicleType, limitMph)
         adjustGpsInterval(newState, point)
     }
 

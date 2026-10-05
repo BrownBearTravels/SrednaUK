@@ -7,6 +7,7 @@ package com.demosten.srednabg.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.data.SettingsRepository
 import com.demosten.srednabg.app.data.SyncResult
 import com.demosten.srednabg.app.data.ZoneRepository
@@ -136,7 +137,7 @@ class SettingsViewModel @Inject constructor(
     fun setZoneSyncEnabled(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.setZoneSyncEnabled(value)
-            if (value) zoneSyncScheduler.enable() else zoneSyncScheduler.disable()
+            if (value && FeatureFlags.IS_ZONE_SYNC_ENABLED) zoneSyncScheduler.enable() else zoneSyncScheduler.disable()
         }
     }
 
@@ -145,6 +146,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun syncNow() {
+        if (!FeatureFlags.IS_ZONE_SYNC_ENABLED) return
         if (_isSyncing.value) return
         viewModelScope.launch {
             _isSyncing.value = true

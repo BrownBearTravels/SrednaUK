@@ -16,6 +16,7 @@ import com.demosten.srednabg.core.SpeedSample
 import com.demosten.srednabg.core.VehicleType
 import com.demosten.srednabg.core.Zone
 import com.demosten.srednabg.core.ZoneEndpoint
+import com.demosten.srednabg.core.mphToKmh
 import com.google.gson.Gson
 import java.time.Instant
 import java.time.ZoneId
@@ -101,7 +102,7 @@ internal object HistorySeeder {
             val cyclePush = (i / scenarios.size) * 30
             val zone = pool[i % pool.size]
             val limit = scenario.vehicle.limit(zone.speedLimits)
-            val targetAvg = max(20.0, limit + scenario.deltaFromLimitKmh)
+            val targetAvg = max(20.0, limit.mphToKmh() + scenario.deltaFromLimitKmh)
             // The first [legacyCount] scripted rows are written like pre-v3
             // records (no geometry) so the "Show on map" gate can be exercised
             // and compared against a row that has its snapshot.
@@ -131,7 +132,7 @@ internal object HistorySeeder {
                 road = zone.road,
                 roadLatin = zone.roadLatin,
                 direction = zone.direction,
-                speedLimitKmh = limit,
+                speedLimitMph = limit,
                 // `.setting` matches the iOS seeder's `scenario.vehicle.rawValue`.
                 vehicleType = scenario.vehicle.setting,
                 entryTimeMs = entryMs,
@@ -139,7 +140,7 @@ internal object HistorySeeder {
                 avgSpeedKmh = avg,
                 sustainedMinKmh = sustainedMin,
                 sustainedMaxKmh = sustainedMax,
-                isOverLimit = avg > limit,
+                isOverLimit = avg > limit.mphToKmh(),
                 distanceM = zone.distanceM,
                 samplesJson = stored.toSamplesJson(gson),
                 // Geometry snapshot, exactly as HistoryRecorder stores it. The

@@ -7,6 +7,7 @@ package com.demosten.srednabg.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.data.MapHighlight
 import com.demosten.srednabg.app.data.MapHighlightStore
 import com.demosten.srednabg.app.data.MapRepository
@@ -134,8 +135,8 @@ class ZoneMapViewModel @Inject constructor(
             lastTheme = theme
             return theme
         }
-        val lat = position?.lat ?: MapThemeResolver.FALLBACK_LAT_SOFIA
-        val lng = position?.lng ?: MapThemeResolver.FALLBACK_LNG_SOFIA
+        val lat = position?.lat ?: MapThemeResolver.FALLBACK_LAT
+        val lng = position?.lng ?: MapThemeResolver.FALLBACK_LNG
         val altitudeDeg = MapThemeResolver.solarAltitudeDegrees(lat, lng, nowMs)
         val previous = lastTheme
         val boundary = MapThemeResolver.CIVIL_TWILIGHT_ALTITUDE_DEG
@@ -183,6 +184,7 @@ class ZoneMapViewModel @Inject constructor(
     var lastFittedHighlightRequestId: Long? = null
 
     fun retrySync() {
+        if (!FeatureFlags.IS_ZONE_SYNC_ENABLED) return
         if (_isSyncing.value) return
         viewModelScope.launch {
             _isSyncing.value = true

@@ -5,6 +5,7 @@
 
 package com.demosten.srednabg.app.ui.viewmodel
 
+import com.demosten.srednabg.app.FeatureFlags
 import com.demosten.srednabg.app.data.SettingsRepository
 import com.demosten.srednabg.app.data.ZoneRepository
 import com.demosten.srednabg.app.data.ZoneSyncScheduler
@@ -106,16 +107,26 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `syncNow delegates to zone repository`() = runTest {
+    fun `syncNow follows the zone sync ship gate`() = runTest {
         viewModel.syncNow()
-        coVerify { zoneRepository.syncFromServer() }
+        if (FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+            coVerify { zoneRepository.syncFromServer() }
+        } else {
+            // SrednaUK: no feed to sync from — never contact the server.
+            coVerify(exactly = 0) { zoneRepository.syncFromServer() }
+        }
     }
 
     @Test
-    fun `setZoneSyncEnabled true persists and enables the scheduler`() = runTest {
+    fun `setZoneSyncEnabled true persists and follows the ship gate`() = runTest {
         viewModel.setZoneSyncEnabled(true)
         coVerify { settingsRepository.setZoneSyncEnabled(true) }
-        verify { zoneSyncScheduler.enable() }
+        if (FeatureFlags.IS_ZONE_SYNC_ENABLED) {
+            verify { zoneSyncScheduler.enable() }
+        } else {
+            verify(exactly = 0) { zoneSyncScheduler.enable() }
+            verify { zoneSyncScheduler.disable() }
+        }
     }
 
     @Test

@@ -18,6 +18,7 @@ import com.demosten.srednabg.core.SpeedSample
 import com.demosten.srednabg.core.VehicleType
 import com.demosten.srednabg.core.Zone
 import com.demosten.srednabg.core.ZoneState
+import com.demosten.srednabg.core.mphToKmh
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +71,7 @@ class HistoryRecorder @Inject constructor(
 
     /**
      * @param point the filtered fix that produced [newState].
-     * @param limitKmh the vehicle-type-resolved limit for [newState]'s zone, used
+     * @param limitMph the vehicle-type-resolved limit for [newState]'s zone, used
      *   for the stored over-limit verdict (matches the exit-chip verdict).
      */
     fun onZoneStateChanged(
@@ -78,7 +79,7 @@ class HistoryRecorder @Inject constructor(
         previousState: ZoneState,
         newState: ZoneState,
         vehicleType: VehicleType,
-        limitKmh: Int,
+        limitMph: Int,
     ) {
         if (!recordingEnabled) {
             // Drop any buffer opened before recording was turned off mid-zone.
@@ -103,7 +104,7 @@ class HistoryRecorder @Inject constructor(
             is ZoneState.Exiting -> {
                 val open = capture
                 if (open != null && open.zone.id == newState.zone.id) {
-                    finalize(open, exitTimeMs = point.timestamp, finalAvg = newState.finalAvgSpeed, vehicleType, limitKmh)
+                    finalize(open, exitTimeMs = point.timestamp, finalAvg = newState.finalAvgSpeed, vehicleType, limitMph)
                 }
                 capture = null
             }
@@ -126,7 +127,7 @@ class HistoryRecorder @Inject constructor(
         exitTimeMs: Long,
         finalAvg: Double?,
         vehicleType: VehicleType,
-        limitKmh: Int,
+        limitMph: Int,
     ) {
         val durationMs = exitTimeMs - capture.entryTimeMs
         if (durationMs < TRANSIENT_EXIT_WINDOW_MS) {
@@ -147,7 +148,7 @@ class HistoryRecorder @Inject constructor(
             road = capture.zone.road,
             roadLatin = capture.zone.roadLatin,
             direction = capture.zone.direction,
-            speedLimitKmh = limitKmh,
+            speedLimitMph = limitMph,
             // `.setting`, not `.name.lowercase()` — the token must match what the
             // iOS recorder writes (`VehicleType.rawValue`) so history rows agree
             // across platforms. They coincide for today's single-word cases; iOS
@@ -158,7 +159,7 @@ class HistoryRecorder @Inject constructor(
             avgSpeedKmh = finalAvg,
             sustainedMinKmh = sustainedMin,
             sustainedMaxKmh = sustainedMax,
-            isOverLimit = finalAvg != null && finalAvg > limitKmh,
+            isOverLimit = finalAvg != null && finalAvg > limitMph.mphToKmh(),
             distanceM = capture.zone.distanceM,
             samplesJson = downsampled.toSamplesJson(gson),
             // Geometry snapshot: the zone as driven, so "Show on map" survives

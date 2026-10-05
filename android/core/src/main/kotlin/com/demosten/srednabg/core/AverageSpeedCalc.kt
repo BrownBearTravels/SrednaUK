@@ -24,7 +24,8 @@ object AverageSpeedCalc {
         stopDurationMs: Long,
         distanceTraveled: Double,
         zoneDistance: Double,
-        speedLimitKmh: Int,
+        // Exact km/h equivalent of the zone's mph limit — see SpeedUnits.kt.
+        speedLimitKmh: Double,
         // Accurate live distance to the zone end, sourced from the polyline
         // projection. When supplied it drives `distanceRemaining` and the
         // max-speed-for-remainder math instead of the speed×time integrator —

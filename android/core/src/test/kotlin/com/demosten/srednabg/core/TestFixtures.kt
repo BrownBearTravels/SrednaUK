@@ -5,6 +5,18 @@
 
 package com.demosten.srednabg.core
 
+/**
+ * These fixtures are real Bulgarian zones, whose limits are published in km/h.
+ * The app runs on whole-mph limits (SpeedUnits.kt), so convert them exactly as
+ * `ZonesResponse.zonesInMph` does for a km/h feed — 140 km/h → 87 mph, etc.
+ */
+internal fun kmhLimits(car: Int, truck: Int, bus: Int, motorcycle: Int? = null) = SpeedLimits(
+    car = car.kmhToMphLimit(),
+    truck = truck.kmhToMphLimit(),
+    bus = bus.kmhToMphLimit(),
+    motorcycle = motorcycle?.kmhToMphLimit(),
+)
+
 const val EPOCH_BASE = 1_700_000_000_000L
 
 // Trakiya t10: Ihtiman -> Vakarel (west direction), 19160m, 140 km/h
@@ -17,7 +29,7 @@ val TRAKIYA_T10 = Zone(
     start = ZoneEndpoint(lat = 42.427, lng = 23.855, settlement = "Ихтиман"),
     end = ZoneEndpoint(lat = 42.550, lng = 23.703, settlement = "Вакарел"),
     distanceM = 19160,
-    speedLimits = SpeedLimits(car = 140, truck = 90, bus = 100, motorcycle = 140),
+    speedLimits = kmhLimits(car = 140, truck = 90, bus = 100, motorcycle = 140),
     centerline = listOf(
         listOf(42.427, 23.855),
         listOf(42.450, 23.830),
@@ -40,7 +52,7 @@ val HEMUS_H12 = Zone(
     start = ZoneEndpoint(lat = 42.725, lng = 23.528, settlement = "Горни Богров"),
     end = ZoneEndpoint(lat = 42.779, lng = 23.736, settlement = "Чурек"),
     distanceM = 20200,
-    speedLimits = SpeedLimits(car = 140, truck = 90, bus = 100, motorcycle = 140),
+    speedLimits = kmhLimits(car = 140, truck = 90, bus = 100, motorcycle = 140),
     centerline = listOf(
         listOf(42.725, 23.528),
         listOf(42.740, 23.580),
@@ -62,7 +74,7 @@ val I4_10 = Zone(
     start = ZoneEndpoint(lat = 43.269, lng = 24.949, settlement = "Сопот"),
     end = ZoneEndpoint(lat = 43.308, lng = 25.075, settlement = "Български Извор"),
     distanceM = 9200,
-    speedLimits = SpeedLimits(car = 90, truck = 80, bus = 80, motorcycle = 90),
+    speedLimits = kmhLimits(car = 90, truck = 80, bus = 80, motorcycle = 90),
     centerline = listOf(
         listOf(43.269, 24.949),
         listOf(43.280, 24.980),
@@ -129,7 +141,7 @@ fun jogStartZone(
         start = ZoneEndpoint(lat = origin[0], lng = origin[1]),
         end = ZoneEndpoint(lat = end[0], lng = end[1]),
         distanceM = lengthM.toInt(),
-        speedLimits = SpeedLimits(car = 90, truck = 80, bus = 80, motorcycle = 90),
+        speedLimits = kmhLimits(car = 90, truck = 80, bus = 80, motorcycle = 90),
         centerline = listOf(
             origin,
             offsetMetres(origin[0], origin[1], JOG_ZONE_HEADING_DEG, -jogM),
@@ -472,7 +484,7 @@ val TRAKIYA_T10_OPPOSITE = Zone(
     start = ZoneEndpoint(lat = 42.550, lng = 23.703, settlement = "Вакарел"),
     end = ZoneEndpoint(lat = 42.427, lng = 23.855, settlement = "Ихтиман"),
     distanceM = 19160,
-    speedLimits = SpeedLimits(car = 140, truck = 90, bus = 100, motorcycle = 140),
+    speedLimits = kmhLimits(car = 140, truck = 90, bus = 100, motorcycle = 140),
     centerline = listOf(
         listOf(42.550, 23.703),
         listOf(42.530, 23.740),
@@ -495,7 +507,7 @@ val NATIONAL_ROAD_ZONE = Zone(
     start = ZoneEndpoint(lat = 42.700, lng = 23.400),
     end = ZoneEndpoint(lat = 42.710, lng = 23.500),
     distanceM = 8000,
-    speedLimits = SpeedLimits(car = 90, truck = 80, bus = 80),
+    speedLimits = kmhLimits(car = 90, truck = 80, bus = 80),
     centerline = listOf(
         listOf(42.700, 23.400),
         listOf(42.705, 23.450),
@@ -635,7 +647,7 @@ fun denseShortSegmentZone(
         start = ZoneEndpoint(lat = centerline.first()[0], lng = startLng),
         end = ZoneEndpoint(lat = centerline.last()[0], lng = startLng),
         distanceM = distanceM,
-        speedLimits = SpeedLimits(car = speedLimitCar, truck = 90, bus = 100, motorcycle = speedLimitCar),
+        speedLimits = kmhLimits(car = speedLimitCar, truck = 90, bus = 100, motorcycle = speedLimitCar),
         centerline = centerline,
         source = "test",
         lastVerified = "2026-04-12",
@@ -688,7 +700,7 @@ fun europaReversedSiblings(): Pair<Zone, Zone> {
         start = ZoneEndpoint(lat = a[0], lng = a[1], settlement = "Илиянци"),
         end = ZoneEndpoint(lat = b[0], lng = b[1], settlement = "Чепинци"),
         distanceM = 9874,
-        speedLimits = SpeedLimits(car = 120, truck = 90, bus = 100, motorcycle = 120),
+        speedLimits = kmhLimits(car = 120, truck = 90, bus = 100, motorcycle = 120),
         // The bug: points stored end → start.
         centerline = EUROPA_PHYSICAL_CENTERLINE.reversed(),
         source = "bgtoll",
@@ -703,7 +715,7 @@ fun europaReversedSiblings(): Pair<Zone, Zone> {
         start = ZoneEndpoint(lat = b[0], lng = b[1], settlement = "Чепинци"),
         end = ZoneEndpoint(lat = a[0], lng = a[1], settlement = "Илиянци"),
         distanceM = 9874,
-        speedLimits = SpeedLimits(car = 120, truck = 90, bus = 100, motorcycle = 120),
+        speedLimits = kmhLimits(car = 120, truck = 90, bus = 100, motorcycle = 120),
         // Stored start→end for *its* endpoints = a→b physical order, i.e. the same
         // direction the northbound drive heads — so a point-order bearing match
         // wrongly admits this sibling.
@@ -730,7 +742,7 @@ fun europaNorthboundTrace(speedKmh: Double = 108.0): List<GpsPoint> {
         start = ZoneEndpoint(lat = EUROPA_PHYSICAL_CENTERLINE.first()[0], lng = EUROPA_PHYSICAL_CENTERLINE.first()[1]),
         end = ZoneEndpoint(lat = EUROPA_PHYSICAL_CENTERLINE.last()[0], lng = EUROPA_PHYSICAL_CENTERLINE.last()[1]),
         distanceM = 9874,
-        speedLimits = SpeedLimits(car = 120, truck = 90, bus = 100, motorcycle = 120),
+        speedLimits = kmhLimits(car = 120, truck = 90, bus = 100, motorcycle = 120),
         centerline = EUROPA_PHYSICAL_CENTERLINE,
         source = "test",
         lastVerified = "2026-04-12",

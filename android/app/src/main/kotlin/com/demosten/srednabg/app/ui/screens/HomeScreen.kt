@@ -70,6 +70,10 @@ import com.demosten.srednabg.app.ui.theme.warningAmber
 import com.demosten.srednabg.app.ui.theme.SpeedRedLight
 import com.demosten.srednabg.app.ui.theme.speedGreen
 import com.demosten.srednabg.app.ui.theme.speedRed
+import com.demosten.srednabg.app.ui.util.formatMiles
+import com.demosten.srednabg.app.ui.util.kmhToMph
+import com.demosten.srednabg.app.ui.util.kmhToMphFloor
+import com.demosten.srednabg.core.mphToKmh
 import com.demosten.srednabg.app.ui.util.orDash
 import com.demosten.srednabg.app.ui.components.exitVerdictOverLimit
 import com.demosten.srednabg.app.ui.viewmodel.HomeViewModel
@@ -491,7 +495,7 @@ private fun OutsideCard(modifier: Modifier, currentSpeedKmh: Double?, zoneCount:
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = currentSpeedKmh.orDash(),
+                        text = currentSpeedKmh.kmhToMph().orDash(),
                         fontSize = HeroSpeedFontSize,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -527,7 +531,7 @@ private fun InZoneCard(
         state.speedStatus.isOverLimit -> speedRed()
         // Amber tier is deliberately car-relative (matches core zoneStatusColor
         // and the iOS surfaces); red comes from the vehicle-aware isOverLimit.
-        currentSpeedKmh != null && currentSpeedKmh > state.zone.speedLimits.car -> warningAmber()
+        currentSpeedKmh != null && currentSpeedKmh > state.zone.speedLimits.car.mphToKmh() -> warningAmber()
         else -> speedGreen()
     }
     val statusText = if (state.speedStatus.isOverLimit) {
@@ -537,7 +541,7 @@ private fun InZoneCard(
     }
     val semanticDescription = stringResource(
         R.string.accessibility_in_zone,
-        state.avgSpeed.orDash(),
+        state.avgSpeed.kmhToMph().orDash(),
         limit,
         statusText,
     )
@@ -563,7 +567,7 @@ private fun InZoneCard(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = state.avgSpeed.orDash(),
+                        text = state.avgSpeed.kmhToMph().orDash(),
                         fontSize = HeroSpeedFontSize,
                         fontWeight = FontWeight.Bold,
                         color = statusColor,
@@ -577,7 +581,7 @@ private fun InZoneCard(
                     // value, not part of the average block above it.
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = stringResource(R.string.status_now_speed, currentSpeedKmh.orDash()),
+                        text = stringResource(R.string.status_now_speed, currentSpeedKmh.kmhToMph().orDash()),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
@@ -594,11 +598,11 @@ private fun InZoneCard(
                 )
                 InfoItem(
                     label = stringResource(R.string.max_for_remainder),
-                    value = "${debugMaxSpeedOverride ?: state.speedStatus.maxSpeedForRemainder.toInt()}",
+                    value = "${debugMaxSpeedOverride ?: state.speedStatus.maxSpeedForRemainder.kmhToMphFloor()}",
                 )
                 InfoItem(
                     label = stringResource(R.string.remaining),
-                    value = String.format(Locale.US, "%.1f km", state.distanceRemaining / 1000.0),
+                    value = formatMiles(state.distanceRemaining),
                 )
             }
 
@@ -659,7 +663,7 @@ private fun UnmeasuredCard(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = currentSpeedKmh.orDash(),
+                        text = currentSpeedKmh.kmhToMph().orDash(),
                         fontSize = HeroSpeedFontSize,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -688,7 +692,7 @@ private fun UnmeasuredCard(
                 )
                 InfoItem(
                     label = stringResource(R.string.remaining),
-                    value = String.format(Locale.US, "%.1f km", state.distanceRemaining / 1000.0),
+                    value = formatMiles(state.distanceRemaining),
                 )
             }
 
@@ -715,7 +719,7 @@ private fun ExitingCard(
     val color = if (exitVerdictOverLimit(state, vehicleType)) speedRed() else speedGreen()
     val semanticDescription = stringResource(
         R.string.accessibility_exiting,
-        state.finalAvgSpeed.orDash(),
+        state.finalAvgSpeed.kmhToMph().orDash(),
         state.zone.road,
     )
 
@@ -738,7 +742,7 @@ private fun ExitingCard(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = stringResource(R.string.final_avg_speed, state.finalAvgSpeed.orDash()),
+                        text = stringResource(R.string.final_avg_speed, state.finalAvgSpeed.kmhToMph().orDash()),
                         style = MaterialTheme.typography.headlineLarge,
                         color = color,
                         fontWeight = FontWeight.Bold,
@@ -746,7 +750,7 @@ private fun ExitingCard(
                 }
             }
             Text(
-                text = stringResource(R.string.status_now_speed, currentSpeedKmh.orDash()),
+                text = stringResource(R.string.status_now_speed, currentSpeedKmh.kmhToMph().orDash()),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )

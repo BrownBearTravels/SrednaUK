@@ -94,14 +94,18 @@ class MapRepository @Inject constructor(
 
     /**
      * Returns the style URI MapLibre should load for the requested theme.
-     * Prefers the on-disk copy; falls back to the backend URL when the
-     * bundle isn't installed (debug-only path — the dark variant only
-     * exists in the bundle, so the URL fallback is light for both modes).
+     * Prefers the on-disk copy; falls back to the online OpenFreeMap style
+     * for the same theme when the bundle isn't installed (the SrednaUK default
+     * until a UK offline bundle exists).
      */
     fun localStyleUri(theme: MapTheme): String {
         val fileName = STYLE_FILES.getValue(theme)
         val style = File(mapDir(), fileName)
-        return if (style.exists()) "file://${style.absolutePath}" else BuildConfig.MAP_STYLE_URL
+        if (style.exists()) return "file://${style.absolutePath}"
+        return when (theme) {
+            MapTheme.LIGHT -> BuildConfig.MAP_STYLE_URL
+            MapTheme.DARK -> BuildConfig.MAP_STYLE_URL_DARK
+        }
     }
 
     private fun mapDir(): File = File(context.filesDir, MAP_DIR)

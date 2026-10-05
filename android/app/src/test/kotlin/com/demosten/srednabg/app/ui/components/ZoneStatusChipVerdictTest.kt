@@ -31,7 +31,8 @@ class ZoneStatusChipVerdictTest {
         start = ZoneEndpoint(lat = 42.0, lng = 25.0),
         end = ZoneEndpoint(lat = 42.0, lng = 25.1),
         distanceM = 8000,
-        speedLimits = SpeedLimits(car = 140, truck = 90, bus = 100, motorcycle = 120),
+        // Limits are whole mph; final averages below are km/h.
+        speedLimits = SpeedLimits(car = 70, truck = 50, bus = 60, motorcycle = 60),
         centerline = listOf(listOf(42.0, 25.0), listOf(42.0, 25.1)),
         source = "test",
         lastVerified = "2026-06-10",
@@ -51,8 +52,17 @@ class ZoneStatusChipVerdictTest {
 
     @Test
     fun `motorcycle uses its explicit zone limit when present`() {
-        assertTrue(exitVerdictOverLimit(exiting(130.0), VehicleType.MOTORCYCLE))
-        assertFalse(exitVerdictOverLimit(exiting(130.0), VehicleType.CAR))
+        // 105 km/h ≈ 65.2 mph: over the 60 mph motorcycle limit, under 70 mph car.
+        assertTrue(exitVerdictOverLimit(exiting(105.0), VehicleType.MOTORCYCLE))
+        assertFalse(exitVerdictOverLimit(exiting(105.0), VehicleType.CAR))
+    }
+
+    @Test
+    fun `average just under the mph limit is within it`() {
+        // 112.6 km/h ≈ 69.97 mph — under 70 mph even though it displays as 69.
+        assertFalse(exitVerdictOverLimit(exiting(112.6), VehicleType.CAR))
+        // 112.7 km/h ≈ 70.03 mph — over.
+        assertTrue(exitVerdictOverLimit(exiting(112.7), VehicleType.CAR))
     }
 
     @Test

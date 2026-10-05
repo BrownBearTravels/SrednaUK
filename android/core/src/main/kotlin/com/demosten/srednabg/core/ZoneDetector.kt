@@ -356,7 +356,7 @@ class ZoneDetector(zones: List<Zone>) {
 
         val status = AverageSpeedCalc.calculate(
             entryTime, point.timestamp, totalStopDurationMs, distanceTraveled,
-            zone.distanceM.toDouble(), vehicleType.limit(zone.speedLimits),
+            zone.distanceM.toDouble(), vehicleType.limit(zone.speedLimits).mphToKmh(),
             distanceRemainingOverride = remaining,
         )
 
@@ -420,7 +420,7 @@ class ZoneDetector(zones: List<Zone>) {
 
         val status = AverageSpeedCalc.calculate(
             entryTime, point.timestamp, totalStopDurationMs,
-            distanceTraveled, zone.distanceM.toDouble(), vehicleType.limit(zone.speedLimits),
+            distanceTraveled, zone.distanceM.toDouble(), vehicleType.limit(zone.speedLimits).mphToKmh(),
             distanceRemainingOverride = remaining,
         )
 
@@ -491,7 +491,7 @@ class ZoneDetector(zones: List<Zone>) {
         finalizeStop(point.timestamp)
         val status = AverageSpeedCalc.calculate(
             entryTime, point.timestamp, totalStopDurationMs,
-            distanceTraveled, zone.distanceM.toDouble(), vehicleType.limit(zone.speedLimits),
+            distanceTraveled, zone.distanceM.toDouble(), vehicleType.limit(zone.speedLimits).mphToKmh(),
         )
         // Offer a co-located successor the handover (see COLOCATED_CAMERA_M),
         // tagged with the direction we finished this zone on so the opposite

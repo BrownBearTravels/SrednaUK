@@ -41,7 +41,11 @@ android {
         // builds always test against real zone data.
         buildConfigField("String", "ZONE_API_BASE_URL", "\"https://srednabg.com\"")
         buildConfigField("int", "ZONE_FEED_VERSION", "$zoneFeedVersion")
-        buildConfigField("String", "MAP_STYLE_URL", "\"https://srednabg.com/tiles/styles/basic-preview/style.json\"")
+        // SrednaUK: online fallback when no offline map bundle is installed.
+        // OpenFreeMap (free, no API key, OpenMapTiles schema) — never the
+        // upstream srednabg.com tile server.
+        buildConfigField("String", "MAP_STYLE_URL", "\"https://tiles.openfreemap.org/styles/liberty\"")
+        buildConfigField("String", "MAP_STYLE_URL_DARK", "\"https://tiles.openfreemap.org/styles/dark\"")
     }
 
     // Two distribution flavors differing only in the location provider:
@@ -202,6 +206,7 @@ dependencies {
     // Testing
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.junit5.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk)
@@ -214,9 +219,10 @@ tasks.withType<Test> {
 
 // Stages the generated map bundle (from backend/data/map-bundle/) into the APK's
 // assets/map/ directory. The bundle is produced by `backend/scripts/build-map-bundle.sh`
-// and intentionally kept out of git. The build FAILS if the bundle is missing or
-// incomplete — the app is designed offline-first and shipping without the bundle
-// would hand users a blank map on first launch.
+// and intentionally kept out of git. SrednaUK: the bundle is OPTIONAL — with no
+// bundle the app loads the online MAP_STYLE_URL / MAP_STYLE_URL_DARK instead. A
+// bundle that is present but INCOMPLETE still fails the build: staging it would
+// make the app trust an offline map that can't render.
 val mapBundleSource = rootProject.file("../backend/data/map-bundle")
 val mapAssetsDest = layout.projectDirectory.dir("src/main/assets/map")
 val requiredMapFiles = listOf("style-light.json", "style-dark.json", "bulgaria.mbtiles")
@@ -226,12 +232,10 @@ val requiredMapFiles = listOf("style-light.json", "style-dark.json", "bulgaria.m
 // the check in a plain task ahead of the Copy guarantees it always fires.
 val validateMapBundle by tasks.registering {
     group = "build"
-    description = "Fail the build when the offline map bundle is missing or incomplete"
+    description = "Fail the build when an offline map bundle is present but incomplete"
     outputs.upToDateWhen { false }
     doLast {
-        // SrednaUK: the Bulgarian offline map bundle is optional. Without it the
-        // app falls back to the online MAP_STYLE_URL at runtime (the map tab may
-        // be blank until a UK map is set up). Warn instead of failing the build.
+        // SrednaUK: no bundle is fine (online map fallback); a partial one isn't.
         if (!mapBundleSource.exists()) {
             logger.warn(
                 "[validateMapBundle] offline map bundle not found at $mapBundleSource - " +
@@ -241,9 +245,11 @@ val validateMapBundle by tasks.registering {
         }
         val missing = requiredMapFiles.filterNot { File(mapBundleSource, it).exists() }
         if (missing.isNotEmpty()) {
-            logger.warn(
+            throw GradleException(
                 "[validateMapBundle] offline map bundle at $mapBundleSource is missing: " +
-                    missing.joinToString(", ") + " - building WITHOUT an offline map."
+                    missing.joinToString(", ") + ". Regenerate it with " +
+                    "`bash backend/scripts/build-map-bundle.sh`, or delete the directory " +
+                    "to build with the online map instead."
             )
         }
     }

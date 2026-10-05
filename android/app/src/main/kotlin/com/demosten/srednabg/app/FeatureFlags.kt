@@ -25,10 +25,14 @@ object FeatureFlags {
     const val IS_MAP_SYNC_ENABLED = false
 
     /**
-     * SrednaUK fork: the original app downloads zone updates from srednabg.com,
-     * which only serves Bulgarian zones. Leave this `false` so a UK build never
-     * replaces its bundled UK zones.json with Bulgarian data. Flip it only if
-     * you host your own zone feed and point ZONE_API_BASE_URL at it.
+     * SrednaUK fork: the upstream zone feed (srednabg.com) only serves Bulgarian
+     * zones. While `false` the app never contacts it: the periodic worker is not
+     * scheduled (and short-circuits if a stale one fires), and the Settings
+     * toggle, "Sync zones now" button and the map's "Try again" are hidden, so
+     * the bundled zones.json is the only zone source. Gated at those entry
+     * points rather than inside `ZoneRepository.syncFromServer` so the
+     * repository stays unit-testable. Flip it only once you host your own feed
+     * and point ZONE_API_BASE_URL at it.
      */
     const val IS_ZONE_SYNC_ENABLED = false
 }

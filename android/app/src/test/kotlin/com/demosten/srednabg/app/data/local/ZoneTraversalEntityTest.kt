@@ -58,7 +58,7 @@ class ZoneTraversalEntityTest {
         assertEquals(42.55, zone.start.lat)
         assertEquals(23.86, zone.end.lng)
         assertEquals(centerline, zone.centerline)
-        assertEquals(140, zone.speedLimits.car)
+        assertEquals(70, zone.speedLimits.car)
         assertEquals("history", zone.source)
     }
 
@@ -81,7 +81,7 @@ class ZoneTraversalEntityTest {
         road = "road",
         roadLatin = null,
         direction = "east",
-        speedLimitKmh = 140,
+        speedLimitMph = 70,
         vehicleType = "car",
         entryTimeMs = 0,
         exitTimeMs = 60_000,

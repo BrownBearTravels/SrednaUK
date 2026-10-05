@@ -5,6 +5,7 @@
 
 package com.demosten.srednabg.app.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.demosten.srednabg.core.SpeedLimits
@@ -39,7 +40,9 @@ data class ZoneTraversalEntity(
     val road: String,
     val roadLatin: String?,
     val direction: String,
-    val speedLimitKmh: Int,
+    // Whole mph (SrednaUK). The column keeps its upstream name so the Room
+    // schema and migrations are unchanged.
+    @ColumnInfo(name = "speedLimitKmh") val speedLimitMph: Int,
     val vehicleType: String,
     val entryTimeMs: Long,
     val exitTimeMs: Long,
@@ -107,7 +110,7 @@ fun ZoneTraversalEntity.snapshotZone(gson: Gson): Zone? {
         start = ZoneEndpoint(lat = sLat, lng = sLng),
         end = ZoneEndpoint(lat = eLat, lng = eLng),
         distanceM = distanceM,
-        speedLimits = SpeedLimits(car = speedLimitKmh, truck = speedLimitKmh, bus = speedLimitKmh),
+        speedLimits = SpeedLimits(car = speedLimitMph, truck = speedLimitMph, bus = speedLimitMph),
         centerline = centerline,
         source = "history",
         lastVerified = "",

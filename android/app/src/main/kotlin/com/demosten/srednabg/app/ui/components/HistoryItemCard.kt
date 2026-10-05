@@ -39,6 +39,7 @@ import com.demosten.srednabg.app.ui.theme.SpeedGreen
 import com.demosten.srednabg.app.ui.theme.SpeedRed
 import com.demosten.srednabg.app.ui.util.directionLabel
 import com.demosten.srednabg.app.ui.util.formatHistoryTime
+import com.demosten.srednabg.app.ui.util.kmhToMph
 import com.demosten.srednabg.app.ui.util.orDash
 import com.demosten.srednabg.app.ui.viewmodel.HistoryListItem
 import com.demosten.srednabg.core.ZONE_COLOR_GREEN
@@ -108,7 +109,7 @@ internal fun HistoryItemCard(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = "${item.limitKmh}",
+                        text = "${item.limitMph}",
                         color = Color.Black,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -121,7 +122,7 @@ internal fun HistoryItemCard(
             // Driver's average, tinted by the within/over verdict.
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = item.avgSpeedKmh.orDash(),
+                    text = item.avgSpeedKmh.kmhToMph().orDash(),
                     color = color,
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp,

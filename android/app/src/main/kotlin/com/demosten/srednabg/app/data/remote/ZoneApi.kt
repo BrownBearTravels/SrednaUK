@@ -6,7 +6,9 @@
 package com.demosten.srednabg.app.data.remote
 
 import com.demosten.srednabg.BuildConfig
+import com.demosten.srednabg.core.SpeedLimits
 import com.demosten.srednabg.core.Zone
+import com.demosten.srednabg.core.kmhToMphLimit
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
@@ -38,7 +40,36 @@ data class ZonesResponse(
     val version: String,
     val hash: String,
     val zones: List<Zone>,
-)
+    /**
+     * SrednaUK: unit of every `speed_limits` value in [zones] — `"mph"` for a UK
+     * feed. Absent (the upstream Bulgarian feed) means km/h.
+     */
+    @SerializedName("speed_unit") val speedUnit: String? = null,
+) {
+    /**
+     * [zones] with limits in whole mph, the unit the app runs on (core
+     * SpeedUnits.kt). A km/h feed converts each limit to the nearest mph; a
+     * 0 (missing) limit stays 0 so ZoneSanitizer still sees it as missing.
+     */
+    fun zonesInMph(): List<Zone> {
+        if (speedUnit.equals(SPEED_UNIT_MPH, ignoreCase = true)) return zones
+        return zones.map { zone ->
+            val l = zone.speedLimits
+            zone.copy(
+                speedLimits = SpeedLimits(
+                    car = l.car.kmhToMphLimit(),
+                    truck = l.truck.kmhToMphLimit(),
+                    bus = l.bus.kmhToMphLimit(),
+                    motorcycle = l.motorcycle?.kmhToMphLimit(),
+                ),
+            )
+        }
+    }
+
+    companion object {
+        const val SPEED_UNIT_MPH = "mph"
+    }
+}
 
 class ZoneApi(
     private val client: OkHttpClient,

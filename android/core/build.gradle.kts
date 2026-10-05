@@ -23,6 +23,7 @@ dependencies {
     testImplementation(libs.junit5.params)
     testImplementation(libs.kotlinx.serialization.json)
     testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
