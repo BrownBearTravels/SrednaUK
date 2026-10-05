@@ -57,6 +57,10 @@ ATTRIBUTION = (
     "via speedcameramap.uk"
 )
 SOURCE = "osm-speedcameramap"
+SOURCE_EXTRA = "osm-extra"
+EXTRAS_PATH = SNAPSHOT_DIR / "extra_sections.json"
+# An extra section is retired once an OSM section starts and ends this close.
+EXTRA_COVERED_M = 150
 
 # Below this the engine cannot meaningfully measure a traversal: entry is only
 # confirmed after min(300 m, 25%) of travel and the start must be witnessed
@@ -270,7 +274,7 @@ def build_zones(sections_doc: dict, cameras_doc: dict | None) -> tuple[list[dict
         avg_kind = kinds.index("average")
         avg_cams = [(r[0], r[1]) for r in cameras_doc["rows"] if r[2] == avg_kind]
 
-    for raw in sorted(sections_doc["sections"], key=lambda s: (s["scheme"], s["id"])):
+    for raw in sorted(sections_doc["sections"], key=lambda s: (s["scheme"], str(s["id"]))):
         sid = f"{raw['scheme']}#{raw['id']}"
         limit = raw.get("limit")
         if not isinstance(limit, int) or limit <= 0:
@@ -340,10 +344,41 @@ def build_zones(sections_doc: dict, cameras_doc: dict | None) -> tuple[list[dict
             "speed_limits": {"car": limit, "truck": limit, "bus": limit, "motorcycle": None},
             "centerline": sec.centerline,
             "road_type": road_type(raw.get("road")),
-            "source": SOURCE,
+            "source": SOURCE_EXTRA if raw.get("extra") else SOURCE,
             "last_verified": sections_doc.get("updated", ""),
         })
     return zones, notes
+
+
+def merge_extras(sections_doc: dict, extras_doc: dict | None) -> tuple[dict, list[str]]:
+    """Add locally-held sections (see ``data/uk/extra_sections.json``) that the
+    monthly OSM extract doesn't carry yet. An extra is dropped as soon as an
+    extract section starts and ends within EXTRA_COVERED_M of it, so a zone is
+    never listed twice once its OSM relation lands."""
+    if not extras_doc:
+        return sections_doc, []
+    notes: list[str] = []
+    osm_ends = []
+    for s in sections_doc["sections"]:
+        line = decode_polyline(s.get("g") or "")
+        if len(line) >= 2:
+            osm_ends.append((line[0], line[-1]))
+    merged = list(sections_doc["sections"])
+    for extra in extras_doc.get("sections", []):
+        line = decode_polyline(extra.get("g") or "")
+        if len(line) < 2:
+            notes.append(f"skip extra {extra.get('id')}: no geometry")
+            continue
+        covered = any(
+            haversine_m(*line[0], *a) <= EXTRA_COVERED_M and haversine_m(*line[-1], *b) <= EXTRA_COVERED_M
+            for a, b in osm_ends
+        )
+        if covered:
+            notes.append(f"retire extra {extra['id']}: now in the OSM extract — remove it from extra_sections.json")
+            continue
+        merged.append({**extra, "extra": True})
+        notes.append(f"add extra {extra['id']}")
+    return {**sections_doc, "sections": merged}, notes
 
 
 def compute_hash(zones: list[dict]) -> str:
@@ -381,6 +416,10 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     sections_doc = fetch_json("sections.json", args.offline)
+    extras_doc = (
+        json.loads(EXTRAS_PATH.read_text(encoding="utf-8")) if EXTRAS_PATH.exists() else None
+    )
+    sections_doc, extra_notes = merge_extras(sections_doc, extras_doc)
     try:
         cameras_doc = fetch_json("cameras.json", args.offline)
     except FileNotFoundError:
@@ -388,6 +427,7 @@ def main(argv: list[str] | None = None) -> int:
         cameras_doc = None
 
     doc, notes = build_document(sections_doc, cameras_doc)
+    notes = extra_notes + notes
     for n in notes:
         logger.info(n)
     if not doc["zones"]:

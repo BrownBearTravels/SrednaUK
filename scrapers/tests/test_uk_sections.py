@@ -17,6 +17,7 @@ from src.uk_sections import (
     compass_direction,
     compute_hash,
     decode_polyline,
+    merge_extras,
     road_type,
     trim_hooks,
 )
@@ -115,6 +116,28 @@ class TestTrimHooks:
         cam = (52.62, 1.701)
         line, _ = trim_hooks(overshoot, [cam])
         assert haversine_m(*line[-1], *cam) < 5
+
+
+class TestMergeExtras:
+    def test_adds_extra_and_marks_source(self):
+        base = {"updated": "2026-09-27", "sections": []}
+        extras = {"sections": [section("extra-1", "a1-test", NORTH)]}
+        merged, notes = merge_extras(base, extras)
+        doc, _ = build_document(merged, None)
+        (z,) = doc["zones"]
+        assert z["source"] == "osm-extra"
+        assert notes == ["add extra extra-1"]
+
+    def test_retires_extra_once_osm_covers_it(self):
+        base = {"updated": "2026-09-27", "sections": [section(1, "a1-osm", NORTH)]}
+        nudged = [[p[0] + 0.0003, p[1]] for p in NORTH]  # ~33 m off
+        merged, notes = merge_extras(base, {"sections": [section("extra-1", "a1-test", nudged)]})
+        assert [s["id"] for s in merged["sections"]] == [1]
+        assert "retire extra extra-1" in notes[0]
+
+    def test_no_extras_file(self):
+        base = {"updated": "x", "sections": []}
+        assert merge_extras(base, None) == (base, [])
 
 
 class TestBuild:

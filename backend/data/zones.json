@@ -1,6 +1,6 @@
 {
   "version": "2026-09-27T00:00:00Z",
-  "hash": "sha256:4510af7ccba5effdf7169d57ff8d5ea87172a7ddd40deca2637e3e76893f356b",
+  "hash": "sha256:b50942bcadae7b560a0186643d8dd26715ea0540a9fd7ef101835be22e352f48",
   "speed_unit": "mph",
   "attribution": "Average speed sections © OpenStreetMap contributors (ODbL 1.0), via speedcameramap.uk",
   "licence": "ODbL-1.0",
@@ -421,68 +421,7 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a149-stalham-01-south",
-      "road": "A149",
-      "road_latin": "A149",
-      "direction": "south",
-      "description": "A149, Catfield Bypass",
-      "start": {
-        "lat": 52.75745,
-        "lng": 1.53103,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.71823,
-        "lng": 1.57114,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 5329,
-      "speed_limits": {
-        "car": 60,
-        "truck": 60,
-        "bus": 60,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.75745,
-          1.53103
-        ],
-        [
-          52.73383,
-          1.54379
-        ],
-        [
-          52.73241,
-          1.54477
-        ],
-        [
-          52.73114,
-          1.54592
-        ],
-        [
-          52.7295,
-          1.54787
-        ],
-        [
-          52.72795,
-          1.55033
-        ],
-        [
-          52.71823,
-          1.57114
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a149-stalham-02-east",
+      "id": "a149-stalham-01-east",
       "road": "A149",
       "road_latin": "A149",
       "direction": "east",
@@ -592,6 +531,67 @@
         [
           52.75745,
           1.53103
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a149-stalham-02-south",
+      "road": "A149",
+      "road_latin": "A149",
+      "direction": "south",
+      "description": "A149, Catfield Bypass",
+      "start": {
+        "lat": 52.75745,
+        "lng": 1.53103,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.71823,
+        "lng": 1.57114,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 5329,
+      "speed_limits": {
+        "car": 60,
+        "truck": 60,
+        "bus": 60,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.75745,
+          1.53103
+        ],
+        [
+          52.73383,
+          1.54379
+        ],
+        [
+          52.73241,
+          1.54477
+        ],
+        [
+          52.73114,
+          1.54592
+        ],
+        [
+          52.7295,
+          1.54787
+        ],
+        [
+          52.72795,
+          1.55033
+        ],
+        [
+          52.71823,
+          1.57114
         ]
       ],
       "road_type": "road",
@@ -1336,83 +1336,6 @@
       "direction": "north",
       "description": "A38, London Road",
       "start": {
-        "lat": 52.5938,
-        "lng": -1.78862,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.61523,
-        "lng": -1.79859,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 2638,
-      "speed_limits": {
-        "car": 60,
-        "truck": 60,
-        "bus": 60,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.5938,
-          -1.78862
-        ],
-        [
-          52.59529,
-          -1.79228
-        ],
-        [
-          52.59597,
-          -1.79348
-        ],
-        [
-          52.59745,
-          -1.79519
-        ],
-        [
-          52.5987,
-          -1.79593
-        ],
-        [
-          52.60054,
-          -1.79619
-        ],
-        [
-          52.60632,
-          -1.79519
-        ],
-        [
-          52.60849,
-          -1.79517
-        ],
-        [
-          52.61059,
-          -1.79584
-        ],
-        [
-          52.61384,
-          -1.79804
-        ],
-        [
-          52.61523,
-          -1.79859
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a38-lichfield-02-north",
-      "road": "A38",
-      "road_latin": "A38",
-      "direction": "north",
-      "description": "A38, London Road",
-      "start": {
         "lat": 52.61523,
         "lng": -1.79859,
         "km_marker": null,
@@ -1504,40 +1427,76 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a38-sutton-in-ashfield-01-east",
+      "id": "a38-lichfield-02-north",
       "road": "A38",
       "road_latin": "A38",
-      "direction": "east",
-      "description": "A38",
+      "direction": "north",
+      "description": "A38, London Road",
       "start": {
-        "lat": 53.11384,
-        "lng": -1.27712,
+        "lat": 52.5938,
+        "lng": -1.78862,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 53.11364,
-        "lng": -1.27038,
+        "lat": 52.61523,
+        "lng": -1.79859,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 450,
+      "distance_m": 2638,
       "speed_limits": {
-        "car": 50,
-        "truck": 50,
-        "bus": 50,
+        "car": 60,
+        "truck": 60,
+        "bus": 60,
         "motorcycle": null
       },
       "centerline": [
         [
-          53.11384,
-          -1.27712
+          52.5938,
+          -1.78862
         ],
         [
-          53.11364,
-          -1.27038
+          52.59529,
+          -1.79228
+        ],
+        [
+          52.59597,
+          -1.79348
+        ],
+        [
+          52.59745,
+          -1.79519
+        ],
+        [
+          52.5987,
+          -1.79593
+        ],
+        [
+          52.60054,
+          -1.79619
+        ],
+        [
+          52.60632,
+          -1.79519
+        ],
+        [
+          52.60849,
+          -1.79517
+        ],
+        [
+          52.61059,
+          -1.79584
+        ],
+        [
+          52.61384,
+          -1.79804
+        ],
+        [
+          52.61523,
+          -1.79859
         ]
       ],
       "road_type": "road",
@@ -1545,116 +1504,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a38-sutton-in-ashfield-02-east",
+      "id": "a38-sutton-in-ashfield-01-north",
       "road": "A38",
       "road_latin": "A38",
-      "direction": "east",
+      "direction": "north",
       "description": "A38, Kings Mill Road East",
       "start": {
-        "lat": 53.11364,
-        "lng": -1.27038,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.11347,
-        "lng": -1.26514,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 350,
-      "speed_limits": {
-        "car": 50,
-        "truck": 50,
-        "bus": 50,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.11364,
-          -1.27038
-        ],
-        [
-          53.11347,
-          -1.26514
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a38-sutton-in-ashfield-03-east",
-      "road": "A38",
-      "road_latin": "A38",
-      "direction": "east",
-      "description": "A38, Kings Mill Road East",
-      "start": {
-        "lat": 53.11347,
-        "lng": -1.26514,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
         "lat": 53.11382,
         "lng": -1.25853,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 449,
-      "speed_limits": {
-        "car": 50,
-        "truck": 50,
-        "bus": 50,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.11347,
-          -1.26514
-        ],
-        [
-          53.11341,
-          -1.26083
-        ],
-        [
-          53.11352,
-          -1.25979
-        ],
-        [
-          53.11382,
-          -1.25853
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a38-sutton-in-ashfield-04-north",
-      "road": "A38",
-      "road_latin": "A38",
-      "direction": "north",
-      "description": "A38, Kings Mill Road East",
-      "start": {
+      "end": {
         "lat": 53.11573,
         "lng": -1.25592,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "end": {
-        "lat": 53.12048,
-        "lng": -1.25122,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 625,
+      "distance_m": 280,
       "speed_limits": {
         "car": 50,
         "truck": 50,
@@ -1662,21 +1531,17 @@
         "motorcycle": null
       },
       "centerline": [
+        [
+          53.11382,
+          -1.25853
+        ],
+        [
+          53.11439,
+          -1.25724
+        ],
         [
           53.11573,
           -1.25592
-        ],
-        [
-          53.11734,
-          -1.25514
-        ],
-        [
-          53.11826,
-          -1.25438
-        ],
-        [
-          53.12048,
-          -1.25122
         ]
       ],
       "road_type": "road",
@@ -1684,101 +1549,7 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a38-sutton-in-ashfield-05-north",
-      "road": "A38",
-      "road_latin": "A38",
-      "direction": "north",
-      "description": "A38",
-      "start": {
-        "lat": 53.12048,
-        "lng": -1.25122,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.12239,
-        "lng": -1.24831,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 288,
-      "speed_limits": {
-        "car": 50,
-        "truck": 50,
-        "bus": 50,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.12048,
-          -1.25122
-        ],
-        [
-          53.12239,
-          -1.24831
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a38-sutton-in-ashfield-06-east",
-      "road": "A38",
-      "road_latin": "A38",
-      "direction": "east",
-      "description": "A38",
-      "start": {
-        "lat": 53.12239,
-        "lng": -1.24831,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.12553,
-        "lng": -1.24013,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 658,
-      "speed_limits": {
-        "car": 50,
-        "truck": 50,
-        "bus": 50,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.12239,
-          -1.24831
-        ],
-        [
-          53.12339,
-          -1.24671
-        ],
-        [
-          53.12433,
-          -1.2447
-        ],
-        [
-          53.12498,
-          -1.24264
-        ],
-        [
-          53.12553,
-          -1.24013
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a38-sutton-in-ashfield-07-north",
+      "id": "a38-sutton-in-ashfield-02-north",
       "road": "A38",
       "road_latin": "A38",
       "direction": "north",
@@ -1831,26 +1602,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a38-sutton-in-ashfield-08-north",
+      "id": "a38-sutton-in-ashfield-03-east",
       "road": "A38",
       "road_latin": "A38",
-      "direction": "north",
-      "description": "A38, Kings Mill Road East",
+      "direction": "east",
+      "description": "A38",
       "start": {
-        "lat": 53.11382,
-        "lng": -1.25853,
+        "lat": 53.12239,
+        "lng": -1.24831,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 53.11573,
-        "lng": -1.25592,
+        "lat": 53.12553,
+        "lng": -1.24013,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 280,
+      "distance_m": 658,
       "speed_limits": {
         "car": 50,
         "truck": 50,
@@ -1859,16 +1630,245 @@
       },
       "centerline": [
         [
-          53.11382,
-          -1.25853
+          53.12239,
+          -1.24831
         ],
         [
-          53.11439,
-          -1.25724
+          53.12339,
+          -1.24671
         ],
+        [
+          53.12433,
+          -1.2447
+        ],
+        [
+          53.12498,
+          -1.24264
+        ],
+        [
+          53.12553,
+          -1.24013
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a38-sutton-in-ashfield-04-north",
+      "road": "A38",
+      "road_latin": "A38",
+      "direction": "north",
+      "description": "A38",
+      "start": {
+        "lat": 53.12048,
+        "lng": -1.25122,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.12239,
+        "lng": -1.24831,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 288,
+      "speed_limits": {
+        "car": 50,
+        "truck": 50,
+        "bus": 50,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.12048,
+          -1.25122
+        ],
+        [
+          53.12239,
+          -1.24831
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a38-sutton-in-ashfield-05-north",
+      "road": "A38",
+      "road_latin": "A38",
+      "direction": "north",
+      "description": "A38, Kings Mill Road East",
+      "start": {
+        "lat": 53.11573,
+        "lng": -1.25592,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.12048,
+        "lng": -1.25122,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 625,
+      "speed_limits": {
+        "car": 50,
+        "truck": 50,
+        "bus": 50,
+        "motorcycle": null
+      },
+      "centerline": [
         [
           53.11573,
           -1.25592
+        ],
+        [
+          53.11734,
+          -1.25514
+        ],
+        [
+          53.11826,
+          -1.25438
+        ],
+        [
+          53.12048,
+          -1.25122
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a38-sutton-in-ashfield-06-east",
+      "road": "A38",
+      "road_latin": "A38",
+      "direction": "east",
+      "description": "A38, Kings Mill Road East",
+      "start": {
+        "lat": 53.11347,
+        "lng": -1.26514,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.11382,
+        "lng": -1.25853,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 449,
+      "speed_limits": {
+        "car": 50,
+        "truck": 50,
+        "bus": 50,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.11347,
+          -1.26514
+        ],
+        [
+          53.11341,
+          -1.26083
+        ],
+        [
+          53.11352,
+          -1.25979
+        ],
+        [
+          53.11382,
+          -1.25853
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a38-sutton-in-ashfield-07-east",
+      "road": "A38",
+      "road_latin": "A38",
+      "direction": "east",
+      "description": "A38, Kings Mill Road East",
+      "start": {
+        "lat": 53.11364,
+        "lng": -1.27038,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.11347,
+        "lng": -1.26514,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 350,
+      "speed_limits": {
+        "car": 50,
+        "truck": 50,
+        "bus": 50,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.11364,
+          -1.27038
+        ],
+        [
+          53.11347,
+          -1.26514
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a38-sutton-in-ashfield-08-east",
+      "road": "A38",
+      "road_latin": "A38",
+      "direction": "east",
+      "description": "A38",
+      "start": {
+        "lat": 53.11384,
+        "lng": -1.27712,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.11364,
+        "lng": -1.27038,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 450,
+      "speed_limits": {
+        "car": 50,
+        "truck": 50,
+        "bus": 50,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.11384,
+          -1.27712
+        ],
+        [
+          53.11364,
+          -1.27038
         ]
       ],
       "road_type": "road",
@@ -2192,101 +2192,7 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a41-chester-01-south",
-      "road": "A41",
-      "road_latin": "A41",
-      "direction": "south",
-      "description": "A41, Whitchurch Road",
-      "start": {
-        "lat": 53.18166,
-        "lng": -2.83984,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.1802,
-        "lng": -2.83751,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 225,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.18166,
-          -2.83984
-        ],
-        [
-          53.1802,
-          -2.83751
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a41-chester-02-west",
-      "road": "A41",
-      "road_latin": "A41",
-      "direction": "west",
-      "description": "A41, Whitchurch Road",
-      "start": {
-        "lat": 53.18166,
-        "lng": -2.83984,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.18581,
-        "lng": -2.84705,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 671,
-      "speed_limits": {
-        "car": 30,
-        "truck": 30,
-        "bus": 30,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.18166,
-          -2.83984
-        ],
-        [
-          53.18239,
-          -2.84079
-        ],
-        [
-          53.18503,
-          -2.84509
-        ],
-        [
-          53.1856,
-          -2.84627
-        ],
-        [
-          53.18581,
-          -2.84705
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a41-chester-03-north",
+      "id": "a41-chester-01-north",
       "road": "A41",
       "road_latin": "A41",
       "direction": "north",
@@ -2355,26 +2261,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a45-birmingham-01-west",
-      "road": "A45",
-      "road_latin": "A45",
+      "id": "a41-chester-02-west",
+      "road": "A41",
+      "road_latin": "A41",
       "direction": "west",
-      "description": "A45, Coventry Road",
+      "description": "A41, Whitchurch Road",
       "start": {
-        "lat": 52.462492,
-        "lng": -1.824802,
+        "lat": 53.18166,
+        "lng": -2.83984,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.46309,
-        "lng": -1.83164,
+        "lat": 53.18581,
+        "lng": -2.84705,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 468,
+      "distance_m": 671,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -2383,12 +2289,24 @@
       },
       "centerline": [
         [
-          52.462492,
-          -1.824802
+          53.18166,
+          -2.83984
         ],
         [
-          52.46309,
-          -1.83164
+          53.18239,
+          -2.84079
+        ],
+        [
+          53.18503,
+          -2.84509
+        ],
+        [
+          53.1856,
+          -2.84627
+        ],
+        [
+          53.18581,
+          -2.84705
         ]
       ],
       "road_type": "road",
@@ -2396,7 +2314,390 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a45-birmingham-02-west",
+      "id": "a41-chester-03-south",
+      "road": "A41",
+      "road_latin": "A41",
+      "direction": "south",
+      "description": "A41, Whitchurch Road",
+      "start": {
+        "lat": 53.18166,
+        "lng": -2.83984,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.1802,
+        "lng": -2.83751,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 225,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.18166,
+          -2.83984
+        ],
+        [
+          53.1802,
+          -2.83751
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a4114-coventry-01-north",
+      "road": "A4114",
+      "road_latin": "A4114",
+      "direction": "north",
+      "description": "A4114, London Road",
+      "start": {
+        "lat": 52.39329,
+        "lng": -1.49461,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.40346,
+        "lng": -1.50089,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 1219,
+      "speed_limits": {
+        "car": 30,
+        "truck": 30,
+        "bus": 30,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.39329,
+          -1.49461
+        ],
+        [
+          52.39348,
+          -1.49472
+        ],
+        [
+          52.39422,
+          -1.49508
+        ],
+        [
+          52.39485,
+          -1.49535
+        ],
+        [
+          52.39557,
+          -1.49562
+        ],
+        [
+          52.39618,
+          -1.49586
+        ],
+        [
+          52.3967,
+          -1.49605
+        ],
+        [
+          52.39707,
+          -1.49618
+        ],
+        [
+          52.39749,
+          -1.49632
+        ],
+        [
+          52.39767,
+          -1.49635
+        ],
+        [
+          52.39771,
+          -1.49636
+        ],
+        [
+          52.39796,
+          -1.49646
+        ],
+        [
+          52.39808,
+          -1.49653
+        ],
+        [
+          52.39826,
+          -1.49663
+        ],
+        [
+          52.39838,
+          -1.49669
+        ],
+        [
+          52.39887,
+          -1.49707
+        ],
+        [
+          52.39934,
+          -1.49748
+        ],
+        [
+          52.4002,
+          -1.49825
+        ],
+        [
+          52.40034,
+          -1.49837
+        ],
+        [
+          52.40047,
+          -1.49853
+        ],
+        [
+          52.40069,
+          -1.49873
+        ],
+        [
+          52.40072,
+          -1.49876
+        ],
+        [
+          52.40076,
+          -1.49879
+        ],
+        [
+          52.40093,
+          -1.49888
+        ],
+        [
+          52.40127,
+          -1.49917
+        ],
+        [
+          52.40151,
+          -1.49937
+        ],
+        [
+          52.40167,
+          -1.4995
+        ],
+        [
+          52.40195,
+          -1.49973
+        ],
+        [
+          52.40212,
+          -1.49993
+        ],
+        [
+          52.40239,
+          -1.50011
+        ],
+        [
+          52.40255,
+          -1.5002
+        ],
+        [
+          52.40278,
+          -1.50033
+        ],
+        [
+          52.40296,
+          -1.50042
+        ],
+        [
+          52.40312,
+          -1.50053
+        ],
+        [
+          52.40322,
+          -1.5006
+        ],
+        [
+          52.40337,
+          -1.50078
+        ],
+        [
+          52.40346,
+          -1.50089
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-extra",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a4114-coventry-02-south",
+      "road": "A4114",
+      "road_latin": "A4114",
+      "direction": "south",
+      "description": "A4114, London Road",
+      "start": {
+        "lat": 52.40322,
+        "lng": -1.50048,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.39319,
+        "lng": -1.4942,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 1201,
+      "speed_limits": {
+        "car": 30,
+        "truck": 30,
+        "bus": 30,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.40322,
+          -1.50048
+        ],
+        [
+          52.40305,
+          -1.50036
+        ],
+        [
+          52.40297,
+          -1.50031
+        ],
+        [
+          52.40269,
+          -1.50016
+        ],
+        [
+          52.40235,
+          -1.49997
+        ],
+        [
+          52.40195,
+          -1.49973
+        ],
+        [
+          52.40167,
+          -1.4995
+        ],
+        [
+          52.40151,
+          -1.49937
+        ],
+        [
+          52.40127,
+          -1.49917
+        ],
+        [
+          52.40093,
+          -1.49888
+        ],
+        [
+          52.40079,
+          -1.4987
+        ],
+        [
+          52.40071,
+          -1.49862
+        ],
+        [
+          52.40049,
+          -1.49844
+        ],
+        [
+          52.40034,
+          -1.49837
+        ],
+        [
+          52.4002,
+          -1.49825
+        ],
+        [
+          52.39934,
+          -1.49748
+        ],
+        [
+          52.39887,
+          -1.49707
+        ],
+        [
+          52.39838,
+          -1.49669
+        ],
+        [
+          52.39826,
+          -1.49663
+        ],
+        [
+          52.39808,
+          -1.49653
+        ],
+        [
+          52.39796,
+          -1.49646
+        ],
+        [
+          52.39771,
+          -1.49636
+        ],
+        [
+          52.39767,
+          -1.49635
+        ],
+        [
+          52.3975,
+          -1.49622
+        ],
+        [
+          52.39723,
+          -1.4961
+        ],
+        [
+          52.39682,
+          -1.49595
+        ],
+        [
+          52.39607,
+          -1.49566
+        ],
+        [
+          52.39543,
+          -1.49538
+        ],
+        [
+          52.39489,
+          -1.49512
+        ],
+        [
+          52.39431,
+          -1.49481
+        ],
+        [
+          52.39331,
+          -1.49431
+        ],
+        [
+          52.39319,
+          -1.4942
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-extra",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a45-birmingham-01-west",
       "road": "A45",
       "road_latin": "A45",
       "direction": "west",
@@ -2438,6 +2739,47 @@
         [
           52.46228,
           -1.82208
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a45-birmingham-02-west",
+      "road": "A45",
+      "road_latin": "A45",
+      "direction": "west",
+      "description": "A45, Coventry Road",
+      "start": {
+        "lat": 52.462492,
+        "lng": -1.824802,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.46309,
+        "lng": -1.83164,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 468,
+      "speed_limits": {
+        "car": 30,
+        "truck": 30,
+        "bus": 30,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.462492,
+          -1.824802
+        ],
+        [
+          52.46309,
+          -1.83164
         ]
       ],
       "road_type": "road",
@@ -2549,6 +2891,71 @@
       "direction": "east",
       "description": "A5",
       "start": {
+        "lat": 53.03834,
+        "lng": -3.61252,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.02468,
+        "lng": -3.5638,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 3657,
+      "speed_limits": {
+        "car": 60,
+        "truck": 60,
+        "bus": 60,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.03834,
+          -3.61252
+        ],
+        [
+          53.03814,
+          -3.60807
+        ],
+        [
+          53.03776,
+          -3.60567
+        ],
+        [
+          53.02851,
+          -3.57156
+        ],
+        [
+          53.02743,
+          -3.56784
+        ],
+        [
+          53.0267,
+          -3.56615
+        ],
+        [
+          53.02587,
+          -3.56493
+        ],
+        [
+          53.02468,
+          -3.5638
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a5-cernioge-02-east",
+      "road": "A5",
+      "road_latin": "A5",
+      "direction": "east",
+      "description": "A5",
+      "start": {
         "lat": 53.04871,
         "lng": -3.66889,
         "km_marker": null,
@@ -2636,91 +3043,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a5-cernioge-02-east",
-      "road": "A5",
-      "road_latin": "A5",
-      "direction": "east",
-      "description": "A5",
-      "start": {
-        "lat": 53.03834,
-        "lng": -3.61252,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.02468,
-        "lng": -3.5638,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 3657,
-      "speed_limits": {
-        "car": 60,
-        "truck": 60,
-        "bus": 60,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.03834,
-          -3.61252
-        ],
-        [
-          53.03814,
-          -3.60807
-        ],
-        [
-          53.03776,
-          -3.60567
-        ],
-        [
-          53.02851,
-          -3.57156
-        ],
-        [
-          53.02743,
-          -3.56784
-        ],
-        [
-          53.0267,
-          -3.56615
-        ],
-        [
-          53.02587,
-          -3.56493
-        ],
-        [
-          53.02468,
-          -3.5638
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
       "id": "a5-houghton-regis-01-south",
       "road": "A5",
       "road_latin": "A5",
       "direction": "south",
       "description": "A5, Watling Street",
       "start": {
-        "lat": 51.93212,
-        "lng": -0.588,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
         "lat": 51.93021,
         "lng": -0.58513,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 290,
+      "end": {
+        "lat": 51.92665,
+        "lng": -0.57957,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 550,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -2729,12 +3071,12 @@
       },
       "centerline": [
         [
-          51.93212,
-          -0.588
-        ],
-        [
           51.93021,
           -0.58513
+        ],
+        [
+          51.92665,
+          -0.57957
         ]
       ],
       "road_type": "road",
@@ -2789,20 +3131,20 @@
       "direction": "south",
       "description": "A5, Watling Street",
       "start": {
+        "lat": 51.93212,
+        "lng": -0.588,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
         "lat": 51.93021,
         "lng": -0.58513,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "end": {
-        "lat": 51.92665,
-        "lng": -0.57957,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 550,
+      "distance_m": 290,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -2811,12 +3153,12 @@
       },
       "centerline": [
         [
+          51.93212,
+          -0.588
+        ],
+        [
           51.93021,
           -0.58513
-        ],
-        [
-          51.92665,
-          -0.57957
         ]
       ],
       "road_type": "road",
@@ -2824,64 +3166,7 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a5004-whaley-bridge-01-south",
-      "road": "A5004",
-      "road_latin": "A5004",
-      "direction": "south",
-      "description": "A5004, Long Hill",
-      "start": {
-        "lat": 53.30949,
-        "lng": -1.97771,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 53.30107,
-        "lng": -1.97524,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 956,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          53.30949,
-          -1.97771
-        ],
-        [
-          53.30888,
-          -1.97729
-        ],
-        [
-          53.30592,
-          -1.97658
-        ],
-        [
-          53.30311,
-          -1.97543
-        ],
-        [
-          53.30202,
-          -1.97549
-        ],
-        [
-          53.30107,
-          -1.97524
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a5004-whaley-bridge-02-east",
+      "id": "a5004-whaley-bridge-01-east",
       "road": "A5004",
       "road_latin": "A5004",
       "direction": "east",
@@ -2935,6 +3220,63 @@
         [
           53.30949,
           -1.97771
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a5004-whaley-bridge-02-south",
+      "road": "A5004",
+      "road_latin": "A5004",
+      "direction": "south",
+      "description": "A5004, Long Hill",
+      "start": {
+        "lat": 53.30949,
+        "lng": -1.97771,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 53.30107,
+        "lng": -1.97524,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 956,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          53.30949,
+          -1.97771
+        ],
+        [
+          53.30888,
+          -1.97729
+        ],
+        [
+          53.30592,
+          -1.97658
+        ],
+        [
+          53.30311,
+          -1.97543
+        ],
+        [
+          53.30202,
+          -1.97549
+        ],
+        [
+          53.30107,
+          -1.97524
         ]
       ],
       "road_type": "road",
@@ -3898,8 +4240,8 @@
       "direction": "north",
       "description": "A60, London Road",
       "start": {
-        "lat": 52.94056,
-        "lng": -1.13903,
+        "lat": 52.9405,
+        "lng": -1.13918,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
@@ -3911,7 +4253,7 @@
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 317,
+      "distance_m": 319,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -3920,12 +4262,8 @@
       },
       "centerline": [
         [
-          52.94056,
-          -1.13903
-        ],
-        [
-          52.94084,
-          -1.13938
+          52.9405,
+          -1.13918
         ],
         [
           52.94159,
@@ -4127,56 +4465,60 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a611-bulwell-01-south",
+      "id": "a611-bulwell-01-east",
       "road": "A611",
       "road_latin": "A611",
-      "direction": "south",
+      "direction": "east",
       "description": "A611, Hucknall Road",
       "start": {
-        "lat": 53.00969,
-        "lng": -1.18512,
+        "lat": 52.99052,
+        "lng": -1.16893,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.99692,
-        "lng": -1.17904,
+        "lat": 52.98643,
+        "lng": -1.15938,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 1497,
+      "distance_m": 857,
       "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
+        "car": 30,
+        "truck": 30,
+        "bus": 30,
         "motorcycle": null
       },
       "centerline": [
         [
-          53.00969,
-          -1.18512
+          52.99052,
+          -1.16893
         ],
         [
-          53.0085,
-          -1.18447
+          52.99028,
+          -1.1682
         ],
         [
-          53.00479,
-          -1.18115
+          52.98925,
+          -1.16336
         ],
         [
-          53.00255,
-          -1.18053
+          52.98816,
+          -1.16014
         ],
         [
-          53.0006,
-          -1.17962
+          52.98793,
+          -1.15979
         ],
         [
-          52.99692,
-          -1.17904
+          52.98713,
+          -1.1592
+        ],
+        [
+          52.98643,
+          -1.15938
         ]
       ],
       "road_type": "road",
@@ -4241,60 +4583,56 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a611-bulwell-03-east",
+      "id": "a611-bulwell-03-south",
       "road": "A611",
       "road_latin": "A611",
-      "direction": "east",
+      "direction": "south",
       "description": "A611, Hucknall Road",
       "start": {
-        "lat": 52.99052,
-        "lng": -1.16893,
+        "lat": 53.00969,
+        "lng": -1.18512,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.98643,
-        "lng": -1.15938,
+        "lat": 52.99692,
+        "lng": -1.17904,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 857,
+      "distance_m": 1497,
       "speed_limits": {
-        "car": 30,
-        "truck": 30,
-        "bus": 30,
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
         "motorcycle": null
       },
       "centerline": [
         [
-          52.99052,
-          -1.16893
+          53.00969,
+          -1.18512
         ],
         [
-          52.99028,
-          -1.1682
+          53.0085,
+          -1.18447
         ],
         [
-          52.98925,
-          -1.16336
+          53.00479,
+          -1.18115
         ],
         [
-          52.98816,
-          -1.16014
+          53.00255,
+          -1.18053
         ],
         [
-          52.98793,
-          -1.15979
+          53.0006,
+          -1.17962
         ],
         [
-          52.98713,
-          -1.1592
-        ],
-        [
-          52.98643,
-          -1.15938
+          52.99692,
+          -1.17904
         ]
       ],
       "road_type": "road",
@@ -5098,148 +5436,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a6514-nottingham-01-west",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "west",
-      "description": "A6514, Valley Road",
-      "start": {
-        "lat": 52.986382,
-        "lng": -1.161991,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.982196,
-        "lng": -1.173105,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 947,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.986382,
-          -1.161991
-        ],
-        [
-          52.98626,
-          -1.16262
-        ],
-        [
-          52.98507,
-          -1.16676
-        ],
-        [
-          52.9842,
-          -1.17163
-        ],
-        [
-          52.98382,
-          -1.17231
-        ],
-        [
-          52.98327,
-          -1.17287
-        ],
-        [
-          52.98271,
-          -1.1731
-        ],
-        [
-          52.982196,
-          -1.173105
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-02-east",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "east",
-      "description": "A6514, Valley Road",
-      "start": {
-        "lat": 52.9775,
-        "lng": -1.17963,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.98104,
-        "lng": -1.17361,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 599,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.9775,
-          -1.17963
-        ],
-        [
-          52.97758,
-          -1.17983
-        ],
-        [
-          52.97854,
-          -1.17862
-        ],
-        [
-          52.97952,
-          -1.17572
-        ],
-        [
-          52.98048,
-          -1.17394
-        ],
-        [
-          52.98104,
-          -1.17361
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-03-south",
+      "id": "a6514-nottingham-01-south",
       "road": "A6514",
       "road_latin": "A6514",
       "direction": "south",
-      "description": "A6514, Western Boulevard",
+      "description": "A6514, Middleton Boulevard",
       "start": {
-        "lat": 52.9775,
-        "lng": -1.17963,
+        "lat": 52.95321,
+        "lng": -1.19171,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.97406,
-        "lng": -1.18381,
+        "lat": 52.94837,
+        "lng": -1.1908,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 474,
+      "distance_m": 552,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -5248,12 +5464,20 @@
       },
       "centerline": [
         [
-          52.9775,
-          -1.17963
+          52.95321,
+          -1.19171
         ],
         [
-          52.97406,
-          -1.18381
+          52.95188,
+          -1.19089
+        ],
+        [
+          52.94851,
+          -1.19064
+        ],
+        [
+          52.94837,
+          -1.1908
         ]
       ],
       "road_type": "road",
@@ -5261,228 +5485,7 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a6514-nottingham-04-south",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "south",
-      "description": "A6514, Western Boulevard",
-      "start": {
-        "lat": 52.97406,
-        "lng": -1.18381,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.9708,
-        "lng": -1.18749,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 438,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.97406,
-          -1.18381
-        ],
-        [
-          52.9708,
-          -1.18749
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-05-south",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "south",
-      "description": "A6514, Western Boulevard",
-      "start": {
-        "lat": 52.9708,
-        "lng": -1.18749,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.96831,
-        "lng": -1.1901,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 327,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.9708,
-          -1.18749
-        ],
-        [
-          52.96831,
-          -1.1901
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-06-south",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "south",
-      "description": "A6514, Western Boulevard",
-      "start": {
-        "lat": 52.96831,
-        "lng": -1.1901,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.966285,
-        "lng": -1.190684,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 234,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.96831,
-          -1.1901
-        ],
-        [
-          52.96771,
-          -1.19062
-        ],
-        [
-          52.966285,
-          -1.190684
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-07-south",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "south",
-      "description": "A6514, Western Boulevard",
-      "start": {
-        "lat": 52.966287,
-        "lng": -1.190653,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.96184,
-        "lng": -1.19105,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 512,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.966287,
-          -1.190653
-        ],
-        [
-          52.9618,
-          -1.19087
-        ],
-        [
-          52.96184,
-          -1.19105
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-08-south",
-      "road": "A6514",
-      "road_latin": "A6514",
-      "direction": "south",
-      "description": "A6514, Western Boulevard",
-      "start": {
-        "lat": 52.96184,
-        "lng": -1.19105,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.958619,
-        "lng": -1.190928,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 367,
-      "speed_limits": {
-        "car": 40,
-        "truck": 40,
-        "bus": 40,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.96184,
-          -1.19105
-        ],
-        [
-          52.9618,
-          -1.19087
-        ],
-        [
-          52.96118,
-          -1.19085
-        ],
-        [
-          52.958619,
-          -1.190928
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a6514-nottingham-09-south",
+      "id": "a6514-nottingham-02-south",
       "road": "A6514",
       "road_latin": "A6514",
       "direction": "south",
@@ -5543,26 +5546,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "a6514-nottingham-10-south",
+      "id": "a6514-nottingham-03-south",
       "road": "A6514",
       "road_latin": "A6514",
       "direction": "south",
-      "description": "A6514, Middleton Boulevard",
+      "description": "A6514, Western Boulevard",
       "start": {
-        "lat": 52.95321,
-        "lng": -1.19171,
+        "lat": 52.96184,
+        "lng": -1.19105,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.94837,
-        "lng": -1.1908,
+        "lat": 52.958619,
+        "lng": -1.190928,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 552,
+      "distance_m": 367,
       "speed_limits": {
         "car": 40,
         "truck": 40,
@@ -5571,20 +5574,355 @@
       },
       "centerline": [
         [
-          52.95321,
-          -1.19171
+          52.96184,
+          -1.19105
         ],
         [
-          52.95188,
-          -1.19089
+          52.9618,
+          -1.19087
         ],
         [
-          52.94851,
-          -1.19064
+          52.96118,
+          -1.19085
         ],
         [
-          52.94837,
-          -1.1908
+          52.958619,
+          -1.190928
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-04-south",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "south",
+      "description": "A6514, Western Boulevard",
+      "start": {
+        "lat": 52.966287,
+        "lng": -1.190653,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.96184,
+        "lng": -1.19105,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 512,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.966287,
+          -1.190653
+        ],
+        [
+          52.9618,
+          -1.19087
+        ],
+        [
+          52.96184,
+          -1.19105
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-05-south",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "south",
+      "description": "A6514, Western Boulevard",
+      "start": {
+        "lat": 52.96831,
+        "lng": -1.1901,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.966285,
+        "lng": -1.190684,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 234,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.96831,
+          -1.1901
+        ],
+        [
+          52.96771,
+          -1.19062
+        ],
+        [
+          52.966285,
+          -1.190684
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-06-south",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "south",
+      "description": "A6514, Western Boulevard",
+      "start": {
+        "lat": 52.9708,
+        "lng": -1.18749,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.96831,
+        "lng": -1.1901,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 327,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.9708,
+          -1.18749
+        ],
+        [
+          52.96831,
+          -1.1901
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-07-south",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "south",
+      "description": "A6514, Western Boulevard",
+      "start": {
+        "lat": 52.97406,
+        "lng": -1.18381,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.9708,
+        "lng": -1.18749,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 438,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.97406,
+          -1.18381
+        ],
+        [
+          52.9708,
+          -1.18749
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-08-south",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "south",
+      "description": "A6514, Western Boulevard",
+      "start": {
+        "lat": 52.9775,
+        "lng": -1.17963,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.97406,
+        "lng": -1.18381,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 474,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.9775,
+          -1.17963
+        ],
+        [
+          52.97406,
+          -1.18381
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-09-east",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "east",
+      "description": "A6514, Valley Road",
+      "start": {
+        "lat": 52.9775,
+        "lng": -1.17963,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.98104,
+        "lng": -1.17361,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 599,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.9775,
+          -1.17963
+        ],
+        [
+          52.97758,
+          -1.17983
+        ],
+        [
+          52.97854,
+          -1.17862
+        ],
+        [
+          52.97952,
+          -1.17572
+        ],
+        [
+          52.98048,
+          -1.17394
+        ],
+        [
+          52.98104,
+          -1.17361
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a6514-nottingham-10-west",
+      "road": "A6514",
+      "road_latin": "A6514",
+      "direction": "west",
+      "description": "A6514, Valley Road",
+      "start": {
+        "lat": 52.986382,
+        "lng": -1.161991,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.982196,
+        "lng": -1.173105,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 947,
+      "speed_limits": {
+        "car": 40,
+        "truck": 40,
+        "bus": 40,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.986382,
+          -1.161991
+        ],
+        [
+          52.98626,
+          -1.16262
+        ],
+        [
+          52.98507,
+          -1.16676
+        ],
+        [
+          52.9842,
+          -1.17163
+        ],
+        [
+          52.98382,
+          -1.17231
+        ],
+        [
+          52.98327,
+          -1.17287
+        ],
+        [
+          52.98271,
+          -1.1731
+        ],
+        [
+          52.982196,
+          -1.173105
         ]
       ],
       "road_type": "road",
@@ -6530,51 +6868,6 @@
       "road": "A77",
       "road_latin": "A77",
       "direction": "north",
-      "description": "A77",
-      "start": {
-        "lat": 55.44028,
-        "lng": -4.60165,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 55.45486,
-        "lng": -4.59541,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 1670,
-      "speed_limits": {
-        "car": 60,
-        "truck": 60,
-        "bus": 60,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          55.44028,
-          -4.60165
-        ],
-        [
-          55.4424,
-          -4.60026
-        ],
-        [
-          55.45486,
-          -4.59541
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "a77-ayr-02-north",
-      "road": "A77",
-      "road_latin": "A77",
-      "direction": "north",
       "description": "A77, Ayr Bypass",
       "start": {
         "lat": 55.45622,
@@ -6633,6 +6926,51 @@
         [
           55.47226,
           -4.58445
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "a77-ayr-02-north",
+      "road": "A77",
+      "road_latin": "A77",
+      "direction": "north",
+      "description": "A77",
+      "start": {
+        "lat": 55.44028,
+        "lng": -4.60165,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 55.45486,
+        "lng": -4.59541,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 1670,
+      "speed_limits": {
+        "car": 60,
+        "truck": 60,
+        "bus": 60,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          55.44028,
+          -4.60165
+        ],
+        [
+          55.4424,
+          -4.60026
+        ],
+        [
+          55.45486,
+          -4.59541
         ]
       ],
       "road_type": "road",
@@ -7069,47 +7407,6 @@
       "direction": "south",
       "description": "B4113, Foleshill Road",
       "start": {
-        "lat": 52.42132,
-        "lng": -1.50563,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.41617,
-        "lng": -1.50925,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 623,
-      "speed_limits": {
-        "car": 30,
-        "truck": 30,
-        "bus": 30,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.42132,
-          -1.50563
-        ],
-        [
-          52.41617,
-          -1.50925
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
-      "id": "b4113-coventry-02-south",
-      "road": "B4113",
-      "road_latin": "B4113",
-      "direction": "south",
-      "description": "B4113, Foleshill Road",
-      "start": {
         "lat": 52.41617,
         "lng": -1.50925,
         "km_marker": null,
@@ -7149,7 +7446,89 @@
       "last_verified": "2026-09-27"
     },
     {
+      "id": "b4113-coventry-02-south",
+      "road": "B4113",
+      "road_latin": "B4113",
+      "direction": "south",
+      "description": "B4113, Foleshill Road",
+      "start": {
+        "lat": 52.42132,
+        "lng": -1.50563,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.41617,
+        "lng": -1.50925,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 623,
+      "speed_limits": {
+        "car": 30,
+        "truck": 30,
+        "bus": 30,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.42132,
+          -1.50563
+        ],
+        [
+          52.41617,
+          -1.50925
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
       "id": "b425-solihull-01-south",
+      "road": "B425",
+      "road_latin": "B425",
+      "direction": "south",
+      "description": "B425, Lode Lane",
+      "start": {
+        "lat": 52.43411,
+        "lng": -1.78131,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "end": {
+        "lat": 52.43207,
+        "lng": -1.78107,
+        "km_marker": null,
+        "settlement": null,
+        "settlement_latin": null
+      },
+      "distance_m": 227,
+      "speed_limits": {
+        "car": 30,
+        "truck": 30,
+        "bus": 30,
+        "motorcycle": null
+      },
+      "centerline": [
+        [
+          52.43411,
+          -1.78131
+        ],
+        [
+          52.43207,
+          -1.78107
+        ]
+      ],
+      "road_type": "road",
+      "source": "osm-speedcameramap",
+      "last_verified": "2026-09-27"
+    },
+    {
+      "id": "b425-solihull-02-south",
       "road": "B425",
       "road_latin": "B425",
       "direction": "south",
@@ -7194,67 +7573,26 @@
       "last_verified": "2026-09-27"
     },
     {
-      "id": "b425-solihull-02-south",
-      "road": "B425",
-      "road_latin": "B425",
-      "direction": "south",
-      "description": "B425, Lode Lane",
-      "start": {
-        "lat": 52.43411,
-        "lng": -1.78131,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "end": {
-        "lat": 52.43207,
-        "lng": -1.78107,
-        "km_marker": null,
-        "settlement": null,
-        "settlement_latin": null
-      },
-      "distance_m": 227,
-      "speed_limits": {
-        "car": 30,
-        "truck": 30,
-        "bus": 30,
-        "motorcycle": null
-      },
-      "centerline": [
-        [
-          52.43411,
-          -1.78131
-        ],
-        [
-          52.43207,
-          -1.78107
-        ]
-      ],
-      "road_type": "road",
-      "source": "osm-speedcameramap",
-      "last_verified": "2026-09-27"
-    },
-    {
       "id": "b6004-bulwell-01-east",
       "road": "B6004",
       "road_latin": "B6004",
       "direction": "east",
       "description": "B6004, Arnold Road",
       "start": {
-        "lat": 52.99365,
-        "lng": -1.1611,
+        "lat": 52.98648,
+        "lng": -1.18043,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.99608,
-        "lng": -1.15414,
+        "lat": 52.99067,
+        "lng": -1.17077,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 539,
+      "distance_m": 812,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -7263,16 +7601,28 @@
       },
       "centerline": [
         [
-          52.99365,
-          -1.1611
+          52.98648,
+          -1.18043
         ],
         [
-          52.99434,
-          -1.15884
+          52.98749,
+          -1.1793
         ],
         [
-          52.99608,
-          -1.15414
+          52.98864,
+          -1.17697
+        ],
+        [
+          52.98953,
+          -1.17437
+        ],
+        [
+          52.99016,
+          -1.17182
+        ],
+        [
+          52.99067,
+          -1.17077
         ]
       ],
       "road_type": "road",
@@ -7327,20 +7677,20 @@
       "direction": "east",
       "description": "B6004, Arnold Road",
       "start": {
-        "lat": 52.98648,
-        "lng": -1.18043,
+        "lat": 52.99365,
+        "lng": -1.1611,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
       "end": {
-        "lat": 52.99067,
-        "lng": -1.17077,
+        "lat": 52.99608,
+        "lng": -1.15414,
         "km_marker": null,
         "settlement": null,
         "settlement_latin": null
       },
-      "distance_m": 812,
+      "distance_m": 539,
       "speed_limits": {
         "car": 30,
         "truck": 30,
@@ -7349,28 +7699,16 @@
       },
       "centerline": [
         [
-          52.98648,
-          -1.18043
+          52.99365,
+          -1.1611
         ],
         [
-          52.98749,
-          -1.1793
+          52.99434,
+          -1.15884
         ],
         [
-          52.98864,
-          -1.17697
-        ],
-        [
-          52.98953,
-          -1.17437
-        ],
-        [
-          52.99016,
-          -1.17182
-        ],
-        [
-          52.99067,
-          -1.17077
+          52.99608,
+          -1.15414
         ]
       ],
       "road_type": "road",

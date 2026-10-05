@@ -1,0 +1,33 @@
+{
+  "_comment": "Average-speed sections mapped in OpenStreetMap whose enforcement relation has not reached speedcameramap.uk's monthly extract yet. Same shape as sections.json. Cameras are OSM nodes (surveyed 2026-10-05); the path between them is OSRM's route over OSM roads. Data \u00a9 OpenStreetMap contributors, ODbL 1.0. uk_sections.py drops an entry automatically once an OSM section covers it.",
+  "sections": [
+    {
+      "id": "extra-a4114-coventry-north",
+      "scheme": "a4114-coventry",
+      "road": "A4114",
+      "street": "London Road",
+      "limit": 30,
+      "lengthM": 1220,
+      "page": null,
+      "g": "aax~Hh|bHe@TsCfA}Bt@oCt@yBn@gBd@iAXsAZc@DG@q@RWLc@RWJaBjA}ApAkDxC[VY^k@f@EDGDa@PcAx@o@f@_@Xw@l@a@f@u@b@_@Pm@Xc@P_@TSL]b@QT",
+      "osm_cameras": [
+        14252193726,
+        14253096038
+      ]
+    },
+    {
+      "id": "extra-a4114-coventry-south",
+      "scheme": "a4114-coventry",
+      "road": "A4114",
+      "street": "London Road",
+      "limit": 30,
+      "lengthM": 1202,
+      "page": null,
+      "g": "c_z~H~`dH`@WNIv@]bAe@nAo@v@m@^Yn@g@bAy@Zc@NOj@c@\\MZWjDyC|AqA`BkAVKb@SVMp@SFA`@Yt@WpA]tCy@~Bw@jBs@rB}@fEcBVU",
+      "osm_cameras": [
+        14253063761,
+        14253141134
+      ]
+    }
+  ]
+}
