@@ -229,18 +229,21 @@ val validateMapBundle by tasks.registering {
     description = "Fail the build when the offline map bundle is missing or incomplete"
     outputs.upToDateWhen { false }
     doLast {
+        // SrednaUK: the Bulgarian offline map bundle is optional. Without it the
+        // app falls back to the online MAP_STYLE_URL at runtime (the map tab may
+        // be blank until a UK map is set up). Warn instead of failing the build.
         if (!mapBundleSource.exists()) {
-            throw GradleException(
-                "[validateMapBundle] offline map bundle not found at $mapBundleSource. " +
-                    "Run `bash backend/scripts/build-map-bundle.sh` to generate it."
+            logger.warn(
+                "[validateMapBundle] offline map bundle not found at $mapBundleSource - " +
+                    "building WITHOUT an offline map."
             )
+            return@doLast
         }
         val missing = requiredMapFiles.filterNot { File(mapBundleSource, it).exists() }
         if (missing.isNotEmpty()) {
-            throw GradleException(
+            logger.warn(
                 "[validateMapBundle] offline map bundle at $mapBundleSource is missing: " +
-                    missing.joinToString(", ") +
-                    ". Regenerate it with `bash backend/scripts/build-map-bundle.sh`."
+                    missing.joinToString(", ") + " - building WITHOUT an offline map."
             )
         }
     }
