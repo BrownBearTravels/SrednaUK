@@ -142,7 +142,7 @@ struct ProvisionalEntryPolicyTests {
             provisionalAt: base
         ))
         #expect(decision.event == nil, "The entry line was already spoken on the candidate")
-        #expect(decision.followUp == .overLimit(avgSpeedKmh: 152))
+        #expect(decision.followUp == .overLimit(avgSpeedMph: 94))
         #expect(decision.clockUpdate == .markEntryAndAnnouncement)
     }
 

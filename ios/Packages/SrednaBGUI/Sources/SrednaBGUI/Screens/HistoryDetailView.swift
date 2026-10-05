@@ -82,7 +82,7 @@ struct HistoryDetailView: View {
                 statRow(L10n.historyLowestSpeed, kmhValue(record.sustainedMinKmh))
                 statRow(
                     record.isOverLimit ? L10n.statusOverLimit : L10n.statusWithinLimit,
-                    kmhValue(Double(record.speedLimitKmh)),
+                    String(format: L10n.historyKmhValue, String(record.speedLimitMph)),
                     valueColor: verdictColor
                 )
             }
@@ -97,7 +97,7 @@ struct HistoryDetailView: View {
                     .font(.subheadline.weight(.semibold))
                 SpeedGraph(
                     samples: record.speedSamples,
-                    limitKmh: record.speedLimitKmh,
+                    limitMph: record.speedLimitMph,
                     avgSpeedKmh: record.avgSpeedKmh
                 )
                 SpeedGraphLegend()
@@ -124,7 +124,7 @@ struct HistoryDetailView: View {
         }
     }
 
-    /// `%@ km/h` with the value rounded, or `--` when nil (shared dash helper).
+    /// `%@ mph` from a measured km/h value, or `--` when nil (shared dash helper).
     private func kmhValue(_ value: Double?) -> String {
         String(format: L10n.historyKmhValue, HistoryFormat.speedOrDash(value))
     }

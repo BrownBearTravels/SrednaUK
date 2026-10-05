@@ -27,7 +27,12 @@ public struct ZoneEndpoint: Sendable, Equatable, Hashable, Codable {
     }
 }
 
-/// Per-vehicle-class limits in km/h, as published in `zones.json`.
+/// Per-vehicle-class limits in **whole mph** (SrednaUK). A `zones.json` whose
+/// top-level `speed_unit` is not `"mph"` (the upstream Bulgarian feed) is
+/// converted on load — see `ZonesResponse.zonesInMph` and SpeedUnits.swift.
+///
+/// Upstream notes on the vehicle classes follow; the category strings below are
+/// Bulgarian, and a UK feed maps its own classes onto the same three fields.
 ///
 /// These are **licence categories, not vehicle shapes**. BG TOLL publishes three
 /// limits per zone and `scrapers/src/kml_scraper.py` parses the category strings
@@ -106,6 +111,19 @@ public struct SpeedLimits: Sendable, Equatable, Hashable, Codable {
         self.motorcycle = try container.decodeIfPresent(Int.self, forKey: .motorcycle)
         self.didFallBackToCarLimit = truck == nil || bus == nil
     }
+
+    /// These limits read as km/h, converted to whole mph (SpeedUnits.swift).
+    /// Keeps `didFallBackToCarLimit` so the sync path still reports repairs.
+    public var kmhToMph: SpeedLimits {
+        var converted = SpeedLimits(
+            car: car.kmhToMphLimit,
+            truck: truck.kmhToMphLimit,
+            bus: bus.kmhToMphLimit,
+            motorcycle: motorcycle?.kmhToMphLimit
+        )
+        converted.didFallBackToCarLimit = didFallBackToCarLimit
+        return converted
+    }
 }
 
 public struct Zone: Sendable, Equatable, Hashable, Codable, Identifiable {
@@ -148,6 +166,16 @@ public struct Zone: Sendable, Equatable, Hashable, Codable, Identifiable {
         self.centerline = centerline
         self.source = source
         self.lastVerified = lastVerified
+    }
+
+    /// Copy of this zone with replaced speed limits (km/h → mph on load).
+    public func withSpeedLimits(_ limits: SpeedLimits) -> Zone {
+        Zone(
+            id: id, road: road, roadLatin: roadLatin, direction: direction,
+            description: description, start: start, end: end, distanceM: distanceM,
+            speedLimits: limits, centerline: centerline, source: source,
+            lastVerified: lastVerified
+        )
     }
 
     /// Copy of this zone with a replaced centerline. Swift structs have no Kotlin

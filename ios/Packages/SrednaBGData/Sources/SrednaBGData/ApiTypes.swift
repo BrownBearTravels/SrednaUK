@@ -46,10 +46,25 @@ public struct ZonesResponse: Sendable, Codable, Equatable {
     public let version: String
     public let hash: String
     public let zones: [Zone]
+    /// SrednaUK: unit of every `speed_limits` value in `zones` — `"mph"` for a
+    /// UK feed. Absent (the upstream Bulgarian feed) means km/h.
+    public let speedUnit: String?
 
-    public init(version: String, hash: String, zones: [Zone]) {
+    public static let speedUnitMph = "mph"
+
+    public init(version: String, hash: String, zones: [Zone], speedUnit: String? = nil) {
         self.version = version
         self.hash = hash
         self.zones = zones
+        self.speedUnit = speedUnit
+    }
+
+    /// `zones` with limits in whole mph, the unit the app runs on
+    /// (SpeedUnits.swift). A km/h feed converts each limit to the nearest mph;
+    /// a 0 (missing) limit stays 0 so ZoneSanitizer still sees it as missing.
+    /// Kotlin twin: `ZonesResponse.zonesInMph`.
+    public var zonesInMph: [Zone] {
+        if speedUnit?.lowercased() == Self.speedUnitMph { return zones }
+        return zones.map { $0.withSpeedLimits($0.speedLimits.kmhToMph) }
     }
 }

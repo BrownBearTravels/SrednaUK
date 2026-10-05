@@ -43,10 +43,10 @@ struct ZoneLiveActivity: Widget {
             let state = context.state
             return DynamicIsland {
                 // Order mirrors StatusChip: avg leads, limit trails. Progress
-                // and remaining-km stay on the bottom row — if we flipped
+                // and remaining distance stay on the bottom row — if we flipped
                 // those, the rounded DI corner would clip the leading digits
-                // of the distance ("13.8 km" → "3.8 km") instead of the
-                // trailing "km" suffix, which is the more graceful loss.
+                // of the distance ("13.8 mi" → "3.8 mi") instead of the
+                // trailing "mi" suffix, which is the more graceful loss.
                 DynamicIslandExpandedRegion(.leading) {
                     ExpandedLeading(state: state)
                 }
@@ -107,7 +107,7 @@ private struct TrackingLockView: View {
                 .font(.title3)
                 .foregroundStyle(.secondary)
             VStack(alignment: .leading, spacing: 2) {
-                Text("SrednaBG")
+                Text("SrednaUK")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                 Text("liveActivityAwaitingZone")
@@ -138,16 +138,16 @@ private struct UnmeasuredLockView: View {
 
             HStack(alignment: .center, spacing: 0) {
                 StatCell(
-                    value: formatSpeed(state.currentSpeedKmh),
+                    value: formatSpeed(state.currentSpeedMph),
                     label: "liveActivityNowLabel",
                     valueFont: .system(size: 30, weight: .bold, design: .rounded),
                     valueColor: .primary
                 )
                 Spacer(minLength: 8)
-                LimitBadge(limit: state.speedLimitKmh ?? 0, size: 42)
+                LimitBadge(limit: state.speedLimitMph ?? 0, size: 42)
                 Spacer(minLength: 8)
                 StatCell(
-                    value: formatRemainingKm(state.distanceRemainingM),
+                    value: formatRemainingMiles(state.distanceRemainingM),
                     label: "liveActivityLeftLabel",
                     valueFont: .callout.weight(.bold),
                     valueColor: .primary
@@ -177,23 +177,23 @@ private struct InZoneLockView: View {
 
             HStack(alignment: .center, spacing: 0) {
                 StatCell(
-                    value: formatSpeed(state.avgSpeedKmh),
+                    value: formatSpeed(state.avgSpeedMph),
                     label: "liveActivityAvgLabel",
                     valueFont: .system(size: 30, weight: .bold, design: .rounded),
                     valueColor: tint
                 )
                 Spacer(minLength: 8)
                 StatCell(
-                    value: formatSpeed(state.currentSpeedKmh),
+                    value: formatSpeed(state.currentSpeedMph),
                     label: "liveActivityNowLabel",
                     valueFont: .title3.weight(.semibold),
                     valueColor: .primary
                 )
                 Spacer(minLength: 8)
-                LimitBadge(limit: state.speedLimitKmh ?? 0, size: 42)
+                LimitBadge(limit: state.speedLimitMph ?? 0, size: 42)
                 Spacer(minLength: 8)
                 StatCell(
-                    value: formatRemainingKm(state.distanceRemainingM),
+                    value: formatRemainingMiles(state.distanceRemainingM),
                     label: "liveActivityLeftLabel",
                     valueFont: .callout.weight(.bold),
                     valueColor: .primary
@@ -219,7 +219,7 @@ private struct ZoneCompleteLockView: View {
 
             HStack(alignment: .center, spacing: 16) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(formatSpeed(state.avgSpeedKmh))
+                    Text(formatSpeed(state.avgSpeedMph))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
@@ -230,7 +230,7 @@ private struct ZoneCompleteLockView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                LimitBadge(limit: state.speedLimitKmh ?? 0, size: 38)
+                LimitBadge(limit: state.speedLimitMph ?? 0, size: 38)
                     .opacity(0.55)
             }
 
@@ -287,7 +287,7 @@ private struct ExpandedLeading: View {
                 .foregroundStyle(.secondary)
         case .inZone:
             VStack(alignment: .leading, spacing: 0) {
-                Text(formatSpeed(state.avgSpeedKmh))
+                Text(formatSpeed(state.avgSpeedMph))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(statusSwiftUIColor(state.statusColorPacked))
@@ -298,7 +298,7 @@ private struct ExpandedLeading: View {
         case .unmeasured:
             // Live speed in the hero slot, never an average — there is none.
             VStack(alignment: .leading, spacing: 0) {
-                Text(formatSpeed(state.currentSpeedKmh))
+                Text(formatSpeed(state.currentSpeedMph))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.primary)
@@ -308,7 +308,7 @@ private struct ExpandedLeading: View {
             }
         case .zoneComplete:
             VStack(alignment: .leading, spacing: 0) {
-                Text(formatSpeed(state.avgSpeedKmh))
+                Text(formatSpeed(state.avgSpeedMph))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
@@ -328,9 +328,9 @@ private struct ExpandedTrailing: View {
         case .tracking:
             EmptyView()
         case .inZone, .unmeasured:
-            LimitBadge(limit: state.speedLimitKmh ?? 0, size: 44)
+            LimitBadge(limit: state.speedLimitMph ?? 0, size: 44)
         case .zoneComplete:
-            LimitBadge(limit: state.speedLimitKmh ?? 0, size: 44)
+            LimitBadge(limit: state.speedLimitMph ?? 0, size: 44)
                 .opacity(0.55)
         }
     }
@@ -343,7 +343,7 @@ private struct ExpandedCenter: View {
         switch state.phase {
         case .tracking:
             VStack(spacing: 2) {
-                Text("SrednaBG")
+                Text("SrednaUK")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                 Text("liveActivityAwaitingZone")
@@ -373,7 +373,7 @@ private struct ExpandedBottom: View {
                     progress: progress(for: state),
                     tint: statusSwiftUIColor(state.statusColorPacked)
                 )
-                Text(formatRemainingKm(state.distanceRemainingM))
+                Text(formatRemainingMiles(state.distanceRemainingM))
                     .font(.caption.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(.primary)
@@ -382,7 +382,7 @@ private struct ExpandedBottom: View {
             // Distance only, and deliberately no progress capsule: progress is a
             // fraction of a traversal, and there is no traversal here.
             HStack(spacing: 8) {
-                Text(formatRemainingKm(state.distanceRemainingM))
+                Text(formatRemainingMiles(state.distanceRemainingM))
                     .font(.caption.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(.primary)
@@ -418,17 +418,17 @@ private struct CompactLeading: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         case .inZone:
-            Text(formatSpeed(state.avgSpeedKmh))
+            Text(formatSpeed(state.avgSpeedMph))
                 .font(.caption.weight(.bold))
                 .monospacedDigit()
                 .foregroundStyle(statusSwiftUIColor(state.statusColorPacked))
         case .unmeasured:
-            Text(formatSpeed(state.currentSpeedKmh))
+            Text(formatSpeed(state.currentSpeedMph))
                 .font(.caption.weight(.bold))
                 .monospacedDigit()
                 .foregroundStyle(.primary)
         case .zoneComplete:
-            Text(formatSpeed(state.avgSpeedKmh))
+            Text(formatSpeed(state.avgSpeedMph))
                 .font(.caption.weight(.bold))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
@@ -446,9 +446,9 @@ private struct CompactTrailing: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         case .inZone, .unmeasured:
-            LimitBadge(limit: state.speedLimitKmh ?? 0, size: 22)
+            LimitBadge(limit: state.speedLimitMph ?? 0, size: 22)
         case .zoneComplete:
-            LimitBadge(limit: state.speedLimitKmh ?? 0, size: 22)
+            LimitBadge(limit: state.speedLimitMph ?? 0, size: 22)
                 .opacity(0.55)
         }
     }
@@ -464,7 +464,7 @@ private struct MinimalView: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         case .inZone:
-            Text(formatSpeed(state.avgSpeedKmh))
+            Text(formatSpeed(state.avgSpeedMph))
                 .font(.caption2.weight(.bold))
                 .monospacedDigit()
                 .foregroundStyle(statusSwiftUIColor(state.statusColorPacked))
@@ -511,11 +511,12 @@ private func formatSpeed(_ value: Int?) -> String {
     value.map(String.init) ?? "--"
 }
 
-private func formatRemainingKm(_ meters: Int) -> String {
-    // Fixed POSIX locale so the dot decimal separator renders consistently —
-    // the widget draws outside the app's `.environment(\.locale)` override, so
-    // a BG-locale device would otherwise show "1,5 km".
-    String(format: "%.1f km", locale: Locale(identifier: "en_US_POSIX"), Double(meters) / 1000)
+private func formatRemainingMiles(_ meters: Int) -> String {
+    // Fixed locale so the dot decimal separator renders consistently — the
+    // widget draws outside the app's `.environment(\.locale)` override, so a
+    // BG-locale device would otherwise show "1,5 mi". The widget extension
+    // doesn't link SrednaBGCore, so this mirrors its `formatMiles`.
+    String(format: "%.1f mi", locale: Locale(identifier: "en_GB"), Double(meters) / 1609.344)
 }
 
 private func progress(for state: ZoneActivityAttributes.ContentState) -> Double {

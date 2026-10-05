@@ -103,7 +103,7 @@ private func emitHistoryDump(_ store: HistoryStore) {
         let avg = latest.avgSpeedKmh.map { String($0) } ?? "null"
         msg = "DUMP_HISTORY count=\(count) zone=\(latest.zoneId) avg=\(avg) "
             + "min=\(latest.sustainedMinKmh) max=\(latest.sustainedMaxKmh) "
-            + "over=\(latest.isOverLimit) limit=\(latest.speedLimitKmh) "
+            + "over=\(latest.isOverLimit) limit=\(latest.speedLimitMph) "
             + "vehicle=\(latest.vehicleType) entry=\(latest.entryTimeMs) exit=\(latest.exitTimeMs)"
     } else {
         msg = "DUMP_HISTORY count=\(count) latest=none"

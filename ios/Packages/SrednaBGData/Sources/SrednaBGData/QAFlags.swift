@@ -44,4 +44,13 @@ public enum FeatureFlags {
     /// client code that lights up the moment the backend changes. Mirrors
     /// `FeatureFlags.IS_MAP_SYNC_ENABLED` on Android.
     public static let isMapSyncEnabled = false
+
+    /// SrednaUK fork: the upstream zone feed (srednabg.com) only serves
+    /// Bulgarian zones. While `false` the app never contacts it — no launch or
+    /// background sync, `runZoneSync` is a no-op, and the Settings toggle and
+    /// "Sync zones now" button are hidden — so the bundled zones.json is the
+    /// only zone source. Flip it only once you host your own feed and point
+    /// `BackendURLs.production` at it. Mirrors `FeatureFlags.IS_ZONE_SYNC_ENABLED`
+    /// on Android.
+    public static let isZoneSyncEnabled = false
 }

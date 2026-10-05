@@ -1,6 +1,7 @@
 {
-  "sourceLanguage" : "bg",
+  "sourceLanguage" : "en",
   "strings" : {
+    "SrednaUK" : {},
     "liveActivityAvgLabel" : {
       "comment" : "Live Activity: caption under the running-average figure. Keep it short — it sits in a three-up row on the Lock Screen.",
       "extractionState" : "manual",
@@ -26,13 +27,13 @@
         "bg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "средна km/h"
+            "value" : "средна mph"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "avg km/h"
+            "value" : "avg mph"
           }
         }
       }
@@ -98,13 +99,13 @@
         "bg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "km/h"
+            "value" : "mph"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "km/h"
+            "value" : "mph"
           }
         }
       }
@@ -144,9 +145,6 @@
           }
         }
       }
-    },
-    "SrednaBG" : {
-
     }
   },
   "version" : "1.0"

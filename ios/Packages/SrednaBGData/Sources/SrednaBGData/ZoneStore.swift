@@ -38,7 +38,9 @@ public actor ZoneStore {
             appropriateFor: nil,
             create: true
         )
-        return dir.appendingPathComponent("SrednaBG/zones.json")
+        // SrednaUK: new name because cached limits switched from km/h to mph —
+        // an older km/h cache is simply not read, so launch reseeds from the bundle.
+        return dir.appendingPathComponent("SrednaBG/zones-mph.json")
     }
 
     public func loadFromDisk() async {

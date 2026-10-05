@@ -16,7 +16,8 @@ import PackageDescription
 
 let package = Package(
     name: "SrednaBG",
-    defaultLocalization: "bg",
+    // SrednaUK: English is the fallback for any device language not shipped.
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17),
         .macOS(.v14),

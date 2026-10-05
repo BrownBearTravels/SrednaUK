@@ -255,7 +255,7 @@ struct ZoneUnmeasuredTests {
             return
         }
         #expect(unmeasured.zone.id == TRAKIYA_T10.id)
-        #expect(unmeasured.zone.speedLimits.car == 140, "The limit must survive — it is a road fact")
+        #expect(unmeasured.zone.speedLimits.car == 87, "The limit must survive — it is a road fact")
 
         let total = polylineLengthMeters(TRAKIYA_T10.centerline)
         let expected = total - (startArc + ZoneDetector.entryConfirmDistanceM * 2)

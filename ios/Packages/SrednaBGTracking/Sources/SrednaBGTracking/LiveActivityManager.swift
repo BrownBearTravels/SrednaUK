@@ -93,16 +93,16 @@ public actor LiveActivityManager {
     }
 
     /// Push a content update for the current `ZoneState`. No-op if the activity
-    /// hasn't been started yet (i.e., before `sessionStart`). `limitKmh` is the
+    /// hasn't been started yet (i.e., before `sessionStart`). `limitMph` is the
     /// vehicle-type-resolved limit from `ZoneTrackingService` — the badge must
     /// match the limit the engine judges against, not the car default.
-    public func update(state: ZoneState, currentSpeedKmh: Double?, limitKmh: Int?) async {
+    public func update(state: ZoneState, currentSpeedKmh: Double?, limitMph: Int?) async {
         guard activity != nil else { return }
         switch state {
         case .outside, .exiting:
             await pushOutsidePhase()
         case .inZone(let inZone):
-            let content = Self.contentState(from: inZone, currentSpeedKmh: currentSpeedKmh, limitKmh: limitKmh)
+            let content = Self.contentState(from: inZone, currentSpeedKmh: currentSpeedKmh, limitMph: limitMph)
             self.lastZoneContent = content
             await pushInZone(content: content)
         case .unmeasured(let unmeasured):
@@ -117,7 +117,7 @@ public actor LiveActivityManager {
             // trackingPlaceholder() instead.
             self.lastZoneContent = nil
             await pushUnmeasured(content: Self.contentState(
-                from: unmeasured, currentSpeedKmh: currentSpeedKmh, limitKmh: limitKmh
+                from: unmeasured, currentSpeedKmh: currentSpeedKmh, limitMph: limitMph
             ))
         }
     }
@@ -195,20 +195,20 @@ public actor LiveActivityManager {
     // MARK: - Pure projections (testable without ActivityKit runtime)
 
     /// Pure projection from `ZoneState.InZone` + the latest GPS speed to the
-    /// payload the widget renders. `limitKmh` is the vehicle-type-resolved
+    /// payload the widget renders. `limitMph` is the vehicle-type-resolved
     /// limit; the car limit is only a fallback for a nil (shouldn't happen
     /// in-zone, but the projection must stay total).
     public static func contentState(
         from inZone: ZoneState.InZone,
         currentSpeedKmh: Double?,
-        limitKmh: Int?
+        limitMph: Int?
     ) -> ZoneActivityAttributes.ContentState {
         ZoneActivityAttributes.ContentState(
             phase: .inZone,
             roadName: inZone.zone.road,
-            avgSpeedKmh: roundedInt(inZone.avgSpeed),
-            currentSpeedKmh: roundedInt(currentSpeedKmh),
-            speedLimitKmh: limitKmh ?? inZone.zone.speedLimits.car,
+            avgSpeedMph: roundedMph(inZone.avgSpeed),
+            currentSpeedMph: roundedMph(currentSpeedKmh),
+            speedLimitMph: limitMph ?? inZone.zone.speedLimits.car,
             distanceTraveledM: max(0, Int(inZone.distanceTraveled.rounded())),
             zoneTotalM: max(1, inZone.zone.distanceM),
             distanceRemainingM: max(0, Int(inZone.distanceRemaining.rounded())),
@@ -219,20 +219,20 @@ public actor LiveActivityManager {
 
     /// Pure projection for a zone we're inside but never saw entered. Carries the
     /// road's facts only — name, vehicle-resolved limit, distance left — with
-    /// `avgSpeedKmh` nil, `isOverLimit` false and the neutral packed colour.
+    /// `avgSpeedMph` nil, `isOverLimit` false and the neutral packed colour.
     /// There is no verdict to render, so none of the traffic-light values may
     /// appear here. See `ZoneDetector.startWitnessArcM`.
     public static func contentState(
         from unmeasured: ZoneState.Unmeasured,
         currentSpeedKmh: Double?,
-        limitKmh: Int?
+        limitMph: Int?
     ) -> ZoneActivityAttributes.ContentState {
         ZoneActivityAttributes.ContentState(
             phase: .unmeasured,
             roadName: unmeasured.zone.road,
-            avgSpeedKmh: nil,
-            currentSpeedKmh: roundedInt(currentSpeedKmh),
-            speedLimitKmh: limitKmh ?? unmeasured.zone.speedLimits.car,
+            avgSpeedMph: nil,
+            currentSpeedMph: roundedMph(currentSpeedKmh),
+            speedLimitMph: limitMph ?? unmeasured.zone.speedLimits.car,
             distanceTraveledM: 0,
             zoneTotalM: max(1, unmeasured.zone.distanceM),
             distanceRemainingM: max(0, Int(unmeasured.distanceRemaining.rounded())),
@@ -248,9 +248,9 @@ public actor LiveActivityManager {
         ZoneActivityAttributes.ContentState(
             phase: .tracking,
             roadName: nil,
-            avgSpeedKmh: nil,
-            currentSpeedKmh: nil,
-            speedLimitKmh: nil,
+            avgSpeedMph: nil,
+            currentSpeedMph: nil,
+            speedLimitMph: nil,
             distanceTraveledM: 0,
             zoneTotalM: 0,
             distanceRemainingM: 0,
@@ -268,9 +268,9 @@ public actor LiveActivityManager {
         ZoneActivityAttributes.ContentState(
             phase: .zoneComplete,
             roadName: cached.roadName,
-            avgSpeedKmh: cached.avgSpeedKmh,
-            currentSpeedKmh: nil,
-            speedLimitKmh: cached.speedLimitKmh,
+            avgSpeedMph: cached.avgSpeedMph,
+            currentSpeedMph: nil,
+            speedLimitMph: cached.speedLimitMph,
             distanceTraveledM: cached.zoneTotalM,
             zoneTotalM: cached.zoneTotalM,
             distanceRemainingM: 0,
@@ -279,9 +279,10 @@ public actor LiveActivityManager {
         )
     }
 
-    private static func roundedInt(_ value: Double?) -> Int? {
+    /// Measured km/h → whole mph for the widget (SrednaUK).
+    private static func roundedMph(_ value: Double?) -> Int? {
         guard let value, value.isFinite else { return nil }
-        return Int(value.rounded())
+        return Int(value.kmhToMph.rounded())
     }
 }
 
@@ -296,7 +297,7 @@ public enum ZoneActivityPhase: String, Codable, Hashable, Sendable {
     case zoneComplete
     /// Inside an average-speed zone whose entry we never witnessed. The widget
     /// renders the road's facts (name, limit badge, distance left) with **no**
-    /// average and a neutral tint — `avgSpeedKmh` is always nil in this phase and
+    /// average and a neutral tint — `avgSpeedMph` is always nil in this phase and
     /// `statusColorPacked` is `zoneColorNeutral`, never a traffic-light value.
     /// See `ZoneDetector.startWitnessArcM`.
     case unmeasured
@@ -317,9 +318,10 @@ public struct ZoneActivityAttributes: ActivityAttributes {
     public struct State: Codable, Hashable, Sendable {
         public let phase: ZoneActivityPhase
         public let roadName: String?
-        public let avgSpeedKmh: Int?
-        public let currentSpeedKmh: Int?
-        public let speedLimitKmh: Int?
+        // All three in whole mph (SrednaUK) — converted when the state is built.
+        public let avgSpeedMph: Int?
+        public let currentSpeedMph: Int?
+        public let speedLimitMph: Int?
         public let distanceTraveledM: Int
         public let zoneTotalM: Int
         public let distanceRemainingM: Int
@@ -331,9 +333,9 @@ public struct ZoneActivityAttributes: ActivityAttributes {
         public init(
             phase: ZoneActivityPhase,
             roadName: String?,
-            avgSpeedKmh: Int?,
-            currentSpeedKmh: Int?,
-            speedLimitKmh: Int?,
+            avgSpeedMph: Int?,
+            currentSpeedMph: Int?,
+            speedLimitMph: Int?,
             distanceTraveledM: Int,
             zoneTotalM: Int,
             distanceRemainingM: Int,
@@ -342,9 +344,9 @@ public struct ZoneActivityAttributes: ActivityAttributes {
         ) {
             self.phase = phase
             self.roadName = roadName
-            self.avgSpeedKmh = avgSpeedKmh
-            self.currentSpeedKmh = currentSpeedKmh
-            self.speedLimitKmh = speedLimitKmh
+            self.avgSpeedMph = avgSpeedMph
+            self.currentSpeedMph = currentSpeedMph
+            self.speedLimitMph = speedLimitMph
             self.distanceTraveledM = distanceTraveledM
             self.zoneTotalM = zoneTotalM
             self.distanceRemainingM = distanceRemainingM

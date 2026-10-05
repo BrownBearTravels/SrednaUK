@@ -22,7 +22,7 @@ public let zoneColorNeutral: Int32 = Int32(bitPattern: 0xFF9E9E9E)
 /// the vehicle-aware limit upstream if you need per-vehicle coloring.
 public func zoneStatusColor(state: ZoneState.InZone, currentSpeedKmh: Double?) -> Int32 {
     if state.speedStatus.isOverLimit { return zoneColorRed }
-    if let speed = currentSpeedKmh, speed > Double(state.zone.speedLimits.car) {
+    if let speed = currentSpeedKmh, speed > state.zone.speedLimits.car.mphToKmh {
         return zoneColorYellow
     }
     return zoneColorGreen

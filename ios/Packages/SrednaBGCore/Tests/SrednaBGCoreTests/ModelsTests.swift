@@ -16,7 +16,7 @@ struct ModelsTests {
         #expect(zone.road == "АМ Тракия")
         #expect(zone.direction == "west")
         #expect(zone.distanceM == 19160)
-        #expect(zone.speedLimits.car == 140)
+        #expect(zone.speedLimits.car == 87)  // 140 km/h fixture, in mph
         #expect(zone.centerline.count == 6)
     }
 

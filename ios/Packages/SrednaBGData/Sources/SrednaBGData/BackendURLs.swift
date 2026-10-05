@@ -4,6 +4,7 @@
 // SrednaBG — ios / SrednaBGData
 
 import Foundation
+import SrednaBGCore
 
 /// Backend host configuration. Both debug and release builds use the
 /// production host so dev work always exercises real zone data; tests
@@ -55,11 +56,14 @@ public struct BackendURLs: Sendable {
     }
     public var mapBundleURL: URL { baseURL.appendingPathComponent("api/map/bundle.zip") }
 
-    /// Network-served MapLibre style used when the offline bundle hasn't
-    /// been installed yet (first-launch race, missing `OfflineMap/` Run
-    /// Script, or corrupted bundle). Shape matches `tileserver-gl`'s
-    /// `/styles/<id>/style.json` endpoint from `backend/scripts/build-map-bundle.sh`.
-    public var mapStyleFallbackURL: URL {
-        baseURL.appendingPathComponent("styles/basic-preview/style.json")
+    /// Network-served MapLibre style used when no offline bundle is installed
+    /// (the SrednaUK default until a UK bundle exists). SrednaUK: OpenFreeMap
+    /// (free, no API key, OpenMapTiles schema) — never the upstream srednabg.com
+    /// tile server. Keep in sync with Android `BuildConfig.MAP_STYLE_URL(_DARK)`.
+    public func mapStyleFallbackURL(for theme: MapTheme) -> URL {
+        switch theme {
+        case .light: return URL(string: "https://tiles.openfreemap.org/styles/liberty")!
+        case .dark: return URL(string: "https://tiles.openfreemap.org/styles/dark")!
+        }
     }
 }

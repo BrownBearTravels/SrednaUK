@@ -14,13 +14,13 @@
 "statusUnmeasuredReason" = "missed the zone entry";
 "statusOverLimit" = "Over limit";
 "statusWithinLimit" = "Within limit";
-"statusNowSpeed" = "Current %@ km/h";
+"statusNowSpeed" = "Current %@ mph";
 "avgSpeedLabel" = "Average speed";
 "currentSpeedLabel" = "Current speed";
 "speedLimit" = "Limit";
 "maxForRemainder" = "Max ahead";
 "remaining" = "Remaining";
-"finalAvgSpeed" = "Final average %@ km/h";
+"finalAvgSpeed" = "Final average %@ mph";
 "zonesLoaded" = "%d zones loaded";
 "startTracking" = "Start tracking";
 "stopTracking" = "Stop tracking";
@@ -86,7 +86,7 @@
 "mapHeadingUp" = "Heading up";
 "mapNorthUp" = "North up";
 "mapFollow" = "Follow me";
-"mapNoZones" = "No zones available — try syncing.";
+"mapNoZones" = "No zones available.";
 "mapLoading" = "Loading map…";
 "mapLoadFailed" = "Map couldn't load";
 "mapLoadFailedHint" = "Check your connection and try again.";
@@ -109,7 +109,7 @@
 "historyYourAverage" = "Your average";
 "historyTopSpeed" = "Top speed";
 "historyLowestSpeed" = "Lowest speed";
-"historyKmhValue" = "%@ km/h";
+"historyKmhValue" = "%@ mph";
 "historyGraphTitle" = "Speed over time";
 "historyShowOnMap" = "Show on map";
 "historyLegendSpeed" = "Speed";

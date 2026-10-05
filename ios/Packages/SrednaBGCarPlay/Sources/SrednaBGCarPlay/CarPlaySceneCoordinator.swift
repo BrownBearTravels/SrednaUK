@@ -261,7 +261,7 @@ final class CarPlaySceneCoordinator {
     }
 
     private func travelEstimates(for inZone: ZoneState.InZone) -> CPTravelEstimates {
-        let distance = Measurement(value: inZone.distanceRemaining, unit: UnitLength.meters)
+        let distance = Measurement(value: metresToMiles(inZone.distanceRemaining), unit: UnitLength.miles)
         let time = max(0, inZone.speedStatus.timeRemaining)
         return CPTravelEstimates(distanceRemaining: distance, timeRemaining: time)
     }

@@ -41,7 +41,8 @@ private enum HistorySeries {
 }
 
 /// Speed-over-time graph for a completed traversal (Swift Charts, a system
-/// framework — no new dependency). X = time since entry (m:ss), Y = km/h. Three
+/// framework — no new dependency). X = time since entry (m:ss), Y = mph (the
+/// km/h samples are converted here; `limitMph` is already mph). Three
 /// layers, mirroring Android's `SpeedGraph`:
 ///   1. Running-average band — `HistoryStats.runningAverage` as a filled area
 ///      (0.22 alpha, exact parity with Android's `SpeedGraph`) plus its top-edge
@@ -51,7 +52,7 @@ private enum HistorySeries {
 ///   3. Instantaneous speed curve on top.
 struct SpeedGraph: View {
     let samples: [SpeedSample]
-    let limitKmh: Int
+    let limitMph: Int
     let avgSpeedKmh: Double?
 
     private struct Point: Identifiable {
@@ -78,16 +79,16 @@ struct SpeedGraph: View {
         let sorted = samples.sorted { $0.timestampMs < $1.timestampMs }
         let t0 = sorted[0].timestampMs
         let speedPoints = sorted.map {
-            Point(timestampMs: $0.timestampMs, t: Double($0.timestampMs - t0) / 1000, speed: $0.speedKmh)
+            Point(timestampMs: $0.timestampMs, t: Double($0.timestampMs - t0) / 1000, speed: $0.speedKmh.kmhToMph)
         }
         let avgPoints = HistoryStats.runningAverage(sorted).map {
-            Point(timestampMs: $0.timestampMs, t: Double($0.timestampMs - t0) / 1000, speed: $0.speedKmh)
+            Point(timestampMs: $0.timestampMs, t: Double($0.timestampMs - t0) / 1000, speed: $0.speedKmh.kmhToMph)
         }
 
         // Y ceiling: headroom above the fastest sample / limit / average, with a
         // floor so a slow zone still renders readably (matches Android).
-        let maxSample = sorted.map(\.speedKmh).max() ?? 0
-        let ceiling = max(maxSample, Double(limitKmh), avgSpeedKmh ?? 0)
+        let maxSample = (sorted.map(\.speedKmh).max() ?? 0).kmhToMph
+        let ceiling = max(maxSample, Double(limitMph), avgSpeedKmh?.kmhToMph ?? 0)
         let maxY = max(ceiling * 1.15, 20)
 
         // Pin the X domain to the actual traversal length so the curve spans the
@@ -118,8 +119,8 @@ struct SpeedGraph: View {
 
             // 2. Zone limit reference — the one horizontal dashed line. Concrete
             //    colour, kept out of the series scale.
-            if limitKmh > 0 {
-                RuleMark(y: .value("limit", limitKmh))
+            if limitMph > 0 {
+                RuleMark(y: .value("limit", limitMph))
                     .foregroundStyle(historyLimitColor)
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [6, 4]))
             }

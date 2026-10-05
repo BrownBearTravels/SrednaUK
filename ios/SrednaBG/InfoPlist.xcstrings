@@ -1,14 +1,38 @@
 {
-  "sourceLanguage" : "bg",
+  "sourceLanguage" : "en",
   "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SrednaUK"
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SrednaUK"
+          }
+        }
+      }
+    },
     "CFBundleName" : {
       "comment" : "Bundle name",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SrednaUK"
+          }
+        },
         "bg" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "SrednaBG"
+            "state" : "translated",
+            "value" : "SrednaUK"
           }
         }
       }

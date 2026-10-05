@@ -51,9 +51,11 @@ struct MapLibreView: UIViewRepresentable {
     /// Mirrors Android's `USER_FOLLOW_ZOOM` constant in `ZoneMapScreen.kt`.
     static let userFollowZoom: Double = 14.0
 
-    /// Bulgaria centroid — the empty-state / overview camera target (same point
-    /// Android's overview effect uses in `ZoneMapScreen.kt`).
-    static let bulgariaCenter = CLLocationCoordinate2D(latitude: 42.7339, longitude: 25.4858)
+    /// Great Britain centre (SrednaUK) — the empty-state / overview camera
+    /// target (same point Android uses as `GB_CENTER` in `ZoneMapScreen.kt`).
+    static let gbCenter = CLLocationCoordinate2D(latitude: 54.0, longitude: -2.5)
+    /// Zoom that fits Great Britain — Android's `GB_OVERVIEW_ZOOM`.
+    static let gbOverviewZoom: Double = 5.0
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -98,9 +100,9 @@ struct MapLibreView: UIViewRepresentable {
             // it to `userFollowZoom`.
             context.coordinator.didFollowOnce = true
         } else {
-            // First Map mount this process: center over Bulgaria until the
+            // First Map mount this process: center over Great Britain until the
             // first GPS point or active-zone fit takes over.
-            mapView.setCenter(Self.bulgariaCenter, zoomLevel: 9, animated: false)
+            mapView.setCenter(Self.gbCenter, zoomLevel: Self.gbOverviewZoom, animated: false)
         }
         context.coordinator.mapView = mapView
         return mapView
@@ -184,15 +186,15 @@ struct MapLibreView: UIViewRepresentable {
             // zone, so no follow/fit path recenters. A camera snapshot restored
             // across a language rebuild leaves the target on the previous in-zone
             // location (northern BG), pushing the country to the bottom of the
-            // frame. Pin center + zoom to the Bulgaria overview, north-up — the
+            // frame. Pin center + zoom to the overview, north-up — the
             // `.zoomTo` command only sets zoom and keeps the stale center.
             let c = uiView.centerCoordinate
             let atTarget = abs(uiView.zoomLevel - override) < 0.05
                 && uiView.direction == 0
-                && abs(c.latitude - Self.bulgariaCenter.latitude) < 0.05
-                && abs(c.longitude - Self.bulgariaCenter.longitude) < 0.05
+                && abs(c.latitude - Self.gbCenter.latitude) < 0.05
+                && abs(c.longitude - Self.gbCenter.longitude) < 0.05
             if !atTarget {
-                uiView.setCenter(Self.bulgariaCenter, zoomLevel: override,
+                uiView.setCenter(Self.gbCenter, zoomLevel: override,
                                  direction: 0, animated: false)
             }
         } else if !headingUp, uiView.direction != 0 {

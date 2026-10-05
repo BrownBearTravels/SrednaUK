@@ -21,7 +21,8 @@ public enum AverageSpeedCalc {
         stopDurationMs: Int64,
         distanceTraveled: Double,
         zoneDistance: Double,
-        speedLimitKmh: Int,
+        // Exact km/h equivalent of the zone's mph limit — see SpeedUnits.swift.
+        speedLimitKmh: Double,
         // Accurate live distance to the zone end, sourced from the polyline
         // projection. When supplied it drives `distanceRemaining` and the
         // max-speed-for-remainder math instead of the speed×time integrator — the
@@ -43,7 +44,7 @@ public enum AverageSpeedCalc {
 
         let distanceRemaining = max(distanceRemainingOverride ?? (zoneDistance - distanceTraveled), 0.0)
 
-        let speedLimitMs = Double(speedLimitKmh) / 3.6
+        let speedLimitMs = speedLimitKmh / 3.6
         let requiredTotalSec = speedLimitMs > 0 ? zoneDistance / speedLimitMs : 0.0
         let timeRemainingSec = requiredTotalSec - activeSec
 
@@ -61,7 +62,7 @@ public enum AverageSpeedCalc {
             maxSpeedForRemainder: maxSpeedKmh,
             distanceRemaining: distanceRemaining,
             timeRemaining: timeRemainingSec,
-            isOverLimit: avgSpeedKmh.map { $0 > Double(speedLimitKmh) } ?? false
+            isOverLimit: avgSpeedKmh.map { $0 > speedLimitKmh } ?? false
         )
     }
 }

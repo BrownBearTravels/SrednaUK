@@ -74,7 +74,7 @@ public struct ZoneMapScreen: View {
                     StatusChip(
                         inZone: inZone,
                         currentSpeedKmh: tracking.currentPosition?.speed,
-                        limitKmh: settings.vehicleType.limit(inZone.zone.speedLimits)
+                        limitMph: settings.vehicleType.limit(inZone.zone.speedLimits)
                     )
                         .padding(.horizontal, 12)
                         .padding(.top, 12)
@@ -82,7 +82,7 @@ public struct ZoneMapScreen: View {
                     UnmeasuredChip(
                         unmeasured: unmeasured,
                         currentSpeedKmh: tracking.currentPosition?.speed,
-                        limitKmh: settings.vehicleType.limit(unmeasured.zone.speedLimits)
+                        limitMph: settings.vehicleType.limit(unmeasured.zone.speedLimits)
                     )
                         .padding(.horizontal, 12)
                         .padding(.top, 12)
@@ -420,8 +420,8 @@ public struct ZoneMapScreen: View {
             return mode == .light ? .light : .dark
         }
         let position = tracking.currentPosition
-        let lat = position?.lat ?? MapThemeResolver.fallbackLatSofia
-        let lng = position?.lng ?? MapThemeResolver.fallbackLngSofia
+        let lat = position?.lat ?? MapThemeResolver.fallbackLat
+        let lng = position?.lng ?? MapThemeResolver.fallbackLng
         let altitudeDeg = MapThemeResolver.solarAltitudeDegrees(lat: lat, lng: lng, now: nowTick)
         let boundary = MapThemeResolver.civilTwilightAltitudeDeg
         switch resolvedTheme {

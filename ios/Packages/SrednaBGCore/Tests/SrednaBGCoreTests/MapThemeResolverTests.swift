@@ -51,8 +51,17 @@ struct MapThemeResolverTests {
     }
 
     @Test
-    func autoWithNoGpsFallsBackToSofia() {
+    func autoWithNoGpsFallsBackToCentralEngland() {
         let t = utc(year: 2026, month: 6, day: 21, hour: 12)
+        #expect(MapThemeResolver.resolve(mode: .auto, position: nil, now: t) == .light)
+    }
+
+    @Test
+    func autoWithNoGpsUsesTheUKFallbackNotSofia() {
+        // 2026-12-21 16:00 UTC: Sofia is past civil dusk (dark), central
+        // England has only just seen sunset (light).
+        let t = utc(year: 2026, month: 12, day: 21, hour: 16)
+        #expect(MapThemeResolver.resolve(mode: .auto, position: sofiaPoint(), now: t) == .dark)
         #expect(MapThemeResolver.resolve(mode: .auto, position: nil, now: t) == .light)
     }
 

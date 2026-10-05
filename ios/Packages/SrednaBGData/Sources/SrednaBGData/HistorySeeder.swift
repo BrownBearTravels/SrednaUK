@@ -79,7 +79,7 @@ public enum HistorySeeder {
             let cyclePush = (i / scenarios.count) * 30
             let zone = pool[i % pool.count]
             let limit = scenario.vehicle.limit(zone.speedLimits)
-            let targetAvg = max(20, Double(limit) + scenario.deltaFromLimitKmh)
+            let targetAvg = max(20, limit.mphToKmh + scenario.deltaFromLimitKmh)
             // The first `legacyCount` scripted rows are written like pre-snapshot
             // records (no geometry) so the "Show on map" gate can be exercised
             // and compared against a row that has its snapshot.
@@ -109,14 +109,14 @@ public enum HistorySeeder {
                 road: zone.road,
                 roadLatin: zone.roadLatin,
                 direction: zone.direction,
-                speedLimitKmh: limit,
+                speedLimitMph: limit,
                 vehicleType: scenario.vehicle.rawValue,
                 entryTimeMs: entryMs,
                 exitTimeMs: exitMs,
                 avgSpeedKmh: avg,
                 sustainedMinKmh: extremes.min,
                 sustainedMaxKmh: extremes.max,
-                isOverLimit: avg > Double(limit),
+                isOverLimit: avg > limit.mphToKmh,
                 distanceM: zone.distanceM,
                 samples: ZoneTraversalRecord.encodeSamples(stored),
                 zoneDescription: zone.description,

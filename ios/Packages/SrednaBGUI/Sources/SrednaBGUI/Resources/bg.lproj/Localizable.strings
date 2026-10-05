@@ -14,13 +14,13 @@
 "statusUnmeasuredReason" = "пропуснато влизане";
 "statusOverLimit" = "Превишение";
 "statusWithinLimit" = "В норма";
-"statusNowSpeed" = "Текуща %@ km/h";
+"statusNowSpeed" = "Текуща %@ mph";
 "avgSpeedLabel" = "Средна скорост";
 "currentSpeedLabel" = "Текуща скорост";
 "speedLimit" = "Ограничение";
 "maxForRemainder" = "Макс. напред";
 "remaining" = "Остават";
-"finalAvgSpeed" = "Крайна средна %@ km/h";
+"finalAvgSpeed" = "Крайна средна %@ mph";
 "zonesLoaded" = "%d заредени зони";
 "startTracking" = "Стартирай";
 "stopTracking" = "Спри";
@@ -86,7 +86,7 @@
 "mapHeadingUp" = "По посока";
 "mapNorthUp" = "Север нагоре";
 "mapFollow" = "Следвай ме";
-"mapNoZones" = "Няма налични зони — пробвайте синхронизация.";
+"mapNoZones" = "Няма налични зони.";
 "mapLoading" = "Зареждане на картата…";
 "mapLoadFailed" = "Картата не се зарежда";
 "mapLoadFailedHint" = "Проверете връзката или опитайте отново.";
@@ -109,7 +109,7 @@
 "historyYourAverage" = "Вашата средна скорост";
 "historyTopSpeed" = "Най-висока скорост";
 "historyLowestSpeed" = "Най-ниска скорост";
-"historyKmhValue" = "%@ km/h";
+"historyKmhValue" = "%@ mph";
 "historyGraphTitle" = "Скорост във времето";
 "historyShowOnMap" = "Покажи на картата";
 "historyLegendSpeed" = "Скорост";

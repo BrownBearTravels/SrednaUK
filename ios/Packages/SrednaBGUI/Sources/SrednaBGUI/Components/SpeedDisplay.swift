@@ -38,8 +38,9 @@ public struct SpeedDisplay: View {
 
     /// "--" placeholder for nil values — matches the cross-platform UI rule
     /// that nullable numerics keep their slot visible (see auto-memory feedback).
+    /// `value` is a measured km/h speed, shown in mph (SrednaUK).
     private func formatted(_ value: Double?) -> String {
         guard let value, value.isFinite else { return "--" }
-        return String(Int(value.rounded()))
+        return String(Int(value.kmhToMph.rounded()))
     }
 }

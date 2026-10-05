@@ -51,8 +51,9 @@ final class CarPlayMapViewController: UIViewController {
         mv.automaticallyAdjustsContentInset = false
         mv.showsUserLocation = false
         mv.setCenter(
-            CLLocationCoordinate2D(latitude: 42.7339, longitude: 25.4858),
-            zoomLevel: 7,
+            // Great Britain overview (SrednaUK) until the first fix.
+            CLLocationCoordinate2D(latitude: 54.0, longitude: -2.5),
+            zoomLevel: 5,
             animated: false
         )
         mv.translatesAutoresizingMaskIntoConstraints = false

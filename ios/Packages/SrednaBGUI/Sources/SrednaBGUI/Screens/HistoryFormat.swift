@@ -4,6 +4,7 @@
 // SrednaBG — ios / SrednaBGUI
 
 import Foundation
+import SrednaBGCore
 
 /// Date / duration / dash formatting for the History tab. Mirrors Android's
 /// `HistoryFormat.kt` (`formatHistoryDay` = medium date, short time, short
@@ -53,10 +54,11 @@ enum HistoryFormat {
             : String(format: "%d:%02d", m, s)
     }
 
-    /// Render a nullable km/h value as a rounded integer, or the shared dash
-    /// placeholder when nil / non-finite.
+    /// Render a nullable measured km/h value in whole mph (SrednaUK), or the
+    /// shared dash placeholder when nil / non-finite. Not for limits — those
+    /// are already mph.
     static func speedOrDash(_ value: Double?) -> String {
         guard let value, value.isFinite else { return "--" }
-        return String(Int(value.rounded()))
+        return String(Int(value.kmhToMph.rounded()))
     }
 }

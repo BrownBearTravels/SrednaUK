@@ -12,6 +12,13 @@ import Foundation
 
 let epochBase: Int64 = 1_700_000_000_000
 
+/// These fixtures are real Bulgarian zones, whose limits are published in km/h.
+/// The app runs on whole-mph limits (SpeedUnits.swift), so convert them exactly
+/// as `ZonesResponse.zonesInMph` does for a km/h feed — 140 km/h → 87 mph, etc.
+func kmhLimits(car: Int, truck: Int, bus: Int, motorcycle: Int? = nil) -> SpeedLimits {
+    SpeedLimits(car: car, truck: truck, bus: bus, motorcycle: motorcycle).kmhToMph
+}
+
 // Trakiya t10: Ihtiman -> Vakarel (west direction), 19160m, 140 km/h
 let TRAKIYA_T10 = Zone(
     id: "trakiya-01-west",
@@ -22,7 +29,7 @@ let TRAKIYA_T10 = Zone(
     start: ZoneEndpoint(lat: 42.427, lng: 23.855, settlement: "Ихтиман"),
     end: ZoneEndpoint(lat: 42.550, lng: 23.703, settlement: "Вакарел"),
     distanceM: 19160,
-    speedLimits: SpeedLimits(car: 140, truck: 90, bus: 100, motorcycle: 140),
+    speedLimits: kmhLimits(car: 140, truck: 90, bus: 100, motorcycle: 140),
     centerline: [
         [42.427, 23.855],
         [42.450, 23.830],
@@ -45,7 +52,7 @@ let HEMUS_H12 = Zone(
     start: ZoneEndpoint(lat: 42.725, lng: 23.528, settlement: "Горни Богров"),
     end: ZoneEndpoint(lat: 42.779, lng: 23.736, settlement: "Чурек"),
     distanceM: 20200,
-    speedLimits: SpeedLimits(car: 140, truck: 90, bus: 100, motorcycle: 140),
+    speedLimits: kmhLimits(car: 140, truck: 90, bus: 100, motorcycle: 140),
     centerline: [
         [42.725, 23.528],
         [42.740, 23.580],
@@ -67,7 +74,7 @@ let I4_10 = Zone(
     start: ZoneEndpoint(lat: 43.269, lng: 24.949, settlement: "Сопот"),
     end: ZoneEndpoint(lat: 43.308, lng: 25.075, settlement: "Български Извор"),
     distanceM: 9200,
-    speedLimits: SpeedLimits(car: 90, truck: 80, bus: 80, motorcycle: 90),
+    speedLimits: kmhLimits(car: 90, truck: 80, bus: 80, motorcycle: 90),
     centerline: [
         [43.269, 24.949],
         [43.280, 24.980],
@@ -89,7 +96,7 @@ let TRAKIYA_T10_OPPOSITE = Zone(
     start: ZoneEndpoint(lat: 42.550, lng: 23.703, settlement: "Вакарел"),
     end: ZoneEndpoint(lat: 42.427, lng: 23.855, settlement: "Ихтиман"),
     distanceM: 19160,
-    speedLimits: SpeedLimits(car: 140, truck: 90, bus: 100, motorcycle: 140),
+    speedLimits: kmhLimits(car: 140, truck: 90, bus: 100, motorcycle: 140),
     centerline: [
         [42.550, 23.703],
         [42.530, 23.740],
@@ -112,7 +119,7 @@ let NATIONAL_ROAD_ZONE = Zone(
     start: ZoneEndpoint(lat: 42.700, lng: 23.400),
     end: ZoneEndpoint(lat: 42.710, lng: 23.500),
     distanceM: 8000,
-    speedLimits: SpeedLimits(car: 90, truck: 80, bus: 80),
+    speedLimits: kmhLimits(car: 90, truck: 80, bus: 80),
     centerline: [
         [42.700, 23.400],
         [42.705, 23.450],
@@ -234,7 +241,7 @@ func jogStartZone(
         start: ZoneEndpoint(lat: origin[0], lng: origin[1]),
         end: ZoneEndpoint(lat: end[0], lng: end[1]),
         distanceM: Int(lengthM),
-        speedLimits: SpeedLimits(car: 90, truck: 80, bus: 80, motorcycle: 90),
+        speedLimits: kmhLimits(car: 90, truck: 80, bus: 80, motorcycle: 90),
         centerline: [origin, offsetMetres(origin[0], origin[1], jogZoneHeadingDeg, -jogM)] + forward,
         source: "test",
         lastVerified: "2026-07-28"

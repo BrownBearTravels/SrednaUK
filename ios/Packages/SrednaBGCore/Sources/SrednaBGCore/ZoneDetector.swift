@@ -358,7 +358,7 @@ public struct ZoneDetector: Sendable {
             stopDurationMs: totalStopDurationMs,
             distanceTraveled: distanceTraveled,
             zoneDistance: Double(zone.distanceM),
-            speedLimitKmh: vehicleType.limit(zone.speedLimits),
+            speedLimitKmh: vehicleType.limit(zone.speedLimits).mphToKmh,
             distanceRemainingOverride: remaining
         )
 
@@ -424,7 +424,7 @@ public struct ZoneDetector: Sendable {
             stopDurationMs: totalStopDurationMs,
             distanceTraveled: distanceTraveled,
             zoneDistance: Double(zone.distanceM),
-            speedLimitKmh: vehicleType.limit(zone.speedLimits),
+            speedLimitKmh: vehicleType.limit(zone.speedLimits).mphToKmh,
             distanceRemainingOverride: remaining
         )
 
@@ -496,7 +496,7 @@ public struct ZoneDetector: Sendable {
             stopDurationMs: totalStopDurationMs,
             distanceTraveled: distanceTraveled,
             zoneDistance: Double(zone.distanceM),
-            speedLimitKmh: vehicleType.limit(zone.speedLimits)
+            speedLimitKmh: vehicleType.limit(zone.speedLimits).mphToKmh
         )
         // Offer a co-located successor the handover (see `colocatedCameraM`).
         // Tagged with the direction we finished this zone on so the opposite

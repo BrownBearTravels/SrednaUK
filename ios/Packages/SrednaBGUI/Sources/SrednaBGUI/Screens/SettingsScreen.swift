@@ -151,27 +151,30 @@ public struct SettingsScreen: View {
 
     private var syncSection: some View {
         Section(L10n.settingZones) {
-            // Automatic zone updates — opt-out for the periodic background
-            // sync. The "Sync zones now" button below stays available
-            // regardless (it calls onSyncTap directly, not gated by this).
-            Toggle(L10n.settingZoneSync, isOn: $settings.zoneSyncEnabled)
-                .onChange(of: settings.zoneSyncEnabled) { _, newValue in
-                    onZoneSyncToggle(newValue)
+            // SrednaUK: nothing to sync from while the feed is gated off.
+            if FeatureFlags.isZoneSyncEnabled {
+                // Automatic zone updates — opt-out for the periodic background
+                // sync. The "Sync zones now" button below stays available
+                // regardless (it calls onSyncTap directly, not gated by this).
+                Toggle(L10n.settingZoneSync, isOn: $settings.zoneSyncEnabled)
+                    .onChange(of: settings.zoneSyncEnabled) { _, newValue in
+                        onZoneSyncToggle(newValue)
+                    }
+                    .accessibilityIdentifier("settings-zone-sync")
+                Text(L10n.settingZoneSyncDesc)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button {
+                    Task { await runSync() }
+                } label: {
+                    HStack {
+                        if isSyncing { ProgressView() }
+                        Text(L10n.settingSyncNow)
+                    }
                 }
-                .accessibilityIdentifier("settings-zone-sync")
-            Text(L10n.settingZoneSyncDesc)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            Button {
-                Task { await runSync() }
-            } label: {
-                HStack {
-                    if isSyncing { ProgressView() }
-                    Text(L10n.settingSyncNow)
-                }
+                .disabled(isSyncing)
+                .accessibilityIdentifier("settings-sync-now")
             }
-            .disabled(isSyncing)
-            .accessibilityIdentifier("settings-sync-now")
             Text(String(
                 format: L10n.settingZoneDataDate,
                 ZoneDataFormat.formatVersion(

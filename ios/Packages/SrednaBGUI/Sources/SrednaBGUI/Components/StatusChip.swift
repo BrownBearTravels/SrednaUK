@@ -9,9 +9,12 @@ import SrednaBGCore
 /// A whole-km/h speed for the HUD, or the "--" placeholder when there is no
 /// value to show (no fix yet, or a non-finite one). Shared by `StatusChip` and
 /// `UnmeasuredChip` so the two chips can never round or blank differently.
+///
+/// Takes a measured km/h speed and shows it in mph (SrednaUK). Limits are
+/// already mph and never pass through here.
 private func formatSpeed(_ value: Double?) -> String {
     guard let value, value.isFinite else { return "--" }
-    return String(Int(value.rounded()))
+    return String(Int(value.kmhToMph.rounded()))
 }
 
 /// In-zone HUD strip used by both `HomeScreen` and `ZoneMapScreen`.
@@ -22,12 +25,12 @@ public struct StatusChip: View {
     public let currentSpeedKmh: Double?
     /// Vehicle-type-resolved limit — the engine's over-limit verdict uses it,
     /// so the badge must show the same number, not the car default.
-    public let limitKmh: Int
+    public let limitMph: Int
 
-    public init(inZone: ZoneState.InZone, currentSpeedKmh: Double?, limitKmh: Int) {
+    public init(inZone: ZoneState.InZone, currentSpeedKmh: Double?, limitMph: Int) {
         self.inZone = inZone
         self.currentSpeedKmh = currentSpeedKmh
-        self.limitKmh = limitKmh
+        self.limitMph = limitMph
     }
 
     public var body: some View {
@@ -61,10 +64,10 @@ public struct StatusChip: View {
                     .minimumScaleFactor(0.7)
             }
             Spacer(minLength: 12)
-            LimitBadge(limit: limitKmh)
+            LimitBadge(limit: limitMph)
             Spacer(minLength: 12)
             VStack(alignment: .center, spacing: 2) {
-                Text(String(format: "%.1f km", locale: Locale(identifier: "en_US_POSIX"), inZone.distanceRemaining / 1000))
+                Text(formatMiles(inZone.distanceRemaining))
                     .font(.callout.weight(.bold))
                     .monospacedDigit()
                     .lineLimit(1)
@@ -96,12 +99,12 @@ public struct StatusChip: View {
 public struct UnmeasuredChip: View {
     public let unmeasured: ZoneState.Unmeasured
     public let currentSpeedKmh: Double?
-    public let limitKmh: Int
+    public let limitMph: Int
 
-    public init(unmeasured: ZoneState.Unmeasured, currentSpeedKmh: Double?, limitKmh: Int) {
+    public init(unmeasured: ZoneState.Unmeasured, currentSpeedKmh: Double?, limitMph: Int) {
         self.unmeasured = unmeasured
         self.currentSpeedKmh = currentSpeedKmh
-        self.limitKmh = limitKmh
+        self.limitMph = limitMph
     }
 
     public var body: some View {
@@ -120,11 +123,10 @@ public struct UnmeasuredChip: View {
                     .lineLimit(1)
             }
             Spacer(minLength: 12)
-            LimitBadge(limit: limitKmh)
+            LimitBadge(limit: limitMph)
             Spacer(minLength: 12)
             VStack(alignment: .center, spacing: 2) {
-                Text(String(format: "%.1f km", locale: Locale(identifier: "en_US_POSIX"),
-                            unmeasured.distanceRemaining / 1000))
+                Text(formatMiles(unmeasured.distanceRemaining))
                     .font(.callout.weight(.bold))
                     .monospacedDigit()
                     .lineLimit(1)

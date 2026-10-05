@@ -51,6 +51,7 @@ struct SrednaBGApp: App {
                 // of automatic zone updates. The manual "Sync zones now" path
                 // (runZoneSync) is intentionally NOT gated. Mirrors the Android
                 // ZoneSyncWorker guard, which re-reads the setting at run time.
+                guard FeatureFlags.isZoneSyncEnabled else { return }
                 guard await container.automaticZoneSyncEnabled else { return }
                 _ = await container.runZoneSync()
             },
@@ -62,7 +63,7 @@ struct SrednaBGApp: App {
         // "Automatic zone updates" is a user opt-out (default on): arm the
         // periodic refresh only when enabled, mirroring the Android onCreate
         // gating. The Settings toggle re-arms / cancels via onZoneSyncToggle.
-        if container.settings.zoneSyncEnabled {
+        if FeatureFlags.isZoneSyncEnabled, container.settings.zoneSyncEnabled {
             BackgroundSyncScheduler.scheduleZoneSync()
         } else {
             BackgroundSyncScheduler.cancelZoneSync()
@@ -91,7 +92,7 @@ struct SrednaBGApp: App {
                     // arm or cancel the periodic background refresh. The
                     // setting itself persists via SettingsStore's didSet.
                     #if os(iOS)
-                    if enabled {
+                    if enabled, FeatureFlags.isZoneSyncEnabled {
                         BackgroundSyncScheduler.scheduleZoneSync()
                     } else {
                         BackgroundSyncScheduler.cancelZoneSync()
@@ -204,7 +205,7 @@ final class AppContainer {
         // the activity is alive.
         let liveActivity = LiveActivityManager()
         let zoneStateSink: @Sendable (ZoneState, Double?, Int?) async -> Void = { state, speed, limit in
-            await liveActivity.update(state: state, currentSpeedKmh: speed, limitKmh: limit)
+            await liveActivity.update(state: state, currentSpeedKmh: speed, limitMph: limit)
         }
         let onSessionStart: @Sendable () async -> Void = {
             await liveActivity.sessionStart()
@@ -263,7 +264,7 @@ final class AppContainer {
                cachedHash: settings.cachedZoneHash,
                cachedVersion: settings.cachedZoneVersion
            ) {
-            let usable = Self.usableZones(response.zones, origin: "bundle \(response.version)")
+            let usable = Self.usableZones(response.zonesInMph, origin: "bundle \(response.version)")
             try? await zoneStore.replaceAll(with: usable)
             tracking.updateZones(usable)
             settings.cachedZoneHash = response.hash
@@ -321,6 +322,9 @@ final class AppContainer {
     var automaticZoneSyncEnabled: Bool { settings.zoneSyncEnabled }
 
     func runZoneSync() async -> SyncResult {
+        // SrednaUK: never contact the upstream (Bulgarian) zone feed. Covers the
+        // launch sync, the map retry, "Sync zones now" and the QA debug hook.
+        guard FeatureFlags.isZoneSyncEnabled else { return .upToDate }
         do {
             let version = try await syncClient.fetchVersion()
             // Record the feed's support state before the recency gate: an
@@ -348,7 +352,7 @@ final class AppContainer {
                 return .upToDate
             case .applyRemote:
                 let response = try await syncClient.fetchZones()
-                let usable = Self.usableZones(response.zones, origin: "server \(response.version)")
+                let usable = Self.usableZones(response.zonesInMph, origin: "server \(response.version)")
                 try await zoneStore.replaceAll(with: usable)
                 tracking.updateZones(usable)
                 settings.cachedZoneHash = response.hash
@@ -414,10 +418,8 @@ final class AppContainer {
     /// the network style is also unreachable; `ZoneMapScreen` shows the
     /// retry-sync empty state in that case.
     ///
-    /// The dark style only ships in the bundle, so the network fallback is
-    /// always the (light) `mapStyleFallbackURL` regardless of the requested
-    /// theme — acceptable because the fallback only fires on first launch
-    /// before the bundle finishes installing.
+    /// The network fallback has a light and a dark OpenFreeMap style, so the
+    /// requested theme is honoured without a bundle.
     func mapStyleURL(for theme: MapTheme) async -> URL? {
         if let cached = cachedStyleURLs[theme] { return cached }
         if await mapInstaller.isInstalled() {
@@ -429,7 +431,7 @@ final class AppContainer {
                 // fall through to network fallback
             }
         }
-        return syncClient.urls.mapStyleFallbackURL
+        return syncClient.urls.mapStyleFallbackURL(for: theme)
     }
 
     private func ensureTileServerAndRewrite(for theme: MapTheme) async throws -> URL {

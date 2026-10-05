@@ -161,7 +161,7 @@ struct AnnouncementPolicyTests {
             prev: .outside, new: inZone(over: true, avgSpeed: 100), vehicle: .truck
         ))
         #expect(d.event == .entry(road: "АМ Тракия", limit: 90))
-        #expect(d.followUp == .overLimit(avgSpeedKmh: 100))
+        #expect(d.followUp == .overLimit(avgSpeedMph: 62))
         #expect(d.clockUpdate == .markEntryAndAnnouncement)
     }
 
@@ -181,7 +181,7 @@ struct AnnouncementPolicyTests {
             prev: exitingZone(Self.zone), new: inZone(Self.zoneB, over: true, avgSpeed: 130)
         ))
         #expect(d.event == .entry(road: "АМ Тракия (Б)", limit: 120))
-        #expect(d.followUp == .overLimit(avgSpeedKmh: 130))
+        #expect(d.followUp == .overLimit(avgSpeedMph: 80))
     }
 
     @Test
@@ -189,7 +189,7 @@ struct AnnouncementPolicyTests {
         let d = AnnouncementPolicy.decide(inputs(
             prev: inZone(over: false), new: inZone(over: true, avgSpeed: 152)
         ))
-        #expect(d.event == .overLimit(avgSpeedKmh: 152))
+        #expect(d.event == .overLimit(avgSpeedMph: 94))
         #expect(d.clockUpdate == .markAnnouncement)
     }
 
@@ -198,7 +198,7 @@ struct AnnouncementPolicyTests {
         let d = AnnouncementPolicy.decide(inputs(
             prev: inZone(over: true), new: inZone(over: false, avgSpeed: 138)
         ))
-        #expect(d.event == .recovered(avgSpeedKmh: 138))
+        #expect(d.event == .recovered(avgSpeedMph: 85))
     }
 
     @Test
@@ -224,7 +224,7 @@ struct AnnouncementPolicyTests {
             periodic: true, onlyOver: false,
             lastAnn: lastAnn
         ))
-        #expect(d.event == .withinLimit(avgSpeedKmh: 130))
+        #expect(d.event == .withinLimit(avgSpeedMph: 80))
     }
 
     @Test
@@ -236,7 +236,7 @@ struct AnnouncementPolicyTests {
             periodic: true, onlyOver: true,
             lastAnn: lastAnn
         ))
-        #expect(d.event == .overLimit(avgSpeedKmh: 152))
+        #expect(d.event == .overLimit(avgSpeedMph: 94))
     }
 
     @Test
@@ -282,7 +282,7 @@ struct AnnouncementPolicyTests {
             prev: inZone(over: false), new: exiting(finalAvg: 132),
             lastEntry: now.addingTimeInterval(-300) // 5 min ago
         ))
-        #expect(d.event == .exit(avgSpeedKmh: 132))
+        #expect(d.event == .exit(avgSpeedMph: 82))
         #expect(d.clockUpdate == .clearAnnouncement)
     }
 

@@ -250,14 +250,14 @@ public final class ZoneTrackingService {
         }
         if checkAutoStop() { return }
 
-        let limitKmh = Self.resolvedLimit(for: next, vehicleType: vehicleType)
+        let limitMph = Self.resolvedLimit(for: next, vehicleType: vehicleType)
 
         // Capture the traversal for the History tab: buffers one SpeedSample
         // per in-zone fix and finalizes on the exit transition. Runs on this
         // actor, so its buffer needs no locking; the DB write hops off.
         historyRecorder?.onZoneStateChanged(
             point: point, previous: previous, next: next,
-            vehicleType: vehicleType, limitKmh: limitKmh ?? 0
+            vehicleType: vehicleType, limitMph: limitMph ?? 0
         )
 
         announceProvisionalEntry(
@@ -277,7 +277,7 @@ public final class ZoneTrackingService {
         // Fire-and-forget the Live Activity update — the sink throttles
         // internally so calling on every point is safe.
         Task.detached { [zoneStateSink] in
-            await zoneStateSink(next, point.speed, limitKmh)
+            await zoneStateSink(next, point.speed, limitMph)
         }
 
         // Adjust GPS cadence as we move toward / into / out of zones.

@@ -37,7 +37,9 @@ public final class ZoneTraversalRecord {
     public var road: String
     public var roadLatin: String?
     public var direction: String
-    public var speedLimitKmh: Int
+    /// Whole mph (SrednaUK). `originalName` keeps reading rows written under
+    /// the upstream km/h-era property name.
+    @Attribute(originalName: "speedLimitKmh") public var speedLimitMph: Int
     public var vehicleType: String
     public var entryTimeMs: Int64
     public var exitTimeMs: Int64
@@ -63,7 +65,7 @@ public final class ZoneTraversalRecord {
         road: String,
         roadLatin: String?,
         direction: String,
-        speedLimitKmh: Int,
+        speedLimitMph: Int,
         vehicleType: String,
         entryTimeMs: Int64,
         exitTimeMs: Int64,
@@ -85,7 +87,7 @@ public final class ZoneTraversalRecord {
         self.road = road
         self.roadLatin = roadLatin
         self.direction = direction
-        self.speedLimitKmh = speedLimitKmh
+        self.speedLimitMph = speedLimitMph
         self.vehicleType = vehicleType
         self.entryTimeMs = entryTimeMs
         self.exitTimeMs = exitTimeMs
@@ -150,7 +152,7 @@ public extension ZoneTraversalRecord {
             start: ZoneEndpoint(lat: startLat, lng: startLng),
             end: ZoneEndpoint(lat: endLat, lng: endLng),
             distanceM: distanceM,
-            speedLimits: SpeedLimits(car: speedLimitKmh, truck: speedLimitKmh, bus: speedLimitKmh, motorcycle: nil),
+            speedLimits: SpeedLimits(car: speedLimitMph, truck: speedLimitMph, bus: speedLimitMph, motorcycle: nil),
             centerline: points,
             source: "history",
             lastVerified: ""

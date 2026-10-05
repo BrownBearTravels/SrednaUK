@@ -51,14 +51,14 @@ public final class HistoryRecorder {
     ///   - point: the filtered fix that produced `next`.
     ///   - previous / next: the zone-state transition.
     ///   - vehicleType: the driver's current vehicle-type setting.
-    ///   - limitKmh: the vehicle-type-resolved limit for `next`'s zone, used
+    ///   - limitMph: the vehicle-type-resolved limit for `next`'s zone, used
     ///     for the stored over-limit verdict (matches the exit-chip verdict).
     public func onZoneStateChanged(
         point: GpsPoint,
         previous: ZoneState,
         next: ZoneState,
         vehicleType: VehicleType,
-        limitKmh: Int
+        limitMph: Int
     ) {
         guard recordingEnabled else {
             // Drop any buffer opened before recording was turned off mid-zone.
@@ -82,7 +82,7 @@ public final class HistoryRecorder {
         case .exiting(let exiting):
             if let open = capture, open.zone.id == exiting.zone.id {
                 finalize(open, exitTimeMs: point.timestamp, finalAvg: exiting.finalAvgSpeed,
-                         vehicleType: vehicleType, limitKmh: limitKmh)
+                         vehicleType: vehicleType, limitMph: limitMph)
             }
             capture = nil
 
@@ -104,7 +104,7 @@ public final class HistoryRecorder {
         exitTimeMs: Int64,
         finalAvg: Double?,
         vehicleType: VehicleType,
-        limitKmh: Int
+        limitMph: Int
     ) {
         let durationMs = exitTimeMs - capture.entryTimeMs
         if durationMs < Self.transientExitWindowMs {
@@ -123,14 +123,14 @@ public final class HistoryRecorder {
             road: capture.zone.road,
             roadLatin: capture.zone.roadLatin,
             direction: capture.zone.direction,
-            speedLimitKmh: limitKmh,
+            speedLimitMph: limitMph,
             vehicleType: vehicleType.rawValue,
             entryTimeMs: capture.entryTimeMs,
             exitTimeMs: exitTimeMs,
             avgSpeedKmh: finalAvg,
             sustainedMinKmh: extremes.min,
             sustainedMaxKmh: extremes.max,
-            isOverLimit: finalAvg != nil && finalAvg! > Double(limitKmh),
+            isOverLimit: finalAvg != nil && finalAvg! > limitMph.mphToKmh,
             distanceM: capture.zone.distanceM,
             samples: ZoneTraversalRecord.encodeSamples(downsampled),
             // Geometry snapshot: the zone as driven, so "Show on map" survives

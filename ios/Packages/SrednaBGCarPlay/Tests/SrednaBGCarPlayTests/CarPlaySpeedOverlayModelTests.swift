@@ -16,12 +16,12 @@ struct CarPlaySpeedOverlayModelTests {
     private static let labels = CarPlayLabels(
         overLimit: "OVER",
         withinLimit: "WITHIN",
-        nowSpeedFormat: "Now %@ km/h",
+        nowSpeedFormat: "Now %@ mph",
         currentSpeedLabel: "current",
         avgSpeedLabel: "avg",
         remaining: "remaining",
         speedLimit: "limit",
-        finalAvgSpeedFormat: "final %@ km/h",
+        finalAvgSpeedFormat: "final %@ mph",
         zoneCompleteTitle: "COMPLETE",
         trackingOutsideTitle: "OUTSIDE",
         notTrackingTitle: "OFF",
@@ -39,7 +39,8 @@ struct CarPlaySpeedOverlayModelTests {
             start: ZoneEndpoint(lat: 42.0, lng: 24.0, kmMarker: nil, settlement: nil, settlementLatin: nil),
             end: ZoneEndpoint(lat: 42.1, lng: 24.1, kmMarker: nil, settlement: nil, settlementLatin: nil),
             distanceM: 10_000,
-            speedLimits: SpeedLimits(car: 120, truck: 100, bus: 110, motorcycle: nil),
+            // 120/100/110 km/h as whole mph (SpeedUnits.swift).
+            speedLimits: SpeedLimits(car: 75, truck: 62, bus: 68, motorcycle: nil),
             centerline: [[42.0, 24.0], [42.1, 24.1]],
             source: "test",
             lastVerified: "2026-04-24"
@@ -80,7 +81,7 @@ struct CarPlaySpeedOverlayModelTests {
             labels: Self.labels
         )
         #expect(model.mode == .outside)
-        #expect(model.heroSpeedText == "72")     // rounded
+        #expect(model.heroSpeedText == "45")     // 72.4 km/h, rounded mph
         #expect(model.heroSubtitle == "current")
         #expect(model.smallSpeedText == nil)
         #expect(model.limitText == nil)
@@ -127,12 +128,12 @@ struct CarPlaySpeedOverlayModelTests {
             labels: Self.labels
         )
         #expect(model.mode == .inZone)
-        #expect(model.heroSpeedText == "110")
+        #expect(model.heroSpeedText == "68")  // 110 km/h
         #expect(model.heroSubtitle == "avg")
-        #expect(model.smallSpeedText == "115")
+        #expect(model.smallSpeedText == "71")  // 115 km/h
         #expect(model.smallSubtitle == "current")
-        #expect(model.limitText == "120")  // car limit from fixture
-        #expect(model.distanceText == "5.0 km")
+        #expect(model.limitText == "75")  // car limit from fixture
+        #expect(model.distanceText == "3.1 mi")
         #expect(model.distanceSubtitle == "remaining")
         #expect(model.statusLabel == "WITHIN")
         // green when under limit
@@ -165,7 +166,7 @@ struct CarPlaySpeedOverlayModelTests {
         )
         #expect(model.statusLabel == "OVER")
         #expect(model.packedStatusColor == zoneColorRed)
-        #expect(model.distanceText == "3.0 km")
+        #expect(model.distanceText == "1.9 mi")
     }
 
     @Test("inZoneUsesVehicleTypeLimit")
@@ -192,7 +193,7 @@ struct CarPlaySpeedOverlayModelTests {
             vehicleType: .truck,
             labels: Self.labels
         )
-        #expect(truckModel.limitText == "100")   // truck limit from fixture
+        #expect(truckModel.limitText == "62")   // truck limit from fixture
         let busModel = CarPlaySpeedOverlayModel.from(
             isTracking: true,
             state: .inZone(inZone),
@@ -200,7 +201,7 @@ struct CarPlaySpeedOverlayModelTests {
             vehicleType: .bus,
             labels: Self.labels
         )
-        #expect(busModel.limitText == "110")
+        #expect(busModel.limitText == "68")
     }
 
     @Test("inZoneWithNilSpeedsRendersDashes")
@@ -229,8 +230,8 @@ struct CarPlaySpeedOverlayModelTests {
         )
         #expect(model.heroSpeedText == "--")
         #expect(model.smallSpeedText == "--")
-        #expect(model.limitText == "120")
-        #expect(model.distanceText == "1.0 km")
+        #expect(model.limitText == "75")
+        #expect(model.distanceText == "0.6 mi")
     }
 
     // MARK: - exiting
@@ -247,8 +248,8 @@ struct CarPlaySpeedOverlayModelTests {
             labels: Self.labels
         )
         #expect(model.mode == .exiting)
-        #expect(model.heroSpeedText == "109")  // rounded from 108.6
-        #expect(model.statusLabel == "final 109 km/h")
+        #expect(model.heroSpeedText == "67")  // 108.6 km/h, rounded mph
+        #expect(model.statusLabel == "final 67 mph")
         #expect(model.limitText == nil)
         #expect(model.distanceText == nil)
         #expect(model.smallSpeedText == nil)
@@ -266,7 +267,7 @@ struct CarPlaySpeedOverlayModelTests {
             labels: Self.labels
         )
         #expect(model.heroSpeedText == "--")
-        #expect(model.statusLabel == "final -- km/h")
+        #expect(model.statusLabel == "final -- mph")
     }
 
     // MARK: - formatting
@@ -276,17 +277,18 @@ struct CarPlaySpeedOverlayModelTests {
         #expect(CarPlaySpeedOverlayModel.formatSpeed(.nan) == "--")
         #expect(CarPlaySpeedOverlayModel.formatSpeed(.infinity) == "--")
         #expect(CarPlaySpeedOverlayModel.formatSpeed(nil) == "--")
-        #expect(CarPlaySpeedOverlayModel.formatSpeed(59.6) == "60")
+        #expect(CarPlaySpeedOverlayModel.formatSpeed(96.5) == "60")  // 59.96 mph
     }
 
     @Test("formatDistanceHandlesNegativeAndNonFinite")
     func formatDistanceHandlesNegativeAndNonFinite() {
         #expect(CarPlaySpeedOverlayModel.formatDistance(.nan) == "--")
         #expect(CarPlaySpeedOverlayModel.formatDistance(-5) == "--")
-        #expect(CarPlaySpeedOverlayModel.formatDistance(0) == "0.0 km")
-        // 12350 m → 12.35 km → "12.3 km" (banker's rounding via %.1f).
-        #expect(CarPlaySpeedOverlayModel.formatDistance(12_350) == "12.3 km")
-        #expect(CarPlaySpeedOverlayModel.formatDistance(12_360) == "12.4 km")
+        #expect(CarPlaySpeedOverlayModel.formatDistance(0) == "0.0 mi")
+        // 12350 m ≈ 7.674 mi → "7.7 mi".
+        #expect(CarPlaySpeedOverlayModel.formatDistance(12_350) == "7.7 mi")
+        // 1 mile exactly.
+        #expect(CarPlaySpeedOverlayModel.formatDistance(1_609.344) == "1.0 mi")
     }
 
     @Test("modelEqualityStableAcrossRebuild")

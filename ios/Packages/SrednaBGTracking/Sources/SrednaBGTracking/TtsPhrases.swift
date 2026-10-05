@@ -10,10 +10,10 @@ import SrednaBGData
 /// `AudioAlertManager.kt` so iOS sounds identical to Android in the car.
 public enum AnnouncementEvent: Sendable, Equatable {
     case entry(road: String, limit: Int)
-    case overLimit(avgSpeedKmh: Int)
-    case recovered(avgSpeedKmh: Int)
-    case withinLimit(avgSpeedKmh: Int)
-    case exit(avgSpeedKmh: Int)
+    case overLimit(avgSpeedMph: Int)
+    case recovered(avgSpeedMph: Int)
+    case withinLimit(avgSpeedMph: Int)
+    case exit(avgSpeedMph: Int)
 }
 
 public enum TtsPhrases {
@@ -29,9 +29,9 @@ public enum TtsPhrases {
         let bg = lang == .bg
         switch (event, lang) {
         case (.entry(_, let limit), .bg):
-            return "Влизате в зона за средна скорост. Ограничение \(SpeechNumbers.words(limit, bulgarian: bg))."
+            return "Влизате в зона за средна скорост. Ограничение \(SpeechNumbers.words(limit, bulgarian: bg)) мили в час."
         case (.entry(_, let limit), .en):
-            return "Entering average speed zone. Speed limit \(SpeechNumbers.words(limit, bulgarian: bg))."
+            return "Entering average speed zone. Speed limit \(SpeechNumbers.words(limit, bulgarian: bg)) miles per hour."
         case (.overLimit(let avg), .bg):
             return "Внимание: средна скорост \(SpeechNumbers.words(avg, bulgarian: bg)). Намалете."
         case (.overLimit(let avg), .en):

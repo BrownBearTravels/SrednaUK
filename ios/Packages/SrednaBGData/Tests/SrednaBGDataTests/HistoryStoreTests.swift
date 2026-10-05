@@ -25,7 +25,7 @@ struct HistoryStoreTests {
             road: "АМ Тракия",
             roadLatin: "Trakiya",
             direction: "east",
-            speedLimitKmh: 140,
+            speedLimitMph: 140,
             vehicleType: "car",
             entryTimeMs: exitTimeMs - 60_000,
             exitTimeMs: exitTimeMs,

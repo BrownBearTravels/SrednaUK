@@ -170,11 +170,11 @@ public struct HomeScreen: View {
                          value: String(settings.vehicleType.limit(inZone.zone.speedLimits)))
                 Spacer()
                 infoItem(label: L10n.maxForRemainder,
-                         value: String(settings.debugMaxSpeedOverride ?? Int(inZone.speedStatus.maxSpeedForRemainder)))
+                         value: String(settings.debugMaxSpeedOverride ?? inZone.speedStatus.maxSpeedForRemainder.kmhToMphFloor))
                 Spacer()
                 infoItem(
                     label: L10n.remaining,
-                    value: String(format: "%.1f km", locale: Locale(identifier: "en_US_POSIX"), inZone.distanceRemaining / 1000)
+                    value: formatMiles(inZone.distanceRemaining)
                 )
             }
 
@@ -227,8 +227,7 @@ public struct HomeScreen: View {
                 Spacer()
                 infoItem(
                     label: L10n.remaining,
-                    value: String(format: "%.1f km", locale: Locale(identifier: "en_US_POSIX"),
-                                  unmeasured.distanceRemaining / 1000)
+                    value: formatMiles(unmeasured.distanceRemaining)
                 )
             }
 
@@ -247,7 +246,7 @@ public struct HomeScreen: View {
         // Same vehicle-resolved limit the engine judged against in-zone — the
         // exit verdict must not flip back to the car limit.
         let limit = settings.vehicleType.limit(exiting.zone.speedLimits)
-        let isOver = (exiting.finalAvgSpeed ?? 0) > Double(limit)
+        let isOver = (exiting.finalAvgSpeed ?? 0) > limit.mphToKmh
         let color: Color = isOver ? Theme.statusRed : Theme.statusGreen
         return VStack(spacing: 12) {
             Text(String(format: L10n.statusExiting, exiting.zone.road))
@@ -306,8 +305,9 @@ public struct HomeScreen: View {
         }
     }
 
+    /// Measured km/h speed, shown in mph (SrednaUK).
     private func format(_ value: Double?) -> String {
         guard let value, value.isFinite else { return "--" }
-        return String(Int(value.rounded()))
+        return String(Int(value.kmhToMph.rounded()))
     }
 }

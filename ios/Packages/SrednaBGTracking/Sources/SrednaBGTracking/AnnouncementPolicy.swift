@@ -152,15 +152,15 @@ public enum AnnouncementPolicy {
 
         // Within zone: handle over/under transitions + periodic ticks.
         case (.inZone(let prev), .inZone(let new)):
-            guard let avgSpeed = new.avgSpeed.map({ Int($0) }) else { return .silent }
+            guard let avgSpeed = new.avgSpeed.map({ Int($0.kmhToMph) }) else { return .silent }
             let isOver = new.speedStatus.isOverLimit
             let wasOver = prev.speedStatus.isOverLimit
 
             if !wasOver && isOver {
-                return .init(event: .overLimit(avgSpeedKmh: avgSpeed), clockUpdate: .markAnnouncement)
+                return .init(event: .overLimit(avgSpeedMph: avgSpeed), clockUpdate: .markAnnouncement)
             }
             if wasOver && !isOver {
-                return .init(event: .recovered(avgSpeedKmh: avgSpeed), clockUpdate: .markAnnouncement)
+                return .init(event: .recovered(avgSpeedMph: avgSpeed), clockUpdate: .markAnnouncement)
             }
             // Steady state — periodic announcement?
             guard input.periodicEnabled else { return .silent }
@@ -169,7 +169,7 @@ public enum AnnouncementPolicy {
             guard elapsed > periodicIntervalSec else { return .silent }
 
             if isOver {
-                return .init(event: .overLimit(avgSpeedKmh: avgSpeed), clockUpdate: .markAnnouncement)
+                return .init(event: .overLimit(avgSpeedMph: avgSpeed), clockUpdate: .markAnnouncement)
             }
             if input.announceOnlyWhenOver {
                 // Suppressed; do NOT touch lastAnnouncementAt so the next
@@ -177,7 +177,7 @@ public enum AnnouncementPolicy {
                 // the explicit Android comment block.
                 return .silent
             }
-            return .init(event: .withinLimit(avgSpeedKmh: avgSpeed), clockUpdate: .markAnnouncement)
+            return .init(event: .withinLimit(avgSpeedMph: avgSpeed), clockUpdate: .markAnnouncement)
 
         // InZone → Exiting: announce exit unless this is a transient glitch.
         case (.inZone, .exiting(let exiting)):
@@ -185,8 +185,8 @@ public enum AnnouncementPolicy {
                input.now.timeIntervalSince(entry) < transientExitWindowSec {
                 return .init(event: nil, clockUpdate: .clearAnnouncement)
             }
-            guard let avg = exiting.finalAvgSpeed.map({ Int($0) }) else { return .silent }
-            return .init(event: .exit(avgSpeedKmh: avg), clockUpdate: .clearAnnouncement)
+            guard let avg = exiting.finalAvgSpeed.map({ Int($0.kmhToMph) }) else { return .silent }
+            return .init(event: .exit(avgSpeedMph: avg), clockUpdate: .clearAnnouncement)
 
         // Co-located cameras: one camera ends zone A and begins zone B, so the
         // state machine steps InZone(A) → Exiting(A) → InZone(B) on consecutive
@@ -276,9 +276,9 @@ public enum AnnouncementPolicy {
     /// The over-limit warning to queue behind an entry announcement, when the
     /// traversal opens already over the limit. Nil otherwise.
     private static func entryOverLimitEvent(_ inZone: ZoneState.InZone) -> AnnouncementEvent? {
-        guard inZone.speedStatus.isOverLimit, let avg = inZone.avgSpeed.map({ Int($0) })
+        guard inZone.speedStatus.isOverLimit, let avg = inZone.avgSpeed.map({ Int($0.kmhToMph) })
         else { return nil }
-        return .overLimit(avgSpeedKmh: avg)
+        return .overLimit(avgSpeedMph: avg)
     }
 }
 

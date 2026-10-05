@@ -33,7 +33,7 @@ public struct CarPlaySpeedOverlayModel: Equatable, Sendable {
     public let smallSubtitle: String?     // e.g. "current" / nil
     public let limitText: String?         // "90" or nil
     public let limitSubtitle: String?     // "limit" or nil
-    public let distanceText: String?      // "3.2 km" or nil
+    public let distanceText: String?      // "3.2 mi" or nil
     public let distanceSubtitle: String?  // "remaining" or nil
     public let statusLabel: String        // "over limit" / "within limit" / "" / "tap phone to start"
     public let packedStatusColor: Int32   // feeds SrednaBGMapCore.statusUIColor at render time
@@ -165,14 +165,15 @@ public struct CarPlaySpeedOverlayModel: Equatable, Sendable {
     /// `feedback_dash_placeholder.md`).
     public static let dash = "--"
 
+    /// Measured km/h speed, shown in whole mph (SrednaUK). Limits are already
+    /// mph and are rendered with `String(limit)` instead.
     public static func formatSpeed(_ value: Double?) -> String {
         guard let value, value.isFinite else { return dash }
-        return String(Int(value.rounded()))
+        return String(Int(value.kmhToMph.rounded()))
     }
 
     public static func formatDistance(_ meters: Double) -> String {
         guard meters.isFinite, meters >= 0 else { return dash }
-        let km = meters / 1000
-        return String(format: "%.1f km", km)
+        return formatMiles(meters)
     }
 }

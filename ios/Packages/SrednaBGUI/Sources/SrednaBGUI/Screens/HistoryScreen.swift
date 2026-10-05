@@ -179,7 +179,7 @@ private struct HistoryRow: View {
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
-            LimitBadge(limit: record.speedLimitKmh, size: 44)
+            LimitBadge(limit: record.speedLimitMph, size: 44)
             VStack(alignment: .trailing, spacing: 2) {
                 Text(HistoryFormat.speedOrDash(record.avgSpeedKmh))
                     .font(.title2.weight(.bold))

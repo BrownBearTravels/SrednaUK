@@ -25,17 +25,18 @@ public enum MapTheme: String, Sendable, CaseIterable, Codable {
 /// flipping exactly at the visible horizon, which would feel premature
 /// while the sky is still bright.
 ///
-/// If no GPS fix is available yet, `.auto` falls back to Sofia — the app is
-/// Bulgaria-only, so the worst-case error in solar altitude (Sofia → Vidin
-/// or Burgas) is well within the twilight margin.
+/// If no GPS fix is available yet, `.auto` falls back to central England
+/// (SrednaUK). It only bridges the moments before the first fix, so the error
+/// toward the edges of Great Britain (roughly half an hour of sun time) is an
+/// acceptable stopgap.
 ///
 /// Hysteresis (e.g. 10-min debounce around the boundary) belongs in the
 /// caller, not the resolver — the resolver stays pure so it can be unit-
 /// tested with deterministic inputs.
 public enum MapThemeResolver {
 
-    public static let fallbackLatSofia: Double = 42.7
-    public static let fallbackLngSofia: Double = 23.3
+    public static let fallbackLat: Double = 52.5
+    public static let fallbackLng: Double = -1.9
     public static let civilTwilightAltitudeDeg: Double = -6.0
 
     public static func resolve(
@@ -47,8 +48,8 @@ public enum MapThemeResolver {
         case .light: return .light
         case .dark: return .dark
         case .auto:
-            let lat = position?.lat ?? fallbackLatSofia
-            let lng = position?.lng ?? fallbackLngSofia
+            let lat = position?.lat ?? fallbackLat
+            let lng = position?.lng ?? fallbackLng
             let altitudeDeg = solarAltitudeDegrees(lat: lat, lng: lng, now: now)
             return altitudeDeg > civilTwilightAltitudeDeg ? .light : .dark
         }
