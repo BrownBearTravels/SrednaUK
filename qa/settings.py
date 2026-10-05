@@ -65,10 +65,13 @@ class SettingsCombo:
         set_setting("map_heading_up", self.map_heading_up, obs=obs)
 
 
-COMBO_S1 = SettingsCombo("S1", True, True, True, "bg", "car")
+# SrednaUK: the main profiles run in English so the spoken phrases under test
+# are the English ones UK drivers hear. S3 ("system") still covers the
+# follow-the-device path; Bulgarian phrases are covered by the parity unit test.
+COMBO_S1 = SettingsCombo("S1", True, True, True, "en", "car")
 COMBO_S2 = SettingsCombo("S2", True, False, False, "en", "truck")
 COMBO_S3 = SettingsCombo("S3", False, True, True, "system", "bus")
-COMBO_S4 = SettingsCombo("S4", True, True, False, "bg", "car")
+COMBO_S4 = SettingsCombo("S4", True, True, False, "en", "car")
 ALL_COMBOS = [COMBO_S1, COMBO_S2, COMBO_S3, COMBO_S4]
 
 # Combos a specific scenario asks for by id but that are deliberately NOT in the

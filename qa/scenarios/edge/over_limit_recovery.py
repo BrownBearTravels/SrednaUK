@@ -40,7 +40,7 @@ def build() -> Scenario:
                      points=first.points + shifted).compressed(2.0)
 
     def setup(ctx: RunContext) -> None:
-        scenario_setup(ctx, settings_id="S1")  # voice on, BG, car
+        scenario_setup(ctx, settings_id="S1")  # voice on, EN, car
 
     def drive(ctx: RunContext) -> None:
         pump(plan)
